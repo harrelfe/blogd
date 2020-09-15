@@ -18,7 +18,7 @@ organizations:
   url: "http://vumc.org"
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests Bayesian statistics, predictive modeling and model validation, clinical trials, health services research, cardiology, and COVID-19 therapeutics.
+bio: My research interests include Bayesian statistics, predictive modeling and model validation, statistical computing and graphics, biomedical research, clinical trials, health services research, cardiology, and COVID-19 therapeutics.
 
 interests:
 - Statistical modeling
