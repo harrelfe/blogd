@@ -22,8 +22,12 @@ bio: My research interests Bayesian statistics, predictive modeling and model va
 
 interests:
 - Statistical modeling
-- Bayesian statistics
+- Bayesian statistics and study design
 - Predictive modeling and model validation
+- Biomedical research
+- Medical decision making
+- Medical diagnostic research
+- Statistical computing, graphics, and reproducible research methods
 - Cardiology
 - Clinical trial design, analysis, and reporting
 - COVID-19 therapeutic clinical trials
@@ -72,4 +76,4 @@ user_groups:
 - Visitors
 ---
 
-Frank Harrell is a professor of biostatistics in the School of Medicine at Vanderbilt Unversity.  His research interests include statistical modeling, predictive models and model validation, Bayesian statistics, Bayesian clinical trial design, clinical trial design, analysis, and reporting, drug development, health services research, cardiology, and COVID-19 therapeutic clinical trial design.
+Frank Harrell is a Professor of Biostatistics in the School of Medicine at Vanderbilt Unversity.  His research interests include statistical modeling, predictive models and model validation, Bayesian statistics, Bayesian clinical trial design, clinical trial design, analysis, and reporting, statistical computing, statistical graphics, reproducible research, drug development, medical decision making and diagnostic research, health services research, cardiology, COVID-19 therapeutic clinical trial design, and teaching.
