@@ -1,1 +1,0 @@
-/home/harrelfe/projects/FDA/bayes/fundefs.r
