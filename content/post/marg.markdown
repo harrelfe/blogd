@@ -2,6 +2,7 @@
 title: Unadjusted Odds Ratios are Conditional
 author: Frank Harrell
 date: '2020-09-13'
+modified: '2020-09-16'
 slug: marg
 tags:
   - 2020
@@ -197,7 +198,9 @@ exp(coef(f)['tx=A'])
 tx=A 
    9 
 
-The A:B odds ratio not conditioning on patient sex is 5.44.  Note that this is not a weighted average of 9 and 9.  The unadjusted OR applies neither to males nor females.  
+As an aside, absolute risk difference does not fix the problem in general, as sicker patients will show more absolute treatment benefit.
+
+Back to odds ratios, the A:B odds ratio not conditioning on patient sex is 5.44.  Note that this is not a weighted average of 9 and 9.  The unadjusted OR applies neither to males nor females.  
 
 A subtle issue is that pooled marginal estimates (OR=5.44 above) are difficult to interpret and do not generalize to clinical populations with covariate distributions (here, sex) that differ from the RCT sample composition.  As an example, let's take a probability sample of females from our 4000 patient study and see how the A:B treatment OR changes.  Compare the result from the whole RCT sample to the result after keeping the following proportions of females: 0.8, 0.6, 0.4, 0.2, 0.1, 0.05.
 
