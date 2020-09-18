@@ -2,7 +2,7 @@
 title: Unadjusted Odds Ratios are Conditional
 author: Frank Harrell
 date: '2020-09-13'
-modified: '2020-09-16'
+modified: '2020-09-18'
 slug: marg
 tags:
   - 2020
