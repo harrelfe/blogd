@@ -4,6 +4,7 @@ author: Frank Harrell
 date: '2020-09-20'
 modified: ''
 slug: po
+categories: []
 tags:
   - 2020
   - accuracy-score
@@ -12,15 +13,11 @@ tags:
   - hypothesis testing
   - metric
 link-citations: yes
-summary: 'Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually to not prevent the proportional odds model from providing a reasonable treatment effect assessment.'
+summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually to not prevent the proportional odds model from providing a reasonable treatment effect assessment.
 header:
   caption: ''
   image: ''
 ---
-
-<script type="text/javascript"
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
 
 ```{r setup, include=FALSE}
 require(rms)
@@ -48,7 +45,7 @@ We use concordance probabilities or $D_{yx}$ without regard to the proportional 
 
 ```{r sim}
 ns <- c(10:100, 1000)
-d <- expand.grid(n = ns, m=1 : 20)
+d <- expand.grid(n = ns, m=1 : 1)
 N <- nrow(d)
 cstat <- beta <- numeric(N)
 set.seed(5) 

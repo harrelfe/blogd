@@ -1,0 +1,421 @@
+
+
+
+<pre><code>                                                                                                            ---</code></pre>
+<p>title: Violation of Proportional Odds is Not Fatal
+author: Frank Harrell
+date: ‘2020-09-20’
+modified: ’’
+slug: po
+categories: []
+tags:
+- 2020
+- accuracy-score
+- RCT
+- regression
+- hypothesis testing
+- metric
+link-citations: yes
+summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study. Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually to not prevent the proportional odds model from providing a reasonable treatment effect assessment.
+header:
+caption: ’’
+image: ’’
+—</p>
+<p class="rquote">
+Clearly, the dependence of the proportional odds model on the assumption of proportionality can be overstressed. Suppose that two different statisticians would cut the same three-point scale at different cut points. It is hard to see how anybody who could accept either dichotomy could object to the compromise answer produced by the proportional odds model. — <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.3603">Stephen Senn</a>
+</p>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason. It is robust to ‘outliers’ and is virtually as powerful as the two-sample t-test even if that test’s normality assumption holds. The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric regression model for ordinal or continuous Y. The PO model has advantages of the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model.</p>
+<p>The WMW test involves the Mann-Whitney U statistic. U statistics were developed by <a href="https://projecteuclid.org/euclid.aoms/1177730196">Hoeffding</a> in 1948. A U statistic is an average over all possible pairs, triplets, quadruplets, etc., of observations of a <em>kernel</em>. For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A. So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for <em>stochastic ordering</em>. The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A. This statistic is a <em>concordance probability</em>, also called a <em>c-index</em>. It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.</p>
+<p>For binary, ordinal, or continuous variables X and Y, rank correlation coefficients are excellent measures for quantifying the degree of association between X and Y. When X is binary such as a treatment indicator, rank correlation measures the separation of Y values that is apparently explained by treatment group X. The rank correlation coefficient that corresponds to the Wilcoxon test is Somers’ <span class="math inline">\(D_{yx}\)</span> where the order of <span class="math inline">\(yx\)</span> signifies that ties in x are ignored and ties in y are not. For comparing treatments A and B we do not draw a random pair of observations from the same treatment, but only consider observations in different treatment groups (drop ties in x). In the binary outcome situation, on the other hand, we use <span class="math inline">\(D_{xy}\)</span>.</p>
+<p><span class="math inline">\(D_{yx}\)</span> is 0 if the c-index equals 0.5, i.e., there is no separation in Y values that can be explained by the treatment X. When c=0, meaning that all Y values for treatment A are larger than all Y values for B, <span class="math inline">\(D_{yx}=-1\)</span>, and when c=1, meaning that all Y values for treatment B are larger than all values for treatment A (perfect separation in the opposite direction as when c=0), <span class="math inline">\(D_{yx}=1\)</span>. There is a perfect correspondence between the MWM test, the concordance probability c, and Somers’ <span class="math inline">\(D_{yx}\)</span>, i.e., you can perfectly compute the other two given any one of these indexes. <span class="math inline">\(D_{yx}\)</span> is also the difference between the probability of concordance of X and Y and the probability of discordance.</p>
+</div>
+<div id="relationship-between-log-odds-ratio-and-rank-correlation" class="section level1">
+<h1>Relationship Between Log Odds Ratio and Rank Correlation</h1>
+<p>We use concordance probabilities or <span class="math inline">\(D_{yx}\)</span> without regard to the proportional odds (PO) assumption, and find them quite reasonable summaries of the degree to which Y increases when X increases. How then is the c-index related to the log odds ratio in the PO model whether or not the PO assumption is satisfied? There is no closed form solution for the maximum likelihood estimate <span class="math inline">\(\hat{\beta}\)</span> for treatment group in the PO model, but we can run a large number of simulations to describe the extent to which <span class="math inline">\(\hat{\beta}\)</span> tells us the same thing as <span class="math inline">\(c\)</span> or Somers’ rank correlation even when PO does not hold. Consider samples sizes of 10, 11, …, 100 and 1000 and take 20 random samples at each sample size. For each sample, take the treatment assignment <code>x</code> as a random sample of 0 and 1 each with probability 0.5, and take the Y values as a sample with replacement of the integers 1, …, n when the sample size is n. Sampling with replacement will create a variety of ties in the data. For each sample compute the concordance probability <code>cstat</code> and the maximum likelihood estimate for the <code>x</code> effect in the PO model. Because of the presence of sufficient randomness in the data generated (including large observed treatment effects in samples where there is none in the population), proportional odds will be apparently violated many times as judged by sample values.</p>
+<pre class="r"><code>ns &lt;- c(10:100, 1000)
+d &lt;- expand.grid(n = ns, m=1 : 1)
+N &lt;- nrow(d)
+cstat &lt;- beta &lt;- numeric(N)
+set.seed(5) 
+for(i in 1 : N) {
+  n &lt;- d[i, &#39;n&#39;]
+  x &lt;- sample(0 : 1, n, replace=TRUE)
+  y &lt;- sample(1 : n, n, replace=TRUE)
+  cstat[i] &lt;- somers2(y, x)[&#39;C&#39;]
+  # eps: stricter convergence criterion
+  b &lt;- coef(orm(y ~ x, eps=0.000001, maxit=25))
+  beta[i] &lt;- b[length(b)]
+}
+
+plot(cstat, beta)
+plot(qlogis(cstat), beta)</code></pre>
+<p><img src="/post/po_files/figure-html/sim-1.png" width="672" /><img src="/post/po_files/figure-html/sim-2.png" width="672" /></p>
+<p>A very strong and linear relationship is found in the second graph above. I expected the second graph to be more linear, because the logit transformation of the concordance probability has an unlimited range just as the log odds ratio does. We can approximate <span class="math inline">\(\hat{\beta}\)</span> with a linear model in the logit of <span class="math inline">\(c\)</span>:</p>
+<pre class="r"><code>ols(beta ~ qlogis(cstat))</code></pre>
+<p><strong>Linear Regression Model</strong></p>
+<pre>
+ ols(formula = beta ~ qlogis(cstat))
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Model Likelihood<br>Ratio Test
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Discrimination<br>Indexes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+Obs 92
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+LR χ<sup>2</sup> 470.23
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup>2</sup> 0.994
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+σ 0.0590
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+d.f. 1
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">adj</span></sub> 0.994
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+d.f. 90
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) 0.0000
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+<i>g</i> 0.714
+</td>
+</tr>
+</tbody>
+</table>
+<p>Residuals</p>
+<pre>
+       Min        1Q    Median        3Q       Max 
+ -0.158079 -0.026155 -0.004807  0.023919  0.351468 
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+β
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+S.E.
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+<i>t</i>
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Pr(&gt;|<i>t</i>|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+Intercept
+</td>
+<td style="min-width: 7em; text-align: right;">
+ -0.0048
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.0062
+</td>
+<td style="min-width: 7em; text-align: right;">
+-0.78
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.4368
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: left;">
+cstat
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+  1.4224
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 0.0117
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+121.81
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+<p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996.</p>
+</div>
+<div id="example" class="section level1">
+<h1>Example</h1>
+<p>Consider an analysis of the relationship between cancer treatment (cisplatin vs. no cisplatin) and severity of nausea (6 levels) as analyzed in <a href="https://www.jstor.org/stable/2347760">Peterson and Harrell 1990</a>. First compute the exact concordance probability, which is a simple linear translation of the WMW statistic. Note that <span class="math inline">\(D_{xy}\)</span> in the output is really <span class="math inline">\(D_{yx}\)</span> since the order of arguments to the <code>somers2</code> function was reversed.</p>
+<pre class="r"><code>d0 &lt;- data.frame(tx=0, y=c(rep(0, 43), rep(1, 39), rep(2, 13), rep(3, 22),
+                           rep(4, 15), rep(5, 29)))
+d1 &lt;- data.frame(tx=1, y=c(rep(0, 7), rep(1, 7), rep(2, 3), rep(3, 12),
+                           rep(4, 15), rep(5, 14)))
+d &lt;- rbind(d0, d1)
+d$tx &lt;- factor(d$tx, 0:1, c(&#39;No cisplatin&#39;, &#39;cisplatin&#39;))
+dd &lt;- datadist(d); options(datadist=&#39;dd&#39;)
+with(d, table(tx, y))</code></pre>
+<pre><code>              y
+tx              0  1  2  3  4  5
+  No cisplatin 43 39 13 22 15 29
+  cisplatin     7  7  3 12 15 14</code></pre>
+<pre class="r"><code>cindex &lt;- with(d, somers2(y, as.numeric(tx) - 1))
+cindex</code></pre>
+<pre><code>          C         Dxy           n     Missing 
+  0.6472478   0.2944956 219.0000000   0.0000000 </code></pre>
+<pre class="r"><code>cexact &lt;- cindex[&#39;C&#39;]</code></pre>
+<p>Now use the <code>rms</code> package <code>lrm</code> function to compute the overall cisplatin : no cisplatin log odds ratio for effect on severity of nausea.</p>
+<pre class="r"><code>f &lt;- lrm(y ~ tx, data=d)
+f</code></pre>
+<p><strong>Logistic Regression Model</strong></p>
+<pre>
+ lrm(formula = y ~ tx, data = d)
+ </pre>
+<p>Frequencies of Responses</p>
+<pre>
+  0  1  2  3  4  5 
+ 50 46 16 34 30 43 
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Model Likelihood<br>Ratio Test
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Discrimination<br>Indexes
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Rank Discrim.<br>Indexes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+Obs 219
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+LR χ<sup>2</sup> 11.42
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup>2</sup> 0.052
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>C</i> 0.570
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+max |∂log <i>L</i>/∂β| 1×10<sup>-13</sup>
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+d.f. 1
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>g</i> 0.356
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>D</i><sub>xy</sub> 0.140
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) 0.0007
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>g</i><sub>r</sub> 1.428
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+γ 0.351
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>g</i><sub>p</sub> 0.087
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+τ<sub>a</sub> 0.115
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Brier 0.234
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+β
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+S.E.
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Wald <i>Z</i>
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Pr(&gt;|<i>Z</i>|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+y≥1
+</td>
+<td style="min-width: 7em; text-align: right;">
+  1.0189
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.1717
+</td>
+<td style="min-width: 7em; text-align: right;">
+5.93
+</td>
+<td style="min-width: 7em; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+y≥2
+</td>
+<td style="min-width: 7em; text-align: right;">
+  0.0118
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.1546
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.08
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.9390
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+y≥3
+</td>
+<td style="min-width: 7em; text-align: right;">
+ -0.2996
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.1569
+</td>
+<td style="min-width: 7em; text-align: right;">
+-1.91
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.0562
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+y≥4
+</td>
+<td style="min-width: 7em; text-align: right;">
+ -0.9868
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.1718
+</td>
+<td style="min-width: 7em; text-align: right;">
+-5.75
+</td>
+<td style="min-width: 7em; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+y≥5
+</td>
+<td style="min-width: 7em; text-align: right;">
+ -1.7254
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.1994
+</td>
+<td style="min-width: 7em; text-align: right;">
+-8.66
+</td>
+<td style="min-width: 7em; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: left;">
+tx=cisplatin
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+  0.9112
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 0.2714
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+3.36
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+0.0008
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>b &lt;- coef(f)[&#39;tx=cisplatin&#39;]
+cest &lt;- plogis(b / 1.52)</code></pre>
+<p>The concordance probability estimated from the average log odds ratio is 0.646 which is to be compared with the exact value of 0.647. The agreement is excellent despite non-PO which is analyzed formally using a partial PO model <a href="https://hbiostat.org/R/rmsb/blrm.html#partial-proportional-odds-model">here</a>.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>When PO does not hold, the odds ratio from the proportional odds model represents a kind of average odds ratio, and there is an almost one-to-one relationship between the odds ratio (anti-log of <span class="math inline">\(\hat{\beta}\)</span> and the concordance probability <span class="math inline">\(c\)</span> (which is a simple translation of the Wilcoxon statistic). No model fits data perfectly, but as Stephen Senn stated in the quote that opened this article, the approximation offered by the PO model remains quite useful. And a unified PO model analysis is decidedly better than turning to inefficient and arbitrary analyses of dichotomized values of Y.</p>
+<p>If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y. In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes. The PO model does that.</p>
+<p>The place where a serious departure from the parallelism/PO assumption makes a large difference is in estimating treatment effects on individual outcome levels. For example, an overall odds ratio indicating that treatment benefits patients on an array of nonfatal outcomes may be in the opposite direction of how the treatment affects mortality. Though the overall average treatment effect estimated by assuming PO may rightfully claim a positive net clinical benefit of treatment, one can get a different picture when estimating the mortality affect ignoring all the other outcomes. This may be addressed using the <em>partial proportional odds model</em> of <a href="https://www.jstor.org/stable/2347760">Peterson and Harrell, 1990</a> as implemented <a href="https://hbiostat.org/R/rmsb/blrm.html">here</a> and discussed in the COVID-19 context <a href="https://hbiostat.org/proj/covid19/statdesign.html#univariate-ordinal-outcome">here</a>.</p>
+</div>
