@@ -13,7 +13,7 @@ tags:
   - hypothesis testing
   - metric
 link-citations: yes
-summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually to not prevent the proportional odds model from providing a reasonable treatment effect assessment.
+summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually do not prevent the proportional odds model from providing a reasonable treatment effect assessment.
 header:
   caption: ''
   image: ''
@@ -89,10 +89,10 @@ cindex
 cexact <- cindex['C']
 ```
 
-Now use the `rms` package `lrm` function to compute the overall cisplatin : no cisplatin log odds ratio for effect on severity of nausea.  
+Now use the `rms` package `orm` function to compute the overall cisplatin : no cisplatin log odds ratio for effect on severity of nausea.  
 
 ```{r cis2,results='asis'}
-f <- lrm(y ~ tx, data=d)
+f <- orm(y ~ tx, data=d)
 f
 b <- coef(f)['tx=cisplatin']
 cest <- plogis(b / 1.52)

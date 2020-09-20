@@ -13,7 +13,7 @@ tags:
   - hypothesis testing
   - metric
 link-citations: yes
-summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually to not prevent the proportional odds model from providing a reasonable treatment effect assessment.
+summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually do not prevent the proportional odds model from providing a reasonable treatment effect assessment.
 header:
   caption: ''
   image: ''
@@ -189,12 +189,12 @@ cindex</code></pre>
 <pre><code>          C         Dxy           n     Missing 
   0.6472478   0.2944956 219.0000000   0.0000000 </code></pre>
 <pre class="r"><code>cexact &lt;- cindex[&#39;C&#39;]</code></pre>
-<p>Now use the <code>rms</code> package <code>lrm</code> function to compute the overall cisplatin : no cisplatin log odds ratio for effect on severity of nausea.</p>
-<pre class="r"><code>f &lt;- lrm(y ~ tx, data=d)
+<p>Now use the <code>rms</code> package <code>orm</code> function to compute the overall cisplatin : no cisplatin log odds ratio for effect on severity of nausea.</p>
+<pre class="r"><code>f &lt;- orm(y ~ tx, data=d)
 f</code></pre>
-<p><strong>Logistic Regression Model</strong></p>
+<p><strong>Logistic (Proportional Odds) Ordinal Regression Model</strong></p>
 <pre>
- lrm(formula = y ~ tx, data = d)
+ orm(formula = y ~ tx, data = d)
  </pre>
 <p>Frequencies of Responses</p>
 <pre>
@@ -210,7 +210,7 @@ f</code></pre>
 Model Likelihood<br>Ratio Test
 </th>
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
-Discrimination<br>Indexes
+Discrimination<br> Indexes
 </th>
 <th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
 Rank Discrim.<br>Indexes
@@ -229,12 +229,12 @@ LR χ<sup>2</sup> 11.42
 <i>R</i><sup>2</sup> 0.052
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>C</i> 0.570
+ρ 0.229
 </td>
 </tr>
 <tr>
 <td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-max |∂log <i>L</i>/∂β| 1×10<sup>-13</sup>
+Distinct <i>Y</i> 6
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 d.f. 1
@@ -243,11 +243,11 @@ d.f. 1
 <i>g</i> 0.356
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>D</i><sub>xy</sub> 0.140
 </td>
 </tr>
 <tr>
 <td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+<i>Y</i><sub>0.5</sub> 2
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 Pr(&gt;χ<sup>2</sup>) 0.0007
@@ -256,28 +256,28 @@ Pr(&gt;χ<sup>2</sup>) 0.0007
 <i>g</i><sub>r</sub> 1.428
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-γ 0.351
 </td>
 </tr>
 <tr>
 <td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+max |∂log <i>L</i>/∂β| 1×10<sup>-6</sup>
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+Score χ<sup>2</sup> 11.49
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>p</sub> 0.087
+<span style="text-decoration: overline">|Pr(<i>Y</i> ≥ median)-½|</span> 0.059
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-τ<sub>a</sub> 0.115
 </td>
 </tr>
 <tr>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) 0.0007
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
-Brier 0.234
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
 </td>
