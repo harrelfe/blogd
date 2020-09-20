@@ -98,11 +98,11 @@ b <- coef(f)['tx=cisplatin']
 cest <- plogis(b / 1.52)
 ```
 
-The concordance probability estimated from the average log odds ratio is `r round(cest, 3)` which is to be compared with the exact value of `r round(cexact, 3)`.  The agreement is excellent despite non-PO which is analyzed formally using a partial PO model [here](https://hbiostat.org/R/rmsb/blrm.html#partial-proportional-odds-model).
+The concordance probability estimated from the average log odds ratio is `r round(cest, 3)` which is to be compared with the exact value of `r round(cexact, 3)`.  The agreement is excellent despite non-PO, which is analyzed formally using a partial PO model [here](https://hbiostat.org/R/rmsb/blrm.html#partial-proportional-odds-model) as well as in the Peterson and Harrell paper.
 
 # Conclusion
 
-When PO does not hold, the odds ratio from the proportional odds model represents a kind of average odds ratio, and there is an almost one-to-one relationship between the odds ratio (anti-log of $\hat{\beta}$ and the concordance probability $c$ (which is a simple translation of the Wilcoxon statistic).  No model fits data perfectly, but as Stephen Senn stated in the quote that opened this article, the approximation offered by the PO model remains quite useful.  And a unified PO model analysis is decidedly better than turning to inefficient and arbitrary analyses of dichotomized values of Y.
+When PO does not hold, the odds ratio from the proportional odds model represents a kind of average odds ratio, and there is an almost one-to-one relationship between the odds ratio (anti-log of $\hat{\beta}$) and the concordance probability $c$ (which is a simple translation of the Wilcoxon statistic).  No model fits data perfectly, but as Stephen Senn stated in the quote that opened this article, the approximation offered by the PO model remains quite useful.  And a unified PO model analysis is decidedly better than turning to inefficient and arbitrary analyses of dichotomized values of Y.
 
 If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y.  In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes.  The PO model does that.
 
