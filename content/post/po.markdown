@@ -18,6 +18,10 @@ header:
   image: ''
 ---
 
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 
 
 <p class="rquote">Clearly, the dependence of the proportional odds model on the assumption of proportionality can be overstressed.  Suppose that two different statisticians would cut the same three-point scale at different cut points. It is hard to see how anybody who could accept either dichotomy could object to the compromise answer produced by the proportional odds model. — <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.3603">Stephen Senn</a>

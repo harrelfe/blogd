@@ -20,6 +20,9 @@ copyright = "&copy; 2018-2020"
 ## Advanced options below ##
 ############################
 
+math = true
+###
+
 # Get last modified date for content from Git?
 enableGitInfo = false
 
