@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: ''
+modified: '2020-09-23'
 slug: po
 categories: []
 tags:
@@ -31,13 +31,15 @@ options(prType='html')
 
 # Background 
 
-The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason.  It is robust to 'outliers' and is virtually as powerful as the two-sample t-test even if that test's normality assumption holds.  The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric regression model for ordinal or continuous Y.  The PO model has advantages over the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model.  The PO model also provides various useful estimates such as quantiles, means, and exceedance probabilities.
+The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason.  It is robust to 'outliers' and is virtually as powerful as the two-sample t-test even if that test's normality assumption holds.  The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric logistic regression model for ordinal or continuous Y.  The PO model has advantages over the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model.  The PO model also provides various useful estimates such as quantiles, means, and exceedance probabilities.
 
-The WMW test involves the Mann-Whitney U statistic.  U statistics were developed by [Hoeffding](https://projecteuclid.org/euclid.aoms/1177730196) in 1948.  A U statistic is an average over all possible pairs, triplets, quadruplets, etc., of observations of a _kernel_.  For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A.  So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for _stochastic ordering_.  The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A.  This statistic is a _concordance probability_, also called a _c-index_.  It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.
+The WMW test involves the Mann-Whitney U statistic.  U statistics were developed by [Hoeffding](https://projecteuclid.org/euclid.aoms/1177730196) in 1948.  A U statistic is an average over all possible pairs (or triplets, quadruplets, etc.) of observations of a _kernel_.  For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A.  So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for _stochastic ordering_.  The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A.  This statistic is a _concordance probability_, also called a _c-index_.  It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.
 
 For binary, ordinal, or continuous variables X and Y, rank correlation coefficients are excellent measures for quantifying the degree of association between X and Y.  When X is binary such as a treatment indicator, rank correlation measures the separation of Y values that is apparently explained by treatment group X.  The rank correlation coefficient that corresponds to the Wilcoxon test is Somers' $D_{yx}$ where the order of $yx$ signifies that ties in x are ignored and ties in y are not.  For comparing treatments A and B we do not draw a random pair of observations from the same treatment, but only consider observations in different treatment groups (drop ties in x).  In the binary outcome situation, on the other hand, we use $D_{xy}$.
 
 $D_{yx}$ is 0 if the c-index equals 0.5, i.e., there is no separation in Y values that can be explained by the treatment X.  When c=0, meaning that all Y values for treatment A are larger than all Y values for B, $D_{yx}=-1$, and when c=1, meaning that all Y values for treatment B are larger than all values for treatment A (perfect separation in the opposite direction as when c=0), $D_{yx}=1$.  There is a perfect correspondence between the MWM test, the concordance probability c, and Somers' $D_{yx}$, i.e., you can perfectly compute the other two given any one of these indexes.  $D_{yx}$ is also the difference between the probability of concordance of X and Y and the probability of discordance.
+
+There is also a 1-1 relationship between the Wilcoxon statistic and Spearman's $\rho$ rank correlation.  $\rho$ is a different metric than $D_{yx}$ but it is possible to convert from one to the other for a given dataset.
 
 # Relationship Between Log Odds Ratio and Rank Correlation
 
@@ -66,10 +68,11 @@ plot(qlogis(cstat), beta)
 A very strong and linear relationship is found in the second graph above.  I expected the second graph to be more linear, because the logit transformation of the concordance probability has an unlimited range just as the log odds ratio does.  We can approximate $\hat{\beta}$ with a linear model in the logit of $c$:
 
 ```{r capprox,results='asis'}
-ols(beta ~ qlogis(cstat))
+f <- ols(beta ~ qlogis(cstat))
+mae <- round(mean(abs(beta - fitted(f))), 3)
 ```
 
-We see that $\hat{\beta}$ is very close to $1.52 \times \mathrm{logit}(c)$, or inverting the equation we get $c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}$. The quality of the approximation is given by $R^2$=0.996.
+We see that $\hat{\beta}$ is very close to $1.52 \times \mathrm{logit}(c)$, or inverting the equation we get $c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}$. The quality of the approximation is given by $R^2$=0.996 or by a mean absolute prediction error for $\hat{\beta}$ of `r mae`.
 
 # Example
 

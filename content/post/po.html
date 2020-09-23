@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: ''
+modified: '2020-09-23'
 slug: po
 categories: []
 tags:
@@ -26,10 +26,11 @@ Clearly, the dependence of the proportional odds model on the assumption of prop
 </p>
 <div id="background" class="section level1">
 <h1>Background</h1>
-<p>The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason. It is robust to ‘outliers’ and is virtually as powerful as the two-sample t-test even if that test’s normality assumption holds. The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric regression model for ordinal or continuous Y. The PO model has advantages over the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model. The PO model also provides various useful estimates such as quantiles, means, and exceedance probabilities.</p>
-<p>The WMW test involves the Mann-Whitney U statistic. U statistics were developed by <a href="https://projecteuclid.org/euclid.aoms/1177730196">Hoeffding</a> in 1948. A U statistic is an average over all possible pairs, triplets, quadruplets, etc., of observations of a <em>kernel</em>. For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A. So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for <em>stochastic ordering</em>. The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A. This statistic is a <em>concordance probability</em>, also called a <em>c-index</em>. It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.</p>
+<p>The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason. It is robust to ‘outliers’ and is virtually as powerful as the two-sample t-test even if that test’s normality assumption holds. The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric logistic regression model for ordinal or continuous Y. The PO model has advantages over the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model. The PO model also provides various useful estimates such as quantiles, means, and exceedance probabilities.</p>
+<p>The WMW test involves the Mann-Whitney U statistic. U statistics were developed by <a href="https://projecteuclid.org/euclid.aoms/1177730196">Hoeffding</a> in 1948. A U statistic is an average over all possible pairs (or triplets, quadruplets, etc.) of observations of a <em>kernel</em>. For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A. So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for <em>stochastic ordering</em>. The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A. This statistic is a <em>concordance probability</em>, also called a <em>c-index</em>. It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.</p>
 <p>For binary, ordinal, or continuous variables X and Y, rank correlation coefficients are excellent measures for quantifying the degree of association between X and Y. When X is binary such as a treatment indicator, rank correlation measures the separation of Y values that is apparently explained by treatment group X. The rank correlation coefficient that corresponds to the Wilcoxon test is Somers’ <span class="math inline">\(D_{yx}\)</span> where the order of <span class="math inline">\(yx\)</span> signifies that ties in x are ignored and ties in y are not. For comparing treatments A and B we do not draw a random pair of observations from the same treatment, but only consider observations in different treatment groups (drop ties in x). In the binary outcome situation, on the other hand, we use <span class="math inline">\(D_{xy}\)</span>.</p>
 <p><span class="math inline">\(D_{yx}\)</span> is 0 if the c-index equals 0.5, i.e., there is no separation in Y values that can be explained by the treatment X. When c=0, meaning that all Y values for treatment A are larger than all Y values for B, <span class="math inline">\(D_{yx}=-1\)</span>, and when c=1, meaning that all Y values for treatment B are larger than all values for treatment A (perfect separation in the opposite direction as when c=0), <span class="math inline">\(D_{yx}=1\)</span>. There is a perfect correspondence between the MWM test, the concordance probability c, and Somers’ <span class="math inline">\(D_{yx}\)</span>, i.e., you can perfectly compute the other two given any one of these indexes. <span class="math inline">\(D_{yx}\)</span> is also the difference between the probability of concordance of X and Y and the probability of discordance.</p>
+<p>There is also a 1-1 relationship between the Wilcoxon statistic and Spearman’s <span class="math inline">\(\rho\)</span> rank correlation. <span class="math inline">\(\rho\)</span> is a different metric than <span class="math inline">\(D_{yx}\)</span> but it is possible to convert from one to the other for a given dataset.</p>
 </div>
 <div id="relationship-between-log-odds-ratio-and-rank-correlation" class="section level1">
 <h1>Relationship Between Log Odds Ratio and Rank Correlation</h1>
@@ -52,122 +53,9 @@ for(i in 1 : N) {
 plot(qlogis(cstat), beta)</code></pre>
 <p><img src="/post/po_files/figure-html/sim-1.png" width="672" /><img src="/post/po_files/figure-html/sim-2.png" width="672" /></p>
 <p>A very strong and linear relationship is found in the second graph above. I expected the second graph to be more linear, because the logit transformation of the concordance probability has an unlimited range just as the log odds ratio does. We can approximate <span class="math inline">\(\hat{\beta}\)</span> with a linear model in the logit of <span class="math inline">\(c\)</span>:</p>
-<pre class="r"><code>ols(beta ~ qlogis(cstat))</code></pre>
-<p><strong>Linear Regression Model</strong></p>
-<pre>
- ols(formula = beta ~ qlogis(cstat))
- </pre>
-<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-<thead>
-<tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
-Model Likelihood<br>Ratio Test
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
-Discrimination<br>Indexes
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-Obs 1840
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-LR χ<sup>2</sup> 10037.60
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>R</i><sup>2</sup> 0.996
-</td>
-</tr>
-<tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-σ 0.0396
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-d.f. 1
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">adj</span></sub> 0.996
-</td>
-</tr>
-<tr>
-<td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-d.f. 1838
-</td>
-<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
-Pr(&gt;χ<sup>2</sup>) 0.0000
-</td>
-<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
-<i>g</i> 0.636
-</td>
-</tr>
-</tbody>
-</table>
-<p>Residuals</p>
-<pre>
-        Min         1Q     Median         3Q        Max 
- -0.5527344 -0.0036478 -0.0004424  0.0022669  0.6742581 
- </pre>
-<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
-<thead>
-<tr>
-<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;">
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
-β
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
-S.E.
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
-<i>t</i>
-</th>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
-Pr(&gt;|<i>t</i>|)
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="min-width: 7em; text-align: left;">
-Intercept
-</td>
-<td style="min-width: 7em; text-align: right;">
- 0.0003
-</td>
-<td style="min-width: 7em; text-align: right;">
- 0.0009
-</td>
-<td style="min-width: 7em; text-align: right;">
-0.37
-</td>
-<td style="min-width: 7em; text-align: right;">
-0.7080
-</td>
-</tr>
-<tr>
-<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: left;">
-cstat
-</td>
-<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
- 1.5179
-</td>
-<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
- 0.0023
-</td>
-<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
-654.38
-</td>
-<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
-&lt;0.0001
-</td>
-</tr>
-</tbody>
-</table>
-<p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996.</p>
+<pre class="r"><code>f &lt;- ols(beta ~ qlogis(cstat))
+mae &lt;- round(mean(abs(beta - fitted(f))), 3)</code></pre>
+<p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996 or by a mean absolute prediction error for <span class="math inline">\(\hat{\beta}\)</span> of 0.012.</p>
 </div>
 <div id="example" class="section level1">
 <h1>Example</h1>
