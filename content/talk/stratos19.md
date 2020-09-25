@@ -1,5 +1,5 @@
 +++
-date = 2020-09-25  # Schedule page publish date.
+date = 2020-09-26  # Schedule page publish date.
 
 title = "Controversies in Predictive Modeling, Machine Learning, and Validation"
 time_start = 2020-09-26
