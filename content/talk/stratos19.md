@@ -1,14 +1,14 @@
 +++
-date = 2019-06-03  # Schedule page publish date.
+date = 2020-09-25  # Schedule page publish date.
 
 title = "Controversies in Predictive Modeling, Machine Learning, and Validation"
-time_start = 2019-06-04
-time_end   = 2019-06-04
+time_start = 2020-09-26
+time_end   = 2020-09-26
 abstract = "This talk covers a variety of controversial and/or current issues related to statistical modeling and prediction research.  Some of the topics covered are why external validation is often not a good idea, why validating researchers is often more efficient than validating models, what distinguishes statistical models from machine learning, how variable selection only gives the illusion of learning from data, and advantages of older measures of model performance."
 abstract_short = ""
-event = "STRATOS: STRengthening Analytical Thinking for Observational Studies 2019"
-event_url = "http://www.birs.ca/events/2019/5-day-workshops/19w5198"
-location = "Banff, Alberta CA"
+event = "<ul><li>STRATOS: STRengthening Analytical Thinking for Observational Studies 2019<br>Banff, Alberta CA 2019-06-04</li><li>Why R? 2020<br>2020-09-26</li></ul>"
+event_url = ""
+location = ""
 
 # Is this a selected talk? (true/false)
 selected = true
