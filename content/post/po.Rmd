@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-09-23'
+modified: '2020-09-25'
 slug: po
 categories: []
 tags:
@@ -69,10 +69,11 @@ A very strong and linear relationship is found in the second graph above.  I exp
 
 ```{r capprox,results='asis'}
 f <- ols(beta ~ qlogis(cstat))
-mae <- round(mean(abs(beta - fitted(f))), 3)
+mae  <- round(mean(abs(beta - fitted(f))), 3)
+cmae <- round(mean(abs(cstat - plogis(beta / 1.52))), 3)
 ```
 
-We see that $\hat{\beta}$ is very close to $1.52 \times \mathrm{logit}(c)$, or inverting the equation we get $c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}$. The quality of the approximation is given by $R^2$=0.996 or by a mean absolute prediction error for $\hat{\beta}$ of `r mae`.
+We see that $\hat{\beta}$ is very close to $1.52 \times \mathrm{logit}(c)$, or inverting the equation we get $c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}$. The quality of the approximation is given by $R^2$=0.996 or by a mean absolute prediction error for $\hat{\beta}$ of `r mae`.  Predicting $c$ from $\hat{\beta}$ the mean absolute prediction error is `r cmae`.
 
 # Example
 

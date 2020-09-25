@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-09-23'
+modified: '2020-09-25'
 slug: po
 categories: []
 tags:
@@ -54,8 +54,9 @@ plot(qlogis(cstat), beta)</code></pre>
 <p><img src="/post/po_files/figure-html/sim-1.png" width="672" /><img src="/post/po_files/figure-html/sim-2.png" width="672" /></p>
 <p>A very strong and linear relationship is found in the second graph above. I expected the second graph to be more linear, because the logit transformation of the concordance probability has an unlimited range just as the log odds ratio does. We can approximate <span class="math inline">\(\hat{\beta}\)</span> with a linear model in the logit of <span class="math inline">\(c\)</span>:</p>
 <pre class="r"><code>f &lt;- ols(beta ~ qlogis(cstat))
-mae &lt;- round(mean(abs(beta - fitted(f))), 3)</code></pre>
-<p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996 or by a mean absolute prediction error for <span class="math inline">\(\hat{\beta}\)</span> of 0.012.</p>
+mae  &lt;- round(mean(abs(beta - fitted(f))), 3)
+cmae &lt;- round(mean(abs(cstat - plogis(beta / 1.52))), 3)</code></pre>
+<p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996 or by a mean absolute prediction error for <span class="math inline">\(\hat{\beta}\)</span> of 0.012. Predicting <span class="math inline">\(c\)</span> from <span class="math inline">\(\hat{\beta}\)</span> the mean absolute prediction error is 0.002.</p>
 </div>
 <div id="example" class="section level1">
 <h1>Example</h1>
