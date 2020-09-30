@@ -1,7 +1,7 @@
 +++
 title = "Datamethods"
 date = 2019-01-20
-updated = 2019-07-07
+updated = 2020-09-27
 tags = ["RCT", "bayes", "decision-making", "dichotomization",
 "measurement", "reporting", "responder-analysis", "sample-size",
 "sensitivity", "specificity", "2019"]
@@ -24,3 +24,4 @@ I have written some short articles on the site, listed below.
     effects](https://discourse.datamethods.org/t/language-for-communicating-frequentist-results-about-treatment-effects)
 -   [What is type I error?](https://discourse.datamethods.org/t/what-is-type-i-error)
 -   [How to teach probability](https://discourse.datamethods.org/t/how-to-teach-probability)
+-   [Bayesian solutions for challenges to frequentist statistics](https://discourse.datamethods.org/t/bayesian-solutions-for-challenges-to-frequentist-statistics)

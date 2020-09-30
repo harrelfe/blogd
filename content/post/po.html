@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-09-25'
+modified: '2020-09-30'
 slug: po
 categories: []
 tags:
@@ -39,7 +39,8 @@ Clearly, the dependence of the proportional odds model on the assumption of prop
 d &lt;- expand.grid(n = ns, m=1 : 20)
 N &lt;- nrow(d)
 cstat &lt;- beta &lt;- numeric(N)
-set.seed(5) 
+set.seed(5)
+rn &lt;- function(x) round(x, 3)
 for(i in 1 : N) {
   n &lt;- d[i, &#39;n&#39;]
   x &lt;- sample(0 : 1, n, replace=TRUE)
@@ -48,14 +49,149 @@ for(i in 1 : N) {
   # eps: stricter convergence criterion
   b &lt;- coef(orm(y ~ x, eps=0.000001, maxit=25))
   beta[i] &lt;- b[length(b)]
+    if(i == 3) {
+      cat(&#39;Sample with worst approximation\nbeta=&#39;,
+            rn(beta[i]), &#39;c=&#39;, rn(cstat[i]),
+                &#39;\nbeta estimated from c:&#39;, rn(1.52 * qlogis(cstat[i])),
+                &#39;\nc estimated from beta:&#39;, rn(plogis(beta[i] / 1.52)), &#39;\n&#39;)
+        print(table(x, y))
+    }
 }</code></pre>
+<pre><code>Sample with worst approximation
+beta= -4.538 c= 0.031 
+beta estimated from c: -5.22 
+c estimated from beta: 0.048 
+   y
+x   1 2 3 4 6 9 10 11 12
+  0 0 0 0 0 1 0  1  1  1
+  1 2 1 1 3 0 1  0  0  0</code></pre>
 <pre class="r"><code>plot(cstat, beta)
 plot(qlogis(cstat), beta)</code></pre>
 <p><img src="/post/po_files/figure-html/sim-1.png" width="672" /><img src="/post/po_files/figure-html/sim-2.png" width="672" /></p>
 <p>A very strong and linear relationship is found in the second graph above. I expected the second graph to be more linear, because the logit transformation of the concordance probability has an unlimited range just as the log odds ratio does. We can approximate <span class="math inline">\(\hat{\beta}\)</span> with a linear model in the logit of <span class="math inline">\(c\)</span>:</p>
 <pre class="r"><code>f &lt;- ols(beta ~ qlogis(cstat))
-mae  &lt;- round(mean(abs(beta - fitted(f))), 3)
-cmae &lt;- round(mean(abs(cstat - plogis(beta / 1.52))), 3)</code></pre>
+f</code></pre>
+<p><strong>Linear Regression Model</strong></p>
+<pre>
+ ols(formula = beta ~ qlogis(cstat))
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Model Likelihood<br>Ratio Test
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Discrimination<br>Indexes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+Obs 1840
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+LR χ<sup>2</sup> 10037.60
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup>2</sup> 0.996
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+σ 0.0396
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+d.f. 1
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">adj</span></sub> 0.996
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+d.f. 1838
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) 0.0000
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+<i>g</i> 0.636
+</td>
+</tr>
+</tbody>
+</table>
+<p>Residuals</p>
+<pre>
+        Min         1Q     Median         3Q        Max 
+ -0.5527344 -0.0036478 -0.0004424  0.0022669  0.6742581 
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+β
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+S.E.
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+<i>t</i>
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Pr(&gt;|<i>t</i>|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 7em; text-align: left;">
+Intercept
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.0003
+</td>
+<td style="min-width: 7em; text-align: right;">
+ 0.0009
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.37
+</td>
+<td style="min-width: 7em; text-align: right;">
+0.7080
+</td>
+</tr>
+<tr>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: left;">
+cstat
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 1.5179
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 0.0023
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+654.38
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>r1 &lt;- abs(beta - fitted(f))
+r2 &lt;- abs(cstat - plogis(beta / 1.52))
+mae  &lt;- rn(mean(r1))
+cmae &lt;- rn(mean(r2))
+i    &lt;- which.max(r1)
+cat(&#39;&lt;small&gt;Maximum discrepency occurred in sample&#39;, i, &#39;&lt;/small&gt;\n&#39;)</code></pre>
+<p><small>Maximum discrepency occurred in sample 3 </small></p>
 <p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996 or by a mean absolute prediction error for <span class="math inline">\(\hat{\beta}\)</span> of 0.012. Predicting <span class="math inline">\(c\)</span> from <span class="math inline">\(\hat{\beta}\)</span> the mean absolute prediction error is 0.002.</p>
 </div>
 <div id="example" class="section level1">

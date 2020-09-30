@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-09-25'
+modified: '2020-09-30'
 slug: po
 categories: []
 tags:
@@ -50,7 +50,8 @@ ns <- c(10:100, 1000)
 d <- expand.grid(n = ns, m=1 : 20)
 N <- nrow(d)
 cstat <- beta <- numeric(N)
-set.seed(5) 
+set.seed(5)
+rn <- function(x) round(x, 3)
 for(i in 1 : N) {
   n <- d[i, 'n']
   x <- sample(0 : 1, n, replace=TRUE)
@@ -59,6 +60,13 @@ for(i in 1 : N) {
   # eps: stricter convergence criterion
   b <- coef(orm(y ~ x, eps=0.000001, maxit=25))
   beta[i] <- b[length(b)]
+	if(i == 3) {
+	  cat('Sample with worst approximation\nbeta=',
+		    rn(beta[i]), 'c=', rn(cstat[i]),
+				'\nbeta estimated from c:', rn(1.52 * qlogis(cstat[i])),
+				'\nc estimated from beta:', rn(plogis(beta[i] / 1.52)), '\n')
+		print(table(x, y))
+	}
 }
 
 plot(cstat, beta)
@@ -69,8 +77,13 @@ A very strong and linear relationship is found in the second graph above.  I exp
 
 ```{r capprox,results='asis'}
 f <- ols(beta ~ qlogis(cstat))
-mae  <- round(mean(abs(beta - fitted(f))), 3)
-cmae <- round(mean(abs(cstat - plogis(beta / 1.52))), 3)
+f
+r1 <- abs(beta - fitted(f))
+r2 <- abs(cstat - plogis(beta / 1.52))
+mae  <- rn(mean(r1))
+cmae <- rn(mean(r2))
+i    <- which.max(r1)
+cat('<small>Maximum discrepency occurred in sample', i, '</small>\n')
 ```
 
 We see that $\hat{\beta}$ is very close to $1.52 \times \mathrm{logit}(c)$, or inverting the equation we get $c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}$. The quality of the approximation is given by $R^2$=0.996 or by a mean absolute prediction error for $\hat{\beta}$ of `r mae`.  Predicting $c$ from $\hat{\beta}$ the mean absolute prediction error is `r cmae`.
