@@ -21,7 +21,7 @@ selected = true
 # Links (optional).
 url_pdf = ""
 url_slides = "http://hbiostat.org/talks/stratos19.pdf"
-url_video = ""
+url_video = "https://youtu.be/DF1WsYZ94Es"
 url_code = "http://hbiostat.org/talks/stratos19.Rnw"
 
 # Does the content use math formatting?
