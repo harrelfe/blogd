@@ -55,6 +55,7 @@ for(i in 1 : N) {
                 &#39;\nbeta estimated from c:&#39;, rn(1.52 * qlogis(cstat[i])),
                 &#39;\nc estimated from beta:&#39;, rn(plogis(beta[i] / 1.52)), &#39;\n&#39;)
         print(table(x, y))
+        saveRDS(data.frame(x, y), &#39;/tmp/d.rds&#39;)
     }
 }</code></pre>
 <pre><code>Sample with worst approximation

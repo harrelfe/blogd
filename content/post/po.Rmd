@@ -66,6 +66,7 @@ for(i in 1 : N) {
 				'\nbeta estimated from c:', rn(1.52 * qlogis(cstat[i])),
 				'\nc estimated from beta:', rn(plogis(beta[i] / 1.52)), '\n')
 		print(table(x, y))
+		saveRDS(data.frame(x, y), '/tmp/d.rds')
 	}
 }
 
