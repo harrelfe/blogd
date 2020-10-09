@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-09-30'
+modified: '2020-10-09'
 slug: po
 categories: []
 tags:
@@ -27,7 +27,7 @@ Clearly, the dependence of the proportional odds model on the assumption of prop
 <div id="background" class="section level1">
 <h1>Background</h1>
 <p>The Wilcoxon Mann-Whitney (WMW) two-sample rank-sum test for comparing two groups on a continuous or ordinal outcome variable Y is a much liked statistical test, for good reason. It is robust to ‘outliers’ and is virtually as powerful as the two-sample t-test even if that test’s normality assumption holds. The k-sample generalization of the Wilcoxon test is the Kruskal-Wallis test, and a regression model generalization of both the Wilcoxon and Kruskal-Wallis tests is the proportional odds (PO) semiparametric logistic regression model for ordinal or continuous Y. The PO model has advantages over the WMW and Kruskal-Wallis tests in that it can handle covariate adjustment and allow for arbitrarily many ties in Y all the way to the case where Y is binary, at which point the PO model is the binary logistic model. The PO model also provides various useful estimates such as quantiles, means, and exceedance probabilities.</p>
-<p>The WMW test involves the Mann-Whitney U statistic. U statistics were developed by <a href="https://projecteuclid.org/euclid.aoms/1177730196">Hoeffding</a> in 1948. A U statistic is an average over all possible pairs (or triplets, quadruplets, etc.) of observations of a <em>kernel</em>. For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A. So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for <em>stochastic ordering</em>. The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A. This statistic is a <em>concordance probability</em>, also called a <em>c-index</em>. It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve.</p>
+<p>The WMW test involves the Mann-Whitney U statistic. U statistics were developed by <a href="https://projecteuclid.org/euclid.aoms/1177730196">Hoeffding</a> in 1948. A U statistic is an average over all possible pairs (or triplets, quadruplets, etc.) of observations of a <em>kernel</em>. For WMW the kernel is a 0/1 indicator signifying whether a randomly chosen observation from treatment group B is larger than a randomly chosen observation in group A. So the Wilcoxon test tests whether values of Y in group B tend to be larger than those in group A, i.e., tests for <em>stochastic ordering</em>. The U statistic summary measures the degree to which Y values from B are separated from those in A, with a value of 0.5 indicating no tendency for values if B to be greater or less than those in A. This statistic is a <em>concordance probability</em>, also called a <em>c-index</em>. It is a measure of discrimination that is also equal to the area under a receiver operating characteristic curve. When treatments are denoted A and B, the c-index is the probability that a randomly chosen patient receiving treatment B has a value of Y that exceeds that of a randomly chosen patient receiving treatment A. It is a natural unitless parameter for quantifying treatment effect on an ordinal or continuous outcome.</p>
 <p>For binary, ordinal, or continuous variables X and Y, rank correlation coefficients are excellent measures for quantifying the degree of association between X and Y. When X is binary such as a treatment indicator, rank correlation measures the separation of Y values that is apparently explained by treatment group X. The rank correlation coefficient that corresponds to the Wilcoxon test is Somers’ <span class="math inline">\(D_{yx}\)</span> where the order of <span class="math inline">\(yx\)</span> signifies that ties in x are ignored and ties in y are not. For comparing treatments A and B we do not draw a random pair of observations from the same treatment, but only consider observations in different treatment groups (drop ties in x). In the binary outcome situation, on the other hand, we use <span class="math inline">\(D_{xy}\)</span>.</p>
 <p><span class="math inline">\(D_{yx}\)</span> is 0 if the c-index equals 0.5, i.e., there is no separation in Y values that can be explained by the treatment X. When c=0, meaning that all Y values for treatment A are larger than all Y values for B, <span class="math inline">\(D_{yx}=-1\)</span>, and when c=1, meaning that all Y values for treatment B are larger than all values for treatment A (perfect separation in the opposite direction as when c=0), <span class="math inline">\(D_{yx}=1\)</span>. There is a perfect correspondence between the MWM test, the concordance probability c, and Somers’ <span class="math inline">\(D_{yx}\)</span>, i.e., you can perfectly compute the other two given any one of these indexes. <span class="math inline">\(D_{yx}\)</span> is also the difference between the probability of concordance of X and Y and the probability of discordance.</p>
 <p>There is also a 1-1 relationship between the Wilcoxon statistic and Spearman’s <span class="math inline">\(\rho\)</span> rank correlation. <span class="math inline">\(\rho\)</span> is a different metric than <span class="math inline">\(D_{yx}\)</span> but it is possible to convert from one to the other for a given dataset.</p>
@@ -194,6 +194,35 @@ i    &lt;- which.max(r1)
 cat(&#39;&lt;small&gt;Maximum discrepency occurred in sample&#39;, i, &#39;&lt;/small&gt;\n&#39;)</code></pre>
 <p><small>Maximum discrepency occurred in sample 3 </small></p>
 <p>We see that <span class="math inline">\(\hat{\beta}\)</span> is very close to <span class="math inline">\(1.52 \times \mathrm{logit}(c)\)</span>, or inverting the equation we get <span class="math inline">\(c = \frac{1}{1 + \exp(-\hat{\beta} / 1.52)}\)</span>. The quality of the approximation is given by <span class="math inline">\(R^2\)</span>=0.996 or by a mean absolute prediction error for <span class="math inline">\(\hat{\beta}\)</span> of 0.012. Predicting <span class="math inline">\(c\)</span> from <span class="math inline">\(\hat{\beta}\)</span> the mean absolute prediction error is 0.002.</p>
+<p>Here is a graph that allows easy conversion from one metric to another. The axes are, in order from top to bottom, the log odds ratio (treatment regression coefficient), the c-index (probability of treatment B having higher outcomes that treatment A), and odds ratio (anti-log of OR).</p>
+<pre class="r"><code>par(mar=c(3,.5,1,.5))
+sdif &lt;- function(x, y) setdiff(round(x, 4), round(y, 4))
+conc  &lt;- c(.01,.05,seq(.1,.9,by=.1),.95,.99)
+conc2 &lt;- sdif(seq(0.04, 0.96, by=0.01), conc)
+or   &lt;- c(0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 50)
+or2  &lt;- sdif(c(seq(0.01, 0.5, by=0.01), seq(.5, 3, by=0.1), seq(3, 5, by=0.5),
+                  6:20, 30, 40, 50), or)
+lor  &lt;- seq(-5, 5, by=1)
+lor2 &lt;- sdif(seq(-5, 5, by=0.1), lor)
+f    &lt;- function(conc) 1.52 * qlogis(conc)
+
+plot.new()
+par(usr=c(-5,5,-1.04,1.04))
+par(mgp=c(1.5,.5,0))
+axis(1, at=log(or),  labels=as.character(or))
+axis(1, at=log(or2), tcl=-.25, col.ticks=gray(.7), labels=FALSE)
+title(xlab=&#39;Odds Ratio&#39;)
+axis(1, at=f(conc), labels=as.character(conc), 
+     tcl=.5, mgp=c(-3,-1.7,0))
+axis(1, at=f(conc2), tcl=.25, col.ticks=gray(.7), labels=FALSE)
+title(xlab=&#39;P(B &gt; A)&#39;, mgp=c(-3,-1.7,0))
+
+axis(1, at=lor, labels=as.character(lor),
+     tcl=.5, mgp=c(-3,-1.7,0), line=-5)
+axis(1, at=lor2, tcl=.25, col.ticks=gray(.7), labels=FALSE, line=-5)
+title(xlab=expression(hat(beta)), line=-8)</code></pre>
+<p><img src="/post/po_files/figure-html/nom-1.png" width="672" /></p>
+<p>As discussed in <a href="https://onlinelibrary.wiley.com/doi/10.1111/stan.12130">Agresti and Tarantola</a>, even with adjustment for covariates, if one compares a random patient on treatment B with a random patient on treatment A, with both patients having the same covariate values, the concordance probability is approximately <span class="math inline">\(\frac{1}{1 + \exp{(-\beta/\sqrt{2})}}\)</span> whereas our slightly better approximation replaces <span class="math inline">\(\sqrt{2} =\)</span> 1.41 with 1.52.</p>
 </div>
 <div id="example" class="section level1">
 <h1>Example</h1>
@@ -441,6 +470,6 @@ cest &lt;- plogis(b / 1.52)</code></pre>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
 <p>When PO does not hold, the odds ratio from the proportional odds model represents a kind of average odds ratio, and there is an almost one-to-one relationship between the odds ratio (anti-log of <span class="math inline">\(\hat{\beta}\)</span>) and the concordance probability <span class="math inline">\(c\)</span> (which is a simple translation of the Wilcoxon statistic). No model fits data perfectly, but as Stephen Senn stated in the quote that opened this article, the approximation offered by the PO model remains quite useful. And a unified PO model analysis is decidedly better than turning to inefficient and arbitrary analyses of dichotomized values of Y.</p>
-<p>If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y. In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes. The PO model does that.</p>
+<p>If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y. In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes. The PO model does that. And the natural parameter, concordance probability P(B &gt; A), is a simple function of the PO model’s treatment odds ratio.</p>
 <p>The place where a serious departure from the parallelism/PO assumption makes a large difference is in estimating treatment effects on individual outcome levels. For example, an overall odds ratio indicating that treatment benefits patients on an array of nonfatal outcomes may be in the opposite direction of how the treatment affects mortality. Though the overall average treatment effect estimated by assuming PO may rightfully claim a positive net clinical benefit of treatment, one can get a different picture when estimating the mortality affect ignoring all the other outcomes. This may be addressed using the <em>partial proportional odds model</em> of <a href="https://www.jstor.org/stable/2347760">Peterson and Harrell, 1990</a> as implemented <a href="https://hbiostat.org/R/rmsb/blrm.html">here</a> and discussed in the COVID-19 context <a href="https://hbiostat.org/proj/covid19/statdesign.html#univariate-ordinal-outcome">here</a>.</p>
 </div>
