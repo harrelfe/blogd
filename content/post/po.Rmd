@@ -140,7 +140,7 @@ title(xlab='P(B > A)', mgp=c(-3,-1.7,0))
 
 ```
 
-As discussed in [Agresti and Tarantola](https://onlinelibrary.wiley.com/doi/10.1111/stan.12130), even with adjustment for covariates, if one compares a random patient on treatment B with a random patient on treatment A, with both patients having the same covariate values, the concordance probability is approximately $\frac{1}{1 + \exp{(-\beta/\sqrt{2})}}$ whereas our slightly better approximation replaces $\sqrt{2} =$ `r round(sqrt(2), 2)` with 1.52.
+As discussed in [Agresti and Kateri](https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565) (see also [Agresti and Tarantola](https://onlinelibrary.wiley.com/doi/10.1111/stan.12130)), even with adjustment for covariates, if one compares a random patient on treatment B with a random patient on treatment A, with both patients having the same covariate values, the concordance probability is approximately $\frac{1}{1 + \exp{(-\beta/\sqrt{2})}}$ (this is exact for probit ordinal regression but not for logistic ordinal regression) whereas our better approximation replaces $\sqrt{2} =$ `r round(sqrt(2), 2)` with 1.52.
 
 # Example
 

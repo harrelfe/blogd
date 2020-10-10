@@ -240,7 +240,7 @@ axis(1, at=f(conc), labels=as.character(conc),
 axis(1, at=f(conc2), tcl=.25, col.ticks=gray(.7), labels=FALSE)
 title(xlab=&#39;P(B &gt; A)&#39;, mgp=c(-3,-1.7,0))</code></pre>
 <p><img src="/post/po_files/figure-html/nom-1.png" width="672" /></p>
-<p>As discussed in <a href="https://onlinelibrary.wiley.com/doi/10.1111/stan.12130">Agresti and Tarantola</a>, even with adjustment for covariates, if one compares a random patient on treatment B with a random patient on treatment A, with both patients having the same covariate values, the concordance probability is approximately <span class="math inline">\(\frac{1}{1 + \exp{(-\beta/\sqrt{2})}}\)</span> whereas our slightly better approximation replaces <span class="math inline">\(\sqrt{2} =\)</span> 1.41 with 1.52.</p>
+<p>As discussed in <a href="https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565">Agresti and Kateri</a> (see also <a href="https://onlinelibrary.wiley.com/doi/10.1111/stan.12130">Agresti and Tarantola</a>), even with adjustment for covariates, if one compares a random patient on treatment B with a random patient on treatment A, with both patients having the same covariate values, the concordance probability is approximately <span class="math inline">\(\frac{1}{1 + \exp{(-\beta/\sqrt{2})}}\)</span> (this is exact for probit ordinal regression but not for logistic ordinal regression) whereas our better approximation replaces <span class="math inline">\(\sqrt{2} =\)</span> 1.41 with 1.52.</p>
 </div>
 <div id="example" class="section level1">
 <h1>Example</h1>
