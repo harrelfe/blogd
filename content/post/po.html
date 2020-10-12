@@ -2,7 +2,7 @@
 title: Violation of Proportional Odds is Not Fatal
 author: Frank Harrell
 date: '2020-09-20'
-modified: '2020-10-10'
+modified: '2020-10-12'
 slug: po
 categories: []
 tags:
@@ -229,7 +229,7 @@ title(xlab=expression(Delta), line=-10)
 axis(1, at=lor, as.character(lor),
      tcl=-.5, mgp=c(-3, 0.8, 0), line=-7)</code></pre>
 <pre class="r"><code>axis(1, at=lor2, tcl=-.25, col.ticks=gray(.7), labels=FALSE, line=-7)
-title(xlab=expression(hat(beta)), line=-4.5)
+title(xlab=expression(beta), line=-4.5)
 
      
 axis(1, at=log(or),  labels=as.character(or))
@@ -489,5 +489,5 @@ cest &lt;- plogis(b / 1.52)</code></pre>
 <h1>Conclusion</h1>
 <p>When PO does not hold, the odds ratio from the proportional odds model represents a kind of average odds ratio, and there is an almost one-to-one relationship between the odds ratio (anti-log of <span class="math inline">\(\hat{\beta}\)</span>) and the concordance probability <span class="math inline">\(c\)</span> (which is a simple translation of the Wilcoxon statistic). No model fits data perfectly, but as Stephen Senn stated in the quote that opened this article, the approximation offered by the PO model remains quite useful. And a unified PO model analysis is decidedly better than turning to inefficient and arbitrary analyses of dichotomized values of Y.</p>
 <p>If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y. In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes. The PO model does that. And the natural parameter, concordance probability P(B &gt; A), is a simple function of the PO model’s treatment odds ratio.</p>
-<p>The place where a serious departure from the parallelism/PO assumption makes a large difference is in estimating treatment effects on individual outcome levels. For example, an overall odds ratio indicating that treatment benefits patients on an array of nonfatal outcomes may be in the opposite direction of how the treatment affects mortality. Though the overall average treatment effect estimated by assuming PO may rightfully claim a positive net clinical benefit of treatment, one can get a different picture when estimating the mortality affect ignoring all the other outcomes. This may be addressed using the <em>partial proportional odds model</em> of <a href="https://www.jstor.org/stable/2347760">Peterson and Harrell, 1990</a> as implemented <a href="https://hbiostat.org/R/rmsb/blrm.html">here</a> and discussed in the COVID-19 context <a href="https://hbiostat.org/proj/covid19/statdesign.html#univariate-ordinal-outcome">here</a>.</p>
+<p>The place where a serious departure from the parallelism/PO assumption makes a large difference is in estimating treatment effects on individual outcome levels. For example, an overall odds ratio indicating that treatment benefits patients on an array of nonfatal outcomes may be in the opposite direction of how the treatment affects mortality. Though the overall average treatment effect estimated by assuming PO may rightfully claim a positive net clinical benefit of treatment, one can get a different picture when estimating the mortality effect ignoring all the other outcomes. This may be addressed using the <em>partial proportional odds model</em> of <a href="https://www.jstor.org/stable/2347760">Peterson and Harrell, 1990</a> as implemented <a href="https://hbiostat.org/R/rmsb/blrm.html">here</a> and discussed in the COVID-19 context <a href="https://hbiostat.org/proj/covid19/statdesign.html#univariate-ordinal-outcome">here</a>.</p>
 </div>
