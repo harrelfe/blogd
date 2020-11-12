@@ -1,5 +1,5 @@
 +++
-date = 2020-11-13  # Schedule page publish date.
+date = 2020-11-12  # Schedule page publish date.
 title = "Controlling α vs. Probability of a Decision Error"
 time_start = 2020-11-13
 time_end   = 2020-11-13
