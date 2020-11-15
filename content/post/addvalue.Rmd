@@ -4,7 +4,7 @@ author: "Frank Harrell"
 date: '2018-10-17'
 categories: []
 link-citations: yes
-modified: '2019-08-22'
+modified: '2020-11-15'
 slug: addvalue
 summary: Researchers have used contorted, inefficient, and arbitrary analyses to demonstrated added value in biomarkers, genes, and new lab measurements.  Traditional statistical measures have always been up to the task, and are more powerful and more flexible.  It's time to revisit them, and to add a few slight twists to make them more helpful.
 tags:
@@ -78,7 +78,7 @@ A different type of key measure will also be exemplified in the case study: diff
 
 ## Relative Explained Variation
 
-Relative explained variation is a simple concept that has the extra advantage of being completely free of the distribution of Y and the customized error variance or SST necessary for computing the proportion of explained variance for distributions other than the normal.  For a linear model relative explained variation is the ratio of the $R^2$ for the base model to the larger $R^2$ for the combined model that contains also the new markers being tested.  And since for $R^{2} \leq 0.25$, $-n \log(1 - R^{2})$ is approximately $n R^{2}$, the relative variation explained by the base variables is approximately equal to the _adequacy index_ discussed in the maximum likelihood estimation chapter of [Regression Modeling Strategies](http://biostat.mc.vanderbilt.edu/rms) (@rms2): $$\text{Adequacy index} = \text{LR}_{A} / \text{LR}_{AB}$$ where the base model is denoted by A, the added predictors (e.g., biomarkers) are denoted by B, AB represents the combined model with A and B as predictors, and LR is defined above.  Here adequacy refers to the adequacy of the model that ignores the new predictors.
+Relative explained variation is a simple concept that has the extra advantage of being completely free of the distribution of Y and the customized error variance or SST necessary for computing the proportion of explained variance for distributions other than the normal.  For a linear model relative explained variation is the ratio of the $R^2$ for the base model to the larger $R^2$ for the combined model that contains also the new markers being tested.  And since for $R^{2} \leq 0.25$, $-n \log(1 - R^{2})$ is approximately $n R^{2}$, the relative variation explained by the base variables is approximately equal to the _adequacy index_ discussed in the maximum likelihood estimation chapter of [Regression Modeling Strategies](http://hbiostat.org/rms) (@rms2): $$\text{Adequacy index} = \text{LR}_{A} / \text{LR}_{AB}$$ where the base model is denoted by A, the added predictors (e.g., biomarkers) are denoted by B, AB represents the combined model with A and B as predictors, and LR is defined above.  Here adequacy refers to the adequacy of the model that ignores the new predictors.
 
 Whether using the adequacy index or relative variation explained, one minus such an index is the fraction of new information provided by predictors in B.  It is the proportion of explainable variation that is explained by B.
 

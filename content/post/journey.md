@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2020-10-07
+modified = 2020-11-15
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -156,7 +156,7 @@ modification**.  Frequentist solutions require highly complex
 modifications to work in the adaptive trial setting.
 
 I met likelihoodist [Jeffrey
-Blume](http://biostat.mc.vanderbilt.edu/JeffreyBlume) in 2008 and
+Blume](https://biostat.app.vumc.org/wiki/Main/JeffreyBlume) in 2008 and
 started to like the likelihood approach.  It is more Bayesian than
 frequentist.  I plan to learn more about this paradigm.  Jeffrey has an excellent [web site](http://statisticalevidence.com).
 

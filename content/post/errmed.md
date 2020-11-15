@@ -1,7 +1,7 @@
 +++
 title = "Statistical Errors in the Medical Literature"
 date = 2017-04-08
-modified = 2019-08-04
+modified = 2020-11-15
 tags = ["prediction", "logic", "p-value", "validation", "bayes", "evidence", "subgroup", "dichotomization", "medicine", "inference", "change-scores", "RCT", "personalized-medicine", "responder-analysis", "hypothesis-testing", "medical-literature", "2017"]
 [author]
 +++
@@ -305,11 +305,10 @@ compute change scores requires many assumptions to hold, e.g.:
     close to 1.0 when both variables are properly transformed (using the
     same transformation on both)
 
-Details about problems with analyzing change may be found in
-[BBR](http://hbiostat.org/doc/bbr.pdf) Section 14.4
-and [here](http://biostat.mc.vanderbilt.edu/MeasureChange), and
+Details about problems with analyzing change may be found
+[here](https://hbiostat.org/bbr/md/change.html), and
 references may be found
-[here](https://www.zotero.org/groups/2199991/feh/items/tag/change). See also
+[here](https://hbiostat.org/bib/change.html). See also
 [this](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3286439). A general
 problem with the approach is that when Y is ordinal but not
 interval-scaled, differences in Y may no longer be ordinal.  So analysis
@@ -502,7 +501,7 @@ An analysis that would have answered my questions would have been to
     fraction of likelihood ratio chi-square due to both T's combined
     that is explained by baseline T. Do likewise to show the added value
     of 6m T. Details about these methods may be found in [Regression
-    Modeling Strategies](http://biostat.mc.vanderbilt.edu/rms), *2^nd^
+    Modeling Strategies](http://hbiostat.org/rms), *2^nd^
     edition*
 
 Without proper analyses of T as a continuous variable, the reader is
@@ -541,8 +540,7 @@ continuous age (x-axis). The authors' analysis avoids the question of a
 dose-response relationship between age and treatment effect. A full
 strategy for interaction modeling for assessing heterogeneity of
 treatment effect (AKA *precision medicine*) may be found in the analysis
-of covariance chapter in [Biostatistics for Biomedical
-Research](http://biostat.mc.vanderbilt.edu/ClinStat). To make matters
+of covariance chapter in [Biostatistics for Biomedical Research](http://hbiostat.org/bbr). To make matters
 worse, the above paper included patients with a sharp cutoff of 65 years
 of age as the lower limit. How much more informative it would have been
 to have a linearly increasing (in age) enrollment function that reaches
@@ -708,5 +706,5 @@ The cluster analysis by Ahlqvist actually represents a demonstration that adult-
 A simple way to demonstrate the futility of placing patients into discrete clusters and pretending they are homogeneous (i.e., ignoring distance from cluster centers) is to estimate the strength of the relationship between HbA1c and a clinical outcome, within a cluster having the greatest dispersion of HbA1c (as measured by Gini's mean difference for HbA1c or by the standard deviation of the reciprocal of HbA1c).
 
 ### Further Reading
-* [Biostatistics for Biomedical Research](/doc/bbr.pdf)
+* [Biostatistics for Biomedical Research](https://hbiostat.org/bbr)
 * Richard Lehman's [journal reviews](https://blogs.bmj.com/bmj/2018/04/03/richard-lehmans-journal-reviews-3-april-2018)

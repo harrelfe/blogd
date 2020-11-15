@@ -1,7 +1,7 @@
 +++
 title = "Damage Caused by Classification Accuracy and Other Discontinuous Improper Accuracy Scoring Rules"
 date = 2017-03-01T07:30:00Z
-updated = 2019-08-24
+updated = 2020-11-15
 tags = ["prediction", "machine-learning", "accuracy-score", "dichotomization", "probability", "bioinformatics", "validation", "classification", "data-science", "2017"]
 +++
 I discussed the many advantages or probability estimation over
@@ -82,7 +82,7 @@ to a population when a much different prevalence of Y=1 than 0.5.
 *Sensitivity* and *specificity* are one-sided or conditional versions of
 classification accuracy.  As such they are also discontinuous improper
 accuracy scores, and optimizing them will result in the wrong model.
-[Regression Modeling Strategies](http://biostat.mc.vanderbilt.edu/rms) Chapter 10 goes into
+[Regression Modeling Strategies](http://hbiostat.org/rms) Chapter 10 goes into
 more problems with classification accuracy, and discusses many measures
 of the quality of probability estimates.  The text contains suggested
 measures to emphasize such as Brier score, pseudo R-squared (a simple

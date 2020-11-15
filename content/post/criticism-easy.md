@@ -1,7 +1,7 @@
 +++
 title = "Statistical Criticism is Easy; I Need to Remember That Real People are Involved"
 date = 2017-11-05T21:07:00Z
-updated = 2017-11-06T07:22:08Z
+updated = 2020-11-15
 tags = ["RCT", "2017"]
 +++
 I have been critical of a number of articles, authors, and journals in
@@ -120,7 +120,7 @@ clinical research and make peer review more objective and productive.
     editors, and strengthen statistical review for journals.
 -   Until everyone understands the most important statistical concepts,
     better educate researchers and peer reviewers on
-		[statistical problems to avoid](http://biostat.mc.vanderbilt.edu/ManuscriptChecklist).
+		[statistical problems to avoid](https://discourse.datamethods.org/t/author-checklist).
 
 On a final note, I regularly review clinical trial design papers for
 medical journals. I am often shocked at design flaws that authors state

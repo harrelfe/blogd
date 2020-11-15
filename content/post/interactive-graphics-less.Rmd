@@ -6,10 +6,10 @@ tags:
 - r
 - 2017
 date: '2017-02-05'
-updated: '2018-03-04'
+updated: '2020-11-15'
 ---
-Version 4 of the R [`Hmisc`](http://biostat.mc.vanderbilt.edu/Hmisc) package and version
-5 of the R [`rms`](http://biostat.mc.vanderbilt.edu/Rrms) package
+Version 4 of the R [`Hmisc`](http://hbiostat.org/R/Hmisc) package and version
+5 of the R [`rms`](http://hbiostat.org/R/rms) package
 interfaces with interactive [`plotly`](https://plot.ly/r/) graphics, which
 is an interface to the `D3` javascript graphics library.  This allows
 various results of statistical analyses to be viewed interactively, with

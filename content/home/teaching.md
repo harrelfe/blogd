@@ -25,14 +25,13 @@ intermediate biostatistics.  Details are on the
 I teach the BIOS7330 _Regression Modeling Strategies_ course in the
 Biostatistics Graduate Program at Vanderbilt University in the spring
 semester.  The course web page is
-[here](http://biostat.mc.vanderbilt.edu/CourseBios330).  I teach a
+[here](https://hbiostat.org/rms/full).  I teach a
 4-day virtual version of this course each May.  Registration
 information for the short course may be found
 [here](http://hbiostat.org/doc/rms/4day.html).
 
 ## Master of Science in Clinical Investigation Biostatistics II
-I co-teach [this
-course](http://biostat.mc.vanderbilt.edu/MsciBiostatII) at
+I co-teach [this course](http://biostat.mc.vanderbilt.edu/MsciBiostatII) at
 Vanderbilt each February for postdoctoral medical and surgical fellows
 and junior faculty in the MSCI program.
 
