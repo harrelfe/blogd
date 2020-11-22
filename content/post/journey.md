@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2020-11-15
+modified = 2020-11-22
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -288,7 +288,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
   XVII](https://www.bayesianspectacles.org/redefine-statistical-significance-xvii-william-rozeboom-destroys-the-justify-your-own-alpha-argument-back-in-1960)
   by EJ Wagenmakers and Q Gronau
 * [Steve Ruberg's Blog](https://analytixthinking.blog)
-
+* [Dicing with the Unknown](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1740-9713.2004.00050.x) by Tony O'Hagan
 
 ----------------------------------------
 ## More Quotes
