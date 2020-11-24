@@ -22,7 +22,7 @@ selected = true
 url_pdf = ""
 url_slides = "https://hbiostat.org/talks/iscb20.html"
 url_video = "https://hbiostat.org/talks/iscb20.mkv"
-url_video = "https://hbiostat.org/video/mlhealth-promo.mkv"
+url_video2 = "https://hbiostat.org/video/mlhealth-promo.mkv"
 url_code = ""
 
 # Does the content use math formatting?
