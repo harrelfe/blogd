@@ -59,6 +59,7 @@ The [GUSTO-I Study](https://www.nejm.org/doi/full/10.1056/NEJM199309023291001) w
 require(Hmisc)
 mu <- markupSpecs$html    # in Hmisc
 knitrSet(lang='blogdown')
+mgp <- c(2.4, 0.5, 0)
 load(url('http://hbiostat.org/data/gusto.rda'))
 gusto <- upData(gusto, keep=Cs(day30, tx, age, Killip, sysbp, pulse, pmi, miloc))
 ```
@@ -203,21 +204,23 @@ ggfreqScatter(psk[j], ptpa[j], cuts=k,
 
 Here is the distribution of estimated ARR across all patient types.
 
-```{r darr}
-hist(psk - ptpa, xlim=c(-.05, .1), nclass=200, main=NULL)
+```{r darr,mgp=mgp}
+hist(psk - ptpa, xlim=c(-.05, .1), nclass=200, main=NULL,
+     xlab='ARR with t-PA')
 ```
 
 And the distribution of estimated RR.
 
-```{r drr}
-hist(ptpa / psk, nclass=200, xlim=c(.75, 1), main=NULL)
+```{r drr,mgp=mgp}
+hist(ptpa / psk, nclass=200, xlim=c(.75, 1), main=NULL,
+     xlab='RR t-PA/SK')
 ```
 
 And finally the distribution of estimated ORs.
 
-```{r dor, main=NULL}
+```{r dor, mgp=mgp}
 or <- exp(qlogis(ptpa) - qlogis(psk))
-hist(or, nclass=200, xlim=c(.75, 1), main=NULL)
+hist(or, nclass=200, xlim=c(.75, 1), main=NULL, xlab='OR')
 ```
 
 The following scatterplot shows the relationship between estimated RRs and estimate ORs.
