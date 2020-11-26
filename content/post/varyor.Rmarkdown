@@ -2,7 +2,7 @@
 title: Assessing Heterogeneity of Treatment Effect, Estimating Patient-Specific Efficacy, and Studying Variation in Odds ratios, Risk Ratios, and Risk Differences
 author: Frank Harrell
 date: '2019-03-25'
-modified: '2019-03-28'
+modified: '2020-11-25'
 slug: varyor
 categories: []
 tags:
@@ -198,35 +198,36 @@ ptpa <- predict(h, d, type='fitted')
 k  <- c(5,10,15,20,50,100,200,400,800,1600,3200,20000)
 pl <- c(0, quantile(psk, 0.99))
 j  <- pmax(psk, ptpa) <= pl
-ggfreqScatter(psk[j], ptpa[j], cuts=k,
+co <- gray.colors(10, 0.75, 0)
+ggfreqScatter(psk[j], ptpa[j], cuts=k, fcolors=co,
               xlab='P(death|SK)', ylab='P(death|t-PA)')
 ```
 
 Here is the distribution of estimated ARR across all patient types.
 
-```{r darr,mgp=mgp}
-hist(psk - ptpa, xlim=c(-.05, .1), nclass=200, main=NULL,
-     xlab='ARR with t-PA')
+```{r darr,mgp=mgp,h=2}
+histSpike(psk - ptpa, bins=seq(-0.02, 0.1, by=0.001), xlim=c(-0.02, 0.1),
+          xlab='ARR with t-PA', minimal=TRUE)
 ```
 
 And the distribution of estimated RR.
 
-```{r drr,mgp=mgp}
-hist(ptpa / psk, nclass=200, xlim=c(.75, 1), main=NULL,
+```{r drr,mgp=mgp,h=2}
+histSpike(ptpa / psk, xlim=c(.75, 1), minimal=TRUE,
      xlab='RR t-PA/SK')
 ```
 
 And finally the distribution of estimated ORs.
 
-```{r dor, mgp=mgp}
+```{r dor, mgp=mgp,h=2}
 or <- exp(qlogis(ptpa) - qlogis(psk))
-hist(or, nclass=200, xlim=c(.75, 1), main=NULL, xlab='OR')
+histSpike(or, xlim=c(.75, 1), minimal=TRUE, xlab='OR')
 ```
 
 The following scatterplot shows the relationship between estimated RRs and estimate ORs.
 
 ```{r rror}
-ggfreqScatter(or, ptpa / psk, cuts=k, xlab='OR', ylab='RR')
+ggfreqScatter(or, ptpa / psk, cuts=k, xlab='OR', ylab='RR', fcolors=co)
 ```
 See that the variation in absolute or relative risk reduction is large, but adjusted odds ratios for t-PA vs. SK have a very narrow distribution.  If we relied on the formal interaction test, this distribution would have a single value.
 
@@ -235,9 +236,9 @@ To see how the various measures depend on baseline risk, see the following graph
 ```{r vsbase}
 xl <- 'Risk Under Control Treatment (SK)'
 j <- psk <= pl
-ggfreqScatter(psk[j], psk[j] - ptpa[j], cuts=k, xlab=xl, ylab='ARR')
-ggfreqScatter(psk[j], ptpa[j] / psk[j], cuts=k, xlab=xl, ylab='RR')
-ggfreqScatter(psk[j], or[j], cuts=k, xlab=xl, ylab='OR')
+ggfreqScatter(psk[j], psk[j] - ptpa[j], cuts=k, xlab=xl, ylab='ARR', fcolors=co)
+ggfreqScatter(psk[j], ptpa[j] / psk[j], cuts=k, xlab=xl, ylab='RR', fcolors=co)
+ggfreqScatter(psk[j], or[j], cuts=k, xlab=xl, ylab='OR', fcolors=co)
 ```
 ------
 
