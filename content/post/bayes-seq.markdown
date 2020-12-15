@@ -2,7 +2,7 @@
 title: 'Continuous Learning from Data: No Multiplicities from Computing and Using Bayesian Posterior Probabilities as Often as Desired'
 author: 'Frank Harrell'
 date: 2017-10-09
-modified: 2020-03-24
+modified: 2020-12-14
 slug: bayes-seq
 tags:
   - bayes
@@ -369,12 +369,13 @@ Berry[@ber87int], Edwards, Lindman and Savage[@edw63bay]
 * [Five Bayesian intuitions for the stopping rule principle](https://www.bayesianspectacles.org/preprint-five-bayesian-intuitions-for-the-stopping-rule-principle) by EJ Wagenmakers, Q Gronau, J Vandekerckhove
 * ["We continuously increased the number of animals until statistical significance was reached to support our conclusions"](https://andrewgelman.com/2018/09/04/continuously-increased-number-animals-statistical-significance-reached-support-conclusions-think-not-bad-actually-2) by Andrew Gelman
 * [Is Bayesian A/B testing immune to peeking? Not eactly](http://varianceexplained.org/r/bayesian-ab-testing) by David Robinson
+* [The P value line dance: When does the music stop?](https://www.jmir.org/2020/8/e21345) by Marcus Bendtsen
 
 # Computing Environment
 <!--html_preserve--><pre>
- R version 4.0.2 (2020-06-22)
+ R version 4.0.3 (2020-10-10)
  Platform: x86_64-pc-linux-gnu (64-bit)
- Running under: Pop!_OS 20.04 LTS
+ Running under: Pop!_OS 20.10
  
  Matrix products: default
  BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
@@ -384,8 +385,8 @@ Berry[@ber87int], Edwards, Lindman and Savage[@edw63bay]
  [1] stats     graphics  grDevices utils     datasets  methods   base     
  
  other attached packages:
- [1] rms_6.0-2       SparseM_1.78    Hmisc_4.4-1     ggplot2_3.3.2  
- [5] Formula_1.2-3   survival_3.2-3  lattice_0.20-41
+ [1] rms_6.1-0       SparseM_1.78    Hmisc_4.4-2     ggplot2_3.3.2  
+ [5] Formula_1.2-4   survival_3.2-7  lattice_0.20-41
  </pre>
  To cite R in publication use:
  <p>R Core Team (2020).
