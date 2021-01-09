@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-01-01
+modified = 2021-01-09
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -274,6 +274,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
 --------------------------------------
 ## Other Resources
 
+* [Statistical Remedies for Medical Researchers](https://link.springer.com/book/10.1007%2F978-3-030-43714-5) by Peter Thall
 * [Bayesian estimation supersedes the t test](http://www.indiana.edu/~kruschke/articles/Kruschke2013JEPG.pdf) by John Kruschke
 * [Bayesian t-tests](https://vuorre.netlify.app/post/2017/01/02/how-to-compare-two-groups-with-robust-bayesian-estimation-using-r-stan-and-brms)
 * [Statistical Rethinking](http://xcelab.net/rm/statistical-rethinking) examples with [R brms](https://osf.io/97t6w)
