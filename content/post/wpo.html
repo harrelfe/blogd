@@ -1,0 +1,307 @@
+---
+title: If You Like the Wilcoxon Test You Must Like the Proportional Odds Model
+author: Frank Harrell
+date: '2021-03-10'
+modified: ''
+slug: wpo
+categories: []
+tags:
+  - 2021
+  - accuracy-score
+  - RCT
+  - regression
+  - hypothesis testing
+  - metric
+link-citations: yes
+summary: Since the Wilcoxon test is a special case of the proportion odds (PO) model, if one likes the Wilcoxon test, one must like the PO model.  This is made more convincing by showing examples of how one may accurately compute the Wilcoxon statistic from the PO model's odds ratio.
+header:
+  caption: ''
+  image: ''
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p class="rquote">
+Clearly, the dependence of the proportional odds model on the assumption of proportionality can be over-stressed. Suppose that two different statisticians would cut the same three-point scale at different cut points. It is hard to see how anybody who could accept either dichotomy could object to the compromise answer produced by the proportional odds model. — <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.3603">Stephen Senn</a>
+</p>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The Wilcoxon-Mann-Whitney two-sample rank-sum test is a special case of the proportional odds (PO) ordinal logistic regression model. The numerator of the PO model score <span class="math inline">\(\chi^2\)</span> test for comparing two groups without covariate adjustment is exactly the Wilcoxon statistic. The equivalence of the PO model and the Wilcoxon test in this simple two-group setting is perhaps demonstrated more compellingly by showing how the Wilcoxon test statistic may be accurately approximated by a simple function of the odds ratio (OR) estimate from the PO model, even when PO is strongly violated.</p>
+<p>In <a href="https://www.fharrell.com/post/po">Violation of Proportional Odds is Not Fatal</a> I used simulation to derive an accurate approximation to the Wilcoxon statistic from the PO model group 2 : group 1 odds ratio estimate (OR). When the Wilcoxon statistic is re-scaled to have a 0-1 range, i.e., to a <em>concordance probability</em> <span class="math inline">\(c\)</span>, the approximation is <span class="math display">\[c = \frac{\mathrm{OR}^{0.66}}{1 + \mathrm{OR}^{0.66}}\]</span></p>
+<p>Over a wide variety of simulated datasets, this approximation has a mean absolute error of 0.002<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<p>For <span class="math inline">\(n\)</span> overall observations, <span class="math inline">\(n_1\)</span> in group 1 and <span class="math inline">\(n_2\)</span> in group 2, let <span class="math inline">\(R\)</span> denote the vector of ranks of all the observations ignoring group membership. In case of ties, midranks are used.
+The Wilcoxon rank-sum statistic <span class="math inline">\(W\)</span> is based on the sum of ranks in group 2. Let <span class="math inline">\(X_{i}\)</span> be [group = 2], the 1/0 indicator of being in group 2 for the <span class="math inline">\(i^{\mathrm{th}}\)</span> observation.</p>
+<p><span class="math display">\[W = \sum_{i=1}^{n} X_{i} R_{i} - \frac{n_{2} (n_{2} + 1)}{2}\]</span></p>
+<p>Letting <span class="math inline">\(\bar{R}\)</span> denote the mean of the group 2 ranks (<span class="math inline">\(\frac{1}{n_{2}} \sum_{i=1}^{n} X_{i}R_{i})\)</span>, the Wilcoxon statistic is proportional to</p>
+<p><span class="math display">\[c = \frac{\bar{R} - \frac{n_{2} + 1}{2}}{n_{1}}\]</span>
+where <span class="math inline">\(c\)</span> is the c-index or concordance probability. It is the proportion of all possible pairs of observations, one from group 2 and one from group 1, such that the the observation from group 2 is the larger of the two. Since midranks are used for ties, <span class="math inline">\(c\)</span> counts a tied pair as <span class="math inline">\(\frac{1}{2}\)</span> concordant. So letting <span class="math inline">\(Y_{1}\)</span> and <span class="math inline">\(Y_{2}\)</span> represent, respectively, random observations from groups 1 and 2, <span class="math inline">\(c\)</span> estimates <span class="math inline">\(\Pr(Y_{2} &gt; Y_{1}) + \frac{1}{2} \Pr(Y_{2} = Y_{1})\)</span>.</p>
+<p>There is an identity with Somers’ <span class="math inline">\(D_{yx}\)</span> rank correlation, which is the probability of concordance minus the probability of discordance. <span class="math inline">\(D_{yx}\)</span> can be also be written as <span class="math inline">\(D_{yx} = 2 \times (c - \frac{1}{2})\)</span>. Note that the R <code>Hmisc</code> package function <code>rcorr.cens</code> used below computes <span class="math inline">\(D_{xy}\)</span>, but <span class="math inline">\(D_{yx}(X, Y)\)</span> is the same as <span class="math inline">\(D_{xy}(Y, X)\)</span>. <span class="math inline">\(D_{yx}\)</span> means “discard ties on <span class="math inline">\(X\)</span>, let ties on <span class="math inline">\(Y\)</span> count against us.” In a two-group comparison we are discarding ties on <span class="math inline">\(X\)</span>, i.e., are not comparing observations from group 1 with other observations in group 1.</p>
+</div>
+<div id="discrete-ordinal-y-example" class="section level1">
+<h1>Discrete Ordinal Y Example</h1>
+<p>Let’s go through the calculations and check the Wilcoxon PO OR-based approximation using data in which there is a severe violation of the PO assumption. We have three levels of <span class="math inline">\(Y\)</span> (0, 1, 2), with the group 2 : group 1 OR for <span class="math inline">\(Y=2\)</span> being 2.5 but the OR for <span class="math inline">\(Y \geq 1\)</span> being 0.795. The compromise OR from assuming PO is 1.114.</p>
+<pre class="r"><code>w &lt;- expand.grid(group=1:2, y=0:2)
+n &lt;- c(100, 110, 50, 10, 30, 60)
+u &lt;- w[rep(1:6, n),]
+with(u, table(group, y))</code></pre>
+<pre><code>     y
+group   0   1   2
+    1 100  50  30
+    2 110  10  60</code></pre>
+<pre class="r"><code>or2 &lt;- exp(coef(lrm(y == 2 ~ group, data=u))[&#39;group&#39;])
+or1 &lt;- exp(coef(lrm(y &gt;= 1 ~ group, data=u))[&#39;group&#39;])
+or12 &lt;- exp(coef(lrm(y ~ group, data=u))[&#39;group&#39;])
+ors &lt;- c(or2, or1, or12)
+names(ors) &lt;- c(&#39;y=2&#39;, &#39;y&gt;=1&#39;, &#39;y&#39;)
+ors</code></pre>
+<pre><code>      y=2      y&gt;=1         y 
+2.5000000 0.7954545 1.1135786 </code></pre>
+<p>Now compute the Wilcoxon statistic</p>
+<pre class="r"><code>wilcox.test(y ~ group, u, correct=FALSE)</code></pre>
+<pre><code>
+    Wilcoxon rank sum test
+
+data:  y by group
+W = 15750, p-value = 0.6061
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+<pre class="r"><code>sumr1 &lt;- with(u, sum(rank(y)[group == 1]))
+sumr2 &lt;- with(u, sum(rank(y)[group == 2]))
+n1 &lt;- sum(u$group == 1)
+n2 &lt;- sum(u$group == 2)
+# wilcox.test uses sum of ranks in group 1
+W &lt;- sumr1 - n1 * (n1 + 1) / 2   # equals wilcox.test
+W</code></pre>
+<pre><code>[1] 15750</code></pre>
+<pre class="r"><code># Going forward use sum of ranks in group 2
+W &lt;- sumr2 - n2 * (n2 + 1) / 2</code></pre>
+<p>Compute <span class="math inline">\(c\)</span> three different ways.</p>
+<pre class="r"><code>W / (n1 * n2)</code></pre>
+<pre><code>[1] 0.5138889</code></pre>
+<pre class="r"><code>with(u, (mean(rank(y)[group == 2]) - (n2 + 1) / 2) / n1)</code></pre>
+<pre><code>[1] 0.5138889</code></pre>
+<pre class="r"><code>b &lt;- with(u, rcorr.cens(y, group))
+b</code></pre>
+<pre><code>       C Index            Dxy           S.D.              n        missing 
+  5.138889e-01   2.777778e-02   5.470021e-02   3.600000e+02   0.000000e+00 
+    uncensored Relevant Pairs     Concordant      Uncertain 
+  3.600000e+02   6.480000e+04   3.330000e+04   0.000000e+00 </code></pre>
+<pre class="r"><code>conc &lt;- b[&#39;C Index&#39;]
+conc</code></pre>
+<pre><code>  C Index 
+0.5138889 </code></pre>
+<p>Now compare the concordance probability with the approximation from the PO-estimated OR:</p>
+<pre class="r"><code>po &lt;- ors[&#39;y&#39;]
+capprox &lt;- po ^ 0.66 / (1 + po ^ 0.66)
+capprox</code></pre>
+<pre><code>       y 
+0.517743 </code></pre>
+<p>The approximation is off by 0.004.</p>
+<p>Check against the original regression equation fitted <a href="https://fharrell.com/post/po">here</a>:</p>
+<pre class="r"><code>plogis((log(po) - 0.0003) / 1.5179)</code></pre>
+<pre><code>        y 
+0.5176616 </code></pre>
+</div>
+<div id="continuous-y-example" class="section level1">
+<h1>Continuous Y Example</h1>
+<p>Now consider a two-sample problem with continuous Y. We could induce mild non-PO by sampling from two normal distributions with equal variance and a nonzero difference in means<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. But let’s induce major non-PO by also allowing the variance in the two groups to be unequal. Draw a random sample of size 100 from a normal distribution with mean 0 and variance 1 and a second sample from a normal distribution with mean 1 and variance 0.2.</p>
+<pre class="r"><code>set.seed(1)
+n1 &lt;- n2 &lt;- 100
+y1 &lt;- rnorm(n1, 0, 1)
+y2 &lt;- rnorm(n1, 1, sqrt(0.2))
+group &lt;- c(rep(1, n1), rep(2, n2))
+y &lt;- c(y1, y2)
+Ecdf(~ y, group=group, fun=qlogis, ylab=&#39;logit ECDF&#39;)</code></pre>
+<p><img src="/post/wpo_files/figure-html/cont-1.png" width="672" /></p>
+<p>Serious non-parallelism of the logit of the two empirical cumulative distributions means serious non-proportional odds. Let’s get the <span class="math inline">\(c\)</span> index (concordance probability) and its approximation from the PO model, as before. We use the <code>rms</code> package <code>orm</code> function which is designed to efficiently analyze continuous Y. Here the model has 199 intercepts since there are no ties in the data. Below I have back-solved for the Wilcoxon test <span class="math inline">\(\chi^2\)</span> statistic.</p>
+<pre class="r"><code>conc &lt;- (mean(rank(y)[group == 2]) - (n2 + 1) / 2) / n1
+w &lt;- wilcox.test(y ~ group)
+wchisq &lt;- qchisq(1 - w$p.value, 1)
+wchisq</code></pre>
+<p>[1] 59.67072</p>
+<pre class="r"><code>f &lt;- orm(y ~ group)
+f</code></pre>
+<p><strong>Logistic (Proportional Odds) Ordinal Regression Model</strong></p>
+<pre>
+ orm(formula = y ~ group)
+ </pre>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Model Likelihood<br>Ratio Test
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Discrimination<br> Indexes
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Rank Discrim.<br>Indexes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+Obs 200
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+LR χ<sup>2</sup> 69.08
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>R</i><sup>2</sup> 0.292
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+ρ 0.548
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+Distinct <i>Y</i> 200
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+d.f. 1
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>g</i> 1.146
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+<i>Y</i><sub>0.5</sub> 0.7002136
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) &lt;0.0001
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<i>g</i><sub>r</sub> 3.144
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+max |∂log <i>L</i>/∂β| 6×10<sup>-7</sup>
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+Score χ<sup>2</sup> 66.46
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+<span style="text-decoration: overline">|Pr(<i>Y</i> ≥ median)-½|</span> 0.257
+</td>
+<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
+</td>
+</tr>
+<tr>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+Pr(&gt;χ<sup>2</sup>) &lt;0.0001
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+</td>
+<td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+</td>
+</tr>
+</tbody>
+</table>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;">
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+β
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+S.E.
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Wald <i>Z</i>
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
+Pr(&gt;|<i>Z</i>|)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: left;">
+group
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 2.2796
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+ 0.2922
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+7.80
+</td>
+<td style="min-width: 7em; border-bottom: 2px solid grey; text-align: right;">
+&lt;0.0001
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>or &lt;- exp(coef(f)[&#39;group&#39;])
+capprox &lt;- or ^ 0.66 / (1 + or ^ 0.66)
+z &lt;- c(conc, capprox, or)
+names(z) &lt;- c(&#39;c-index&#39;, &#39;c-approx&#39;, &#39;OR&#39;)
+z</code></pre>
+<pre><code>  c-index  c-approx        OR 
+0.8162000 0.8182461 9.7723775 </code></pre>
+<p>The approximation is off by 0.002.</p>
+</div>
+<div id="computing-environment" class="section level1">
+<h1>Computing Environment</h1>
+<pre>
+ R version 4.0.4 (2021-02-15)
+ Platform: x86_64-pc-linux-gnu (64-bit)
+ Running under: Pop!_OS 20.10
+ 
+ Matrix products: default
+ BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+ LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+ 
+ attached base packages:
+ [1] stats     graphics  grDevices utils     datasets  methods   base     
+ 
+ other attached packages:
+ [1] rms_6.1-2       SparseM_1.78    Hmisc_4.6-0     ggplot2_3.3.2  
+ [5] Formula_1.2-4   survival_3.2-7  lattice_0.20-41
+ </pre>
+ To cite R in publications use:
+ <p>R Core Team (2021).
+ <em>R: A Language and Environment for Statistical Computing</em>.
+ R Foundation for Statistical Computing, Vienna, Austria.
+ <a href="https://www.R-project.org/">https://www.R-project.org/</a>. 
+ </p>
+ 
+To cite the <tt>Hmisc</tt> package in publications use:
+
+ <p>Harrell F (2021).
+ <em>Hmisc: Harrell Miscellaneous</em>.
+ R package version 4.6-0, <a href="https://hbiostat.org/R/Hmisc/">https://hbiostat.org/R/Hmisc/</a>. 
+ </p>
+ 
+To cite the <tt>rms</tt> package in publications use:
+
+ <p>Harrell Jr FE (2021).
+ <em>rms: Regression Modeling Strategies</em>.
+ https://hbiostat.org/R/rms/, https://github.com/harrelfe/rms. 
+ </p>
+
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Note that <span class="math inline">\(0.66 = \frac{1}{1.52}\)</span> from the blog article.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Note that PO would hold if one simulated from a <strong>logistic</strong> distribution with a shift in location only.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
