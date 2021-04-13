@@ -2,7 +2,7 @@
 title: Road Map for Choosing Between Statistical Modeling and Machine Learning
 author: Frank Harrell
 date: '2018-04-30'
-modified: '2019-09-15'
+modified: '2021-04-13'
 updated: ''
 slug: stat-ml
 categories: []
@@ -132,5 +132,6 @@ See [this](https://twitter.com/f2harrell/status/990991631900921857) for more twi
    Science in Industry](https://hdsr.mitpress.mit.edu/pub/a7gxkn0a) by
    Nathan Sanders
 * [The Sound of Machine Learning That is Just Logistic Regression](https://twitter.com/MaartenvSmeden/status/1083832145779535872)
+* [Predictive performance of machine and statistical learning methods: Impact of data-generating processes on external validity in the “large N, small p” setting](https://journals.sagepub.com/doi/10.1177/09622802211002867) by PC Austin, FE Harrell, EW Steyerberg
 
 #### Footnotes

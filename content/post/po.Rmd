@@ -11,7 +11,7 @@ tags:
   - RCT
   - regression
   - hypothesis testing
-  - metric
+  - metrics
 link-citations: yes
 summary: Many researchers worry about violations of the proportional hazards assumption when comparing treatments in a randomized study.  Besides the fact that this frequently makes them turn to a much worse approach, the harm done by violations of the proportional odds assumption usually do not prevent the proportional odds model from providing a reasonable treatment effect assessment.
 header:
