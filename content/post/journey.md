@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-02-17
+modified = 2021-04-16
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -294,7 +294,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
   by EJ Wagenmakers and Q Gronau
 * [Steve Ruberg's Blog](https://analytixthinking.blog)
 * [Dicing with the Unknown](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1740-9713.2004.00050.x) by Tony O'Hagan
-
+* [Reasons confidence intervals and credible intervals may not be equated](https://online.ucpress.edu/collabra/article/5/1/13/112982/Pragmatism-should-Not-be-a-Substitute-for) by  Ladislas Nalborczyk, Paul-Christian Bürkner, Donald R. Williams
 ----------------------------------------
 ## More Quotes
 * Bayes: Distributional + prior assumption<br>Freq: Distributional + sampling dist assumption<br>You don't need a prior to be 'true', you need it to be defendable. "Given this prior uncertainty, what do the data suggest?"<br>Can you defend the existence of a sampling distribution? - [Stephen Martin](https://twitter.com/smartin2018/status/1025974302607388672)
