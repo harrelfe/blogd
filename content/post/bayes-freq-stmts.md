@@ -7,20 +7,20 @@ tags = ["reporting", "inference", "p-value", "RCT", "bayes", "drug-evaluation", 
 <p class="rquote">
 To avoid "false positives" do away with "positive".<br><br>
 A good poker player plays the odds by thinking to herself "The probability I can win with this hand is 0.91" and not "I'm going to win this game" when deciding the next move.<br><br>
-State conclusions honestly, completely deferring judgments and actions to the ultimate decision makers.  Just as it is better to [make predictions than classifications](/post/classification) in prognosis and diagnosis, use the word "probably" liberally, and avoid thinking "the evidence against the null hypothesis is strong, so we conclude the treatment works" which creates the opportunity of a false positive.<br><br>
+State conclusions honestly, completely deferring judgments and actions to the ultimate decision makers.  Just as it is better to <a href="/post/classification">make predictions than classifications</a> in prognosis and diagnosis, use the word "probably" liberally, and avoid thinking "the evidence against the null hypothesis is strong, so we conclude the treatment works" which creates the opportunity of a false positive.<br><br>
 Propagation of uncertainties throughout research, reporting, and implementation will result in better decision making and getting more data when needed.  Imagine a physician saying to a patient "The chance this drug will lower your blood pressure by more than 3mmHg is 0.93."
 </p>
 The following examples are intended to show the advantages of Bayesian reporting of
 treatment efficacy analysis, as well as to provide examples contrasting
 with frequentist reporting. As detailed
-[here]({{< ref "post/pval-litany.md" >}}),
+[here](/post/pval-litany),
 there are many problems with p-values, and some of those problems will
 be apparent in the examples below. Many of the advantages of Bayes are
-summarized [here]({{< ref "post/journey.md" >}}).
+summarized [here](/post/journey).
 As seen below, Bayesian posterior probabilities prevent one from
 concluding equivalence of two treatments on an outcome when the data do
 not support that (i.e., the ["absence of evidence is not evidence of
-absence"]({{< ref "post/errmed.md" >}}) error).
+absence"](/post/errmed) error).
 
 Suppose that a parallel group randomized clinical trial is conducted to
 gather evidence about the relative efficacy of new treatment B to a
