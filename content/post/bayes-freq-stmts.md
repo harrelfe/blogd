@@ -13,14 +13,13 @@ Propagation of uncertainties throughout research, reporting, and implementation 
 The following examples are intended to show the advantages of Bayesian reporting of
 treatment efficacy analysis, as well as to provide examples contrasting
 with frequentist reporting. As detailed
-[here](/post/pval-litany),
+<a href="/post/pval-litany">here</a>,
 there are many problems with p-values, and some of those problems will
 be apparent in the examples below. Many of the advantages of Bayes are
-summarized [here](/post/journey).
+summarized <a href="/post/journey">here</a>.
 As seen below, Bayesian posterior probabilities prevent one from
 concluding equivalence of two treatments on an outcome when the data do
-not support that (i.e., the ["absence of evidence is not evidence of
-absence"](/post/errmed) error).
+not support that (i.e., the <a href="/post/errmed">"absence of evidence is not evidence of absence"</a> error).
 
 Suppose that a parallel group randomized clinical trial is conducted to
 gather evidence about the relative efficacy of new treatment B to a
