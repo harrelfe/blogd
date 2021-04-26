@@ -41,6 +41,8 @@ tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "p
 |  |  <small>A paradigm that cannot <b>compute</b> the probability that a treatment works cannot <b>control</b> the probability of making a decision error, e.g., the probability that a treatment actually doesn't work when you act as though it does.</small> |
 |  |  |
 |  |  <small>The only agents that use frequentist statistics are frequentists statisticians when they practice frequentist statistics. In the real world, evolution rooted out those agents who willfully ignore prior knowledge to address irrelevant questions in an incoherent fashion. -- [EJ Wagenmakers](https://twitter.com/EJWagenmakers/status/1344922099765407744)</small> |
+|  |  |
+|  |  <small>In arguing for progressive (and pragmatic) attitudes in statistical theory and practice [in overcoming inertia moving beyond Frequentism and embracing Bayesianism] it may be well to point to how other fields, such as Economics and Physics, fields that describe how the world works, have ineluctably had major paradigm shifts. In every major field---if it is an intellectually honest one---there is a moment where we have to "un-learn" what we have been inculcated in, conculcate operative premises, and retool our paradigms. There is no reason to expect that Statistics is different. -- [Drew Levy](https://www.linkedin.com/in/drewglevy/)</small> |
 
 If I had been taught Bayesian modeling before being taught the
 frequentist paradigm, I'm sure I would have always been a Bayesian.  I
