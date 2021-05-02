@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-04-16
+modified = 2021-05-02
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -278,6 +278,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
 --------------------------------------
 ## Other Resources
 
+* [General resources](https://hbiostat.org/bayes)
 * [Statistical Remedies for Medical Researchers](https://link.springer.com/book/10.1007%2F978-3-030-43714-5) by Peter Thall
 * [Bayesian estimation supersedes the t test](http://www.indiana.edu/~kruschke/articles/Kruschke2013JEPG.pdf) by John Kruschke
 * [Bayesian t-tests](https://vuorre.netlify.app/post/2017/01/02/how-to-compare-two-groups-with-robust-bayesian-estimation-using-r-stan-and-brms)
@@ -288,8 +289,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
 * [Bayesian theorists were little better than cranks](http://wmbriggs.com/post/24848) by William Briggs.
 * [A student's guide to Bayesian statistics](https://youtu.be/P_og8H-VkIY) by Ben Lambert
 * [Book for Lambert's _A Student's Guide to Bayesian Statistics_](http://ben-lambert.com/a-students-guide-to-bayesian-statistics)
-* [Data analysis: A Bayesian
-  tutorial](https://www.amazon.com/gp/product/0198568320/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1)
+* [Data analysis: A Bayesian tutorial](https://www.amazon.com/gp/product/0198568320/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1)
   by Devinderjit Sivia and John Skilling
 * [Redefine Statistical Significance
   XVII](https://www.bayesianspectacles.org/redefine-statistical-significance-xvii-william-rozeboom-destroys-the-justify-your-own-alpha-argument-back-in-1960)
