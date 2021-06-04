@@ -2,7 +2,7 @@
 title: Unadjusted Odds Ratios are Conditional
 author: Frank Harrell
 date: '2020-09-13'
-modified: '2020-09-18'
+modified: '2021-06-04'
 slug: marg
 tags:
   - 2020
@@ -33,7 +33,7 @@ The underlying issue is the non-collapsibility of ORs and HRs.  Non-collapsibili
 
 When risk factors exist and a clinical trial enrolls patients having a variety of values of these risk factors, there will be outcome heterogeneity.  To easily account for known outcome heterogeneity, it is a good idea to pre-specify known-to-be-important covariates for the primary analysis of an RCT.  Failure to do so will result in a significant power loss.
 
-I frequently hear criticism of adjusted effect ratios to the effect "How do you know your model is correct?  How do you know you haven't omitted important covariates?".  Fortunately, covariate adjustment usually performs well even if the model is not correct.  If the model captures a large proportion of the explainable outcome heterogeneity, covariate adjustment works extremely well and is robust to model misspecification.  And any covariate adjustment will improve estimation and power over unadjusted marginal treatment effects.  Conditioning does not have to be perfect.  One can think of an incompletely adjusted treatment effect as an approximation of a more completely adjusted one.  As an example, suppose that patient age is a major risk factor, and that one adjusted for age but not for five other risk factors.  The resulting adjusted treatment effect compares outlines for like vs. like with respect to age, but averages over unadjusted risk factors.  Estimating how an x year old patient on treatment A will fare in comparison to an x year old patient on treatment B, i.e., fully utilizing information about age, is better than not accounting for age.  In my experience, clinical investigators are quite accurate in choosing prognostic factors for adjustment.  They seldom miss one that explains a large proportion of patient-to-patient variability in outcomes.
+I frequently hear criticism of adjusted effect ratios to the effect "How do you know your model is correct?  How do you know you haven't omitted important covariates?".  Fortunately, covariate adjustment usually performs well even if the model is not correct.  If the model captures a large proportion of the explainable outcome heterogeneity, covariate adjustment works extremely well and is robust to model misspecification.  And any covariate adjustment will improve estimation and power over unadjusted marginal treatment effects.  Conditioning does not have to be perfect.  One can think of an incompletely adjusted treatment effect as an approximation of a more completely adjusted one.  As an example, suppose that patient age is a major risk factor, and that one adjusted for age but not for five other risk factors.  The resulting adjusted treatment effect compares outcomes for like vs. like with respect to age, but averages over unadjusted risk factors.  Estimating how an x year old patient on treatment A will fare in comparison to an x year old patient on treatment B, i.e., fully utilizing information about age, is better than not accounting for age.  In my experience, clinical investigators are quite accurate in choosing prognostic factors for adjustment.  They seldom miss one that explains a large proportion of patient-to-patient variability in outcomes.
 
 
 # Odds Ratio Example
@@ -101,7 +101,7 @@ for(frac in fraction.females) {
 
 ```{r printmatrix} 
 kable(cbind(fraction.females, OR), row.names=FALSE, align='r',
-      col.names=c('Fraction of females retained', 'OR'))
+      col.names=c('Fraction of<br>females retained', 'OR'))
 ```
 
 The marginal OR depends on the distribution of the sex variable in the sample, and does not transport to populations with a different sex ratio than the trial enrollment achieved.  It is conditional (adjusted) ORs that generalize to other populations.  These calculations illustrate that the sex-conditional OR equals the marginal OR only if the distribution is altered so that the conditioning doesn't matter (e.g., all the males or all the females are excluded).  But what is the exact interpretation of the original marginal OR of 5.44 since it involves hidden conditioning on a 1:1 sex ratio in our example?  A definition for this example is that 5.44 is the unconditional OR _only when there are equal numbers of males and females_ because that's how the sample was constituted.  But what is the interpretation when one wants to apply the RCT results to individual patients?  It would seem to apply only to those rare situations where the patient is being counseled but for some reason we don't know the patient's sex[^2].  The marginal estimate needs the physician to conceptualize the clinical population (or at least the sex ratio) from which the patient came since it does not want to take into account the patient's actual sex.
