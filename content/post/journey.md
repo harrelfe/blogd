@@ -285,6 +285,19 @@ p-values?  [Nalborczyk, Bürkner, and Williams](https://online.ucpress.edu/colla
 * Using a non-informative prior on the main endpoint is usually silly, and helps to divorce clinical significance from statistical significance. In most medical treatment comparisons, for example, we know that the treatment is not a cure.  So there is no chance that the odds ratio or hazard ratio, for example, is 0.0.  It is easy to see the silliness of flat priors by running a clinical trial simulation where the prior for an odds ratio is nearly flat.  In simulating Bayesian power one might easily draw an odds ratio of 10,000.
 * When one wants to go further than assessing evidence against a simple null hypothesis, it immediately becomes unclear what to compare.  For example one may want to compute the posterior probability that a treatment reduces the risk of heart attack by at least 20%, or the probability that the treatment either reduces mortality by any amount or reduces the risk of heart attack by at least 10%.  With which frequentist calculation would you compare this?
 
+<a name="pwhat"></a>
+
+**And What is a p-value?**
+
+Many believe that p-values are useful and that there is a logic by which p-values provide evidence against the null hypothesis and that makes hypothesis tests useful in decision making.  So far I am not fully convinced.  What exactly can we say about a p-value that doesn't require complex arguments or a leap of logic?  Consider a treatment comparison with a proper design and properly chosen data model that yields p=0.06.  What do we really know directly?
+
+* either the null hypothesis is false or we have just witnessed an event that is improbable (Which event? How improbable does it have to be for us to say this?)
+* the probability of observing data **more extreme** that what we observed were the treatment to be ignorable is 0.06 (What does "observing" mean?  Why talk about "more extreme" instead of talking about exactly what we observed?  If the study is sequential are we only talking about observing the latest results?  Are we watching a series of identical study replications?  How could we possibly get funded to do identical replications?)
+* Paraphrasing but requiring a bit of a logic leap: Under the supposition that the treatment has zero effect (and could not cause harm), our observed data are in the 0.94 quantile of data extremeness thus seem to be outliers.  We believe this is evidence against the null hypothesis, so we interpret this as evidence in favor of the alternative hypothesis that the treatment effect is nonzero.
+* Reviewer: You had the opportunity to detect harm from the treatment and to write a paper claiming such harm.  You need to be penalized for this extra opportunity, so I'm using a p-value of 0.12 instead of 0.06.  Researcher: But we would just drop the treatment if it had an effect in the wrong direction.   No such formal claim of harm would be made.
+
+I feel that the formal interpretations of the p-value has not sufficiently addressed the question of whether the treatment works.  The Bayesian approach is more direct, while embracing uncertainties.  A Bayesian conclusion when the posterior probability of treatment effectiveness is 0.93 may be "Under data model M and skeptical prior P, the treatment probably (0.93) works".  So if I act as if the treatment works, I have a probability of 0.07 of being wrong, under that prior.
+
 ------------------------------------------------------------------------
 Frank's [Plenary Session Podcast](https://soundcloud.com/plenarysession/206-heart-failure-choosing-a-specialty-the-bayesian-approach-with-dr-frank-harrell) on Bayesian thinking.
 
@@ -312,6 +325,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
 * [Steve Ruberg's Blog](https://analytixthinking.blog)
 * [Dicing with the Unknown](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/j.1740-9713.2004.00050.x) by Tony O'Hagan
 * [Reasons confidence intervals and credible intervals may not be equated](https://online.ucpress.edu/collabra/article/5/1/13/112982/Pragmatism-should-Not-be-a-Substitute-for) by  Ladislas Nalborczyk, Paul-Christian Bürkner, Donald R. Williams
+* [Language for communicating frequentist results about treatment effects](https://discourse.datamethods.org/t/language-for-communicating-frequentist-results-about-treatment-effects)
 ----------------------------------------
 ## More Quotes
 * Bayes: Distributional + prior assumption<br>Freq: Distributional + sampling dist assumption<br>You don't need a prior to be 'true', you need it to be defendable. "Given this prior uncertainty, what do the data suggest?"<br>Can you defend the existence of a sampling distribution? - [Stephen Martin](https://twitter.com/smartin2018/status/1025974302607388672)
