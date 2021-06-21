@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-05-02
+modified = 2021-06-21
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -161,8 +161,7 @@ into a complex design (e.g., adaptive clinical trial) **without
 modification**.  Frequentist solutions require highly complex
 modifications to work in the adaptive trial setting.
 
-I met likelihoodist [Jeffrey
-Blume](https://biostat.app.vumc.org/wiki/Main/JeffreyBlume) in 2008 and
+I met likelihoodist [Jeffrey Blume](https://biostat.app.vumc.org/wiki/Main/JeffreyBlume) in 2008 and
 started to like the likelihood approach.  It is more Bayesian than
 frequentist.  I plan to learn more about this paradigm.  Jeffrey has an excellent [web site](http://statisticalevidence.com).
 
@@ -269,6 +268,21 @@ where
   experiment are envisioned, choice of the stopping rule, 1-tailed
   vs. 2-tailed tests, multiplicity adjustments, ...
 * subjectivity<sub>3</sub> = prior distribution
+
+<a name="bayesfreq"></a>
+
+**Aren't they the same anyway?**
+
+I frequently see this argument: Bayes is a lot of trouble, and when
+the prior is non-informative, the one-sided p-value equals the
+posterior probability of inefficacy, so why not avoid trouble,
+controversy, and having to learn new things by just sticking with
+p-values?  [Nalborczyk, Bürkner, and Williams](https://online.ucpress.edu/collabra/article/5/1/13/112982/Pragmatism-should-Not-be-a-Substitute-for) explain why comparing the two approaches in this way is not a good idea.  But there are simpler reasons not to do so related to the fact that the two don't even arrive at the same calculated value in the first place:
+
+* For exact agreement one must have an exact p-value.  Outside of simple Gaussian models and a few nonparametric tests, the p-values that are calculated are only approximate.  For example we usually use normal approximations with binary logistic models, and these approximations are not very good in many cases.  Bayesian calculations are exact and do not use normal approximations.
+* The equivalence does not exist unless the sample size is fixed and there is exactly one look at the data.  The approaches diverge any time a multiplicity adjustment is used, for example when sequential testing is used or there are multiple endpoints.
+* Most practitioners use two-sided p-values, not one-sided p-values.
+* Using a non-informative prior on the main endpoint is usually silly, and helps to divorce clinical significance from statistical significance. In most medical treatment comparisons, for example, we know that the treatment is not a cure.  So there is no chance that the odds ratio or hazard ratio, for example, is 0.0.  It is easy to see the silliness of flat priors by running a clinical trial simulation where the prior for an odds ratio is nearly flat.  In simulating Bayesian power one might easily draw an odds ratio of 10,000.
 
 ------------------------------------------------------------------------
 Frank's [Plenary Session Podcast](https://soundcloud.com/plenarysession/206-heart-failure-choosing-a-specialty-the-bayesian-approach-with-dr-frank-harrell) on Bayesian thinking.
