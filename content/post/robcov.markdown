@@ -57,7 +57,7 @@ The claim that ordinary conditional estimates are not robust also needs further 
 
 Assume a true model as specified below:
 
-`$$\Pr(Y = 1 | X, T) = \mathrm{expit}(\alpha + \beta_{1} [T=B] + \beta_{2} X + \beta_{3} (X - 65)_{+} + \beta_{4} [S=\mathrm{male}]$$`
+`$$\Pr(Y = 1 | X, T) = \mathrm{expit}(\alpha + \beta_{1} [T=B] + \beta_{2} X + \beta_{3} (X - 65)_{+} + \\ \beta_{4} [S=\mathrm{male}])$$`
 
 where `\(X\)` is age, treatment `\(T\)` is A or B, `\(S\)` is sex, and `\(\mathrm{expit}\)` denotes the inverse of the logit function, i.e., `\(\frac{1}{1 + \exp(-u)}\)`.  `\(u_{+}\)` is defined as `\(u\)` if `\(u > 0\)` and 0 otherwise, and `\([u]\)` is 1 if `\(u\)` is true and 0 otherwise.  We assume the effect of using treatment B instead of treatment A raises the odds that Y=1 by a factor of 2.0, i.e., the treatment effect is OR=2 so that `\(\beta_{1}=\log(2)=0.6931\)`.  The age effect is a linear spline with slope change at 65y.  Assume the true age effect is given by the initial slope of `\(\beta_{2}=0.01\)` and the increment in slope starting at age 65 is `\(\beta_{3}=0.07\)`.  Assume that `\(\beta_{4}=0.5\)` and `\(\alpha=0\)`.  Then the true relationships are given in the following graph.
 
