@@ -18,6 +18,17 @@ header:
 
 <!-- title: Non-Robustness of Covariate Adjustment is a Non-Issue<br><small>or</small><br>Non-Robust Covariate Adjustment May Be More Accurate Than Robust Marginal Covariate Adjustment<br><small>or</small><br>Incorrect Covariate Adjustment Is More Correct than Adjusted Marginal Estimation -->
 
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<script async type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 ```{r setup, include=FALSE}
 require(rms)
 require(knitr)
