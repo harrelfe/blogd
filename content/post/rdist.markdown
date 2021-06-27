@@ -394,7 +394,7 @@ This graph provides a much fuller picture than an OR or than the blue or red ver
 
 # RD Distribution Under Different Models
 
-We can never make the data better than they are.   We would like to know the RD disitribution for a model that adjusts for all prognostic factors, but it is not possible to know or to measure all such factors.   In the spirit of [SIMEX](https://www.stata.com/merror/simex.pdf) (simulation-extrapolation) which is used to correct for measurement error when estimating parameters, we can make things worse than they are and study how things vary.  Use a fast backwards stepdown procedure to rank covariates by their apparent predictive importance, then remove covariates one-at-a-time so that only the apparently most important variable remains.   For each model show the distribution of RDs computed form it.  Keep treatment in all models though.
+We can never make the data better than they are.   We would like to know the RD disitribution for a model that adjusts for all prognostic factors, but it is not possible to know or to measure all such factors.   In the spirit of [SIMEX](https://www.stata.com/merror/simex.pdf) (simulation-extrapolation) which is used to correct for measurement error when estimating parameters, we can make things worse than they are and study how things vary.  Use a fast backwards stepdown procedure to rank covariates by their apparent predictive importance, then remove covariates one-at-a-time so that only the apparently most important variable remains.   For each model show the distribution of RDs computed from it.  Keep treatment in all models though.
 
 
 ```r
