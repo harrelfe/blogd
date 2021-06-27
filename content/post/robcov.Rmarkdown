@@ -1,7 +1,7 @@
 ---
 title: Incorrect Covariate Adjustment May Be More Correct than Adjusted Marginal Estimates
 author: Frank Harrell
-date: '2021-06-25'
+date: '2021-06-27'
 modified: ''
 slug: robcov
 tags:
@@ -25,8 +25,8 @@ MathJax.Hub.Config({
   }
 });
 </script>
-<script async type="text/javascript"
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
 ```{r setup, include=FALSE}
@@ -254,6 +254,8 @@ Ordinary covariate adjustment resulted in slightly better power (0.813 vs. 0.808
 The marginal treatment effect estimate involves averaging of unlikes, i.e., it hides the outcome heterogeneity that dictates that the risks of outcomes vary systematically by strong baseline covariates.  This makes the marginal estimate sample-specific, difficult to interpret, and prevents it from applying to target populations.  And critics of traditional covariate conditional models focus on possible non-robustness of nonlinear regression models.  As exemplified in simulations shown here, such criticisms may be unwarranted.
 
 If our simulation results hold more generally, the issue with adjusted marginal estimates is more with estimating magnitudes of treatment effectiveness than with statistical power.  But ordinary covariate adjustment with ill-fitting nonlinear models may be just as powerful as the two-stage robust marginal procedure, while controlling $\alpha$.
+
+Risk differences are clinically relevant measures of treatment effect.  But because of extreme baseline risk-dependent heterogeneity of risk differences, risk differences should be **covariate-specific** and not averaged.
 
 # References
 
