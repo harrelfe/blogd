@@ -1,7 +1,7 @@
 ---
 title: Avoiding One-Number Summaries of Treatment Effects for RCTs with Binary Outcomes
 author: Frank Harrell
-date: '2021-06-27'
+date: '2021-06-28'
 modified: ''
 slug: rdist
 tags:
@@ -46,7 +46,7 @@ ORs have some potential to simplify things and can easily be [translated into RD
 
 When Y is a Gaussian continuous response with constant variance, it is possible to reduce the results of an RCT treatment comparison to two numbers: the difference in mean Y and the between-subject covariate-adjusted variance (the latter being used for prediction intervals as opposed to group mean intervals).  Things are [much different](https://hbiostat.org/bbr/md/ancova.html) with binary Y.  Among other things, the variance of Y is a function of the mean of Y (P(Y=1)), and model misspecification will alter all of the coefficients in a logistic model.  A rich discussion and debate about effect measures, especially ORs, has been held on [datamethods.org](https://discourse.datamethods.org/t/should-one-derive-risk-difference-from-the-odds-ratio).  At the heart of the debate, as well stated by Sander Greenland, are problems caused by one attempting to reduce a treatment effect to a single number such as an OR or RD.
 
-For individual patient decision making, when narrowing the focus to efficacy alone, the best information to present to the patient is the estimated individualized risk of the bad outcome separately under all treatment alternatives.  That is because patients tend to think in terms of absolute risk, and differences in risks don't tell the whole store.  A RD often means different things to patients depending on whether the base risk is very small, in the middle, or very large.  But for this article, results for all patients and not just any one patient are presented, and the picture is simplified to estimation of RD and not its two component probabilities.  A full-information graphical representation of the component probabilities would be a scatterplot with estimated risk for control on the `\(x\)`-axis, and estimated risk for active treatment on the `\(y\)`-axis.
+For individual patient decision making, when narrowing the focus to efficacy alone, the best information to present to the patient is the estimated individualized risk of the bad outcome separately under all treatment alternatives.  That is because patients tend to think in terms of absolute risk, and differences in risks don't tell the whole story.  A RD often means different things to patients depending on whether the base risk is very small, in the middle, or very large.  For this article, results for all patients and not just any one patient are presented, and the picture is simplified to estimation of RD and not its two component probabilities.  But one full-information graphical representation of the component probabilities is also presented.
 
 # Statistical Evidence for Efficacy
 
@@ -62,7 +62,7 @@ The covariate-adjusted logistic regression model [does not have to be perfect](/
 
 When one moves from testing whether there is _any_ efficacy vs. whether there is absolute efficacy beyond a certain level, e.g., RD > 0.02, the statistical evidence will vary depending not only on the RD cutoff but also on how high risk is the patient.  For example, Bayesian posterior probabilities that RD > d are functions of d and baseline covariates.
 
-As a side note, from an RD perspective, the treatment benefit that a patient gets from being high risk is indistinguisable from the benefit she gets due to a treatment `\(\times\)` baseline covariate interaction.  But it does matter for quantifying statistical evidence.
+As a side note, from an RD perspective, the treatment benefit that a patient gets from being high risk is indistinguishable from the benefit she gets due to a treatment `\(\times\)` baseline covariate interaction.  But it does matter for quantifying statistical evidence.
 
 For the remainder of the article I concentrate on summarizing trials using the entire RD distribution.
 
@@ -354,20 +354,25 @@ Wald Statistics for <code style="font-size:0.8em">day30</code></td></tr>
 
 # Distribution of RDs in GUSTO-I
 
-The t-PA:SK odds ratio is NA.  But let's present richer results.   Estimate the distribution of SK - tPA risk differences from the above full covariate-adjusted model.  
+The t-PA:SK odds ratio is 0.81.  But let's present richer results.   Estimate the distribution of SK - t-PA risk differences from the above full covariate-adjusted model.  But first show the full information needed for medical decision making: the estimated risks for individual patients under both treatment alternatives.  One can readily see risk magnification in the absolute risk reduction as baseline risk increases.   The points are all on a line because the logistic model allowed for no interactions with treatment (and no interactions were needed).
 
 
 ```r
-rd <- function(fit) {
+prisk <- function(fit) {
   d  <- copy(gusto)  # otherwise next command will make data.table change the original dataset
   d[, tx := 'SK']
   p1 <- plogis(predict(fit, d))
   d[, tx := 'tPA']
   p2 <- plogis(predict(fit, d))
-  p1 - p2
+  list(p1=p1, p2=p2)
 }
+pr <- prisk(f)
+with(pr, ggfreqScatter(p1, p2, bins=1000) +
+          geom_abline(intercept=0, slope=1) +
+          xlab('Risk of Mortality for SK') +
+          ylab('Risk of Mortality for t-PA'))
 xl <- 'SK - t-PA Risk Difference'
-d <- rd(f)
+d <- with(pr, p1 - p2)
 hist(d, nclass=100, prob=TRUE, xlab=xl, main='')
 lines(density(d, adj=0.4))
 mmed <- function(x, pl=TRUE) {
@@ -388,13 +393,13 @@ Mean risk difference            Median RD
 title(sub='Red line: mean RD; Blue line: median RD', adj=1)
 ```
 
-<img src="/post/rdist_files/figure-html/rd1-1.png" width="672" />
+<img src="/post/rdist_files/figure-html/rd1-1.png" width="672" /><img src="/post/rdist_files/figure-html/rd1-2.png" width="672" />
 
-This graph provides a much fuller picture than an OR or than the blue or red vertical lines (median and mean RD).  Clinicians can readily see that most patients are lower risk and receive little absolute benefit form t-PA, while a minority of very high-risk patients can receive almost an absolute 0.05 risk reduction.
+This graph provides a much fuller picture than an OR or than the blue or red vertical lines (median and mean RD).  Clinicians can readily see that most patients are lower risk and receive little absolute benefit form t-PA, while a minority of very high-risk patients can receive almost an absolute 0.05 risk reduction.  But the previous graph shows even more.
 
 # RD Distribution Under Different Models
 
-We can never make the data better than they are.   We would like to know the RD disitribution for a model that adjusts for all prognostic factors, but it is not possible to know or to measure all such factors.   In the spirit of [SIMEX](https://www.stata.com/merror/simex.pdf) (simulation-extrapolation) which is used to correct for measurement error when estimating parameters, we can make things worse than they are and study how things vary.  Use a fast backwards stepdown procedure to rank covariates by their apparent predictive importance, then remove covariates one-at-a-time so that only the apparently most important variable remains.   For each model show the distribution of RDs computed from it.  Keep treatment in all models though.
+We can never make the data better than they are.   We would like to know the RD distribution for a model that adjusts for all prognostic factors, but it is not possible to know or to measure all such factors.   In the spirit of [SIMEX](https://www.stata.com/merror/simex.pdf) (simulation-extrapolation) which is used to correct for measurement error when estimating parameters, we can make things worse than they are and study how things vary.  Use a fast backwards stepdown procedure to rank covariates by their apparent predictive importance, then remove covariates one-at-a-time so that only the apparently most important variable (age) remains.   For each model show the distribution of RDs computed from it.  Keep treatment in all models though.
 
 
 ```r
@@ -435,10 +440,12 @@ z <- u <- NULL; i <- 0; nm <- names(forms)
 for(form in forms) {
   i <- i + 1
   f <- lrm(form, data=gusto, maxit=30)
-  d <- rd(f)
+  d <- with(prisk(f), p1 - p2)
   z <- rbind(z, data.frame(model=nm[i], d=d))
-  u <- rbind(u, data.frame(model=nm[i], what=c('mean', 'median'), stat=c(mean(d), median(d))))
-  if(i > 1) cat('Mean |difference in RD| compared to previous model:', round(mean(abs(d - dprev)), 4), '\n')
+  u <- rbind(u, data.frame(model=nm[i], what=c('mean', 'median'),
+                           stat=c(mean(d), median(d))))
+  if(i > 1) cat('Mean |difference in RD| compared to previous model:', 
+                round(mean(abs(d - dprev)), 4), '\n')
   dprev <- d
 }
 ```
@@ -466,4 +473,4 @@ The final model (labeled `-Killip`) contains only age and treatment.  The risk d
 
 # Summary
 
-The never-ending discussion about which effect index to choose when Y is binary is best resolved by avoiding the oversimplifications that are required to make such choices.  The proposed summarization of the main trial result is more clinically interpretable, more consistent with individual patient decision making, and embraces rather than hides outcome heterogeneity in the RD distribution. 
+The never-ending discussion about which effect index to choose when Y is binary is best resolved by avoiding the oversimplifications that are required to make such choices.  The proposed summarization of the main trial result is more clinically interpretable, more consistent with individual patient decision making, and embraces rather than hides outcome heterogeneity in the RD distribution.  See [this](/post/robcov) for some related discussions.
