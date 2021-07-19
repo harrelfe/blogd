@@ -3,7 +3,7 @@ title: Commentary on Improving Precision and Power in Randomized Trials for COVI
   Treatments Using Covariate Adjustment, for Binary, Ordinal, and Time-to-Event Outcomes
 author: "Frank E Harrell Jr"
 date: '2021-07-17'
-updated: ''
+updated: '2021-07-19'
 slug: ipp
 draft: no
 categories: []
@@ -359,6 +359,10 @@ continuously sequential Bayesian design using a traditional
 proportional odds model for covariate adjustment is likely to provide
 more understandable evidence and result in earlier stopping for
 efficacy, harm, or futility.
+
+# Discussion
+
+To add your comments, discussions, and questions go to `datamethods.org` [here](https://discourse.datamethods.org/t/guidelines-for-covariate-adjustment-in-rcts)
 
 # Grant Support
 
