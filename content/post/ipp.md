@@ -224,7 +224,7 @@ more insightful.
 
 See Hoogland et al[^hoogland] for a detailed article on individualized treatment effect prediction.
 
-<a name="causalmarg">🆕Others</a> have [claimed](https://twitter.com/ildiazm/status/1417422405220319232) that our argument in favor of transportability of conditional estimands for treatment effects is incorrect, and that marginal estimands should form the basis for transportability of findings to other patient populations, as advocated by Pearl and Bareinboim[^pearl].  The marginal estimand is not appropriate in our context for the following reasons:
+<a name="causalmarg"> </a>🆕Others</a> have [claimed](https://twitter.com/ildiazm/status/1417422405220319232) that our argument in favor of transportability of conditional estimands for treatment effects is incorrect, and that marginal estimands should form the basis for transportability of findings to other patient populations, as advocated by Pearl and Bareinboim[^pearl].  The marginal estimand is not appropriate in our context for the following reasons:
 
 * Pearl and Bareinboim developed their approach to apply to complex situations where a covariate may be related to the amount of treatment received.  We are dealing only with exogeneous pre-existing patient-level covariates here.
 * The transport equation 3.4 of Pearl and Bareinboim requires the use of the covariate distribution in the target population.  This distribution is not usually available when a clinical trial finding is published or is evaluated by regulators.
