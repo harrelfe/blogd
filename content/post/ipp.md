@@ -3,7 +3,7 @@ title: Commentary on Improving Precision and Power in Randomized Trials for COVI
   Treatments Using Covariate Adjustment, for Binary, Ordinal, and Time-to-Event Outcomes
 author: "Frank E Harrell Jr"
 date: '2021-07-17'
-updated: '2021-07-19'
+updated: '2021-07-21'
 slug: ipp
 draft: no
 categories: []
@@ -224,6 +224,15 @@ more insightful.
 
 See Hoogland et al[^hoogland] for a detailed article on individualized treatment effect prediction.
 
+<a name="causalmarg"></a>
+
+🆕Others have [claimed](https://twitter.com/ildiazm/status/1417422405220319232) that our argument in favor of transportability of conditional estimands for treatment effects is incorrect, and that marginal estimands should form the basis for transportability of findings to other patient populations, as advocated by Pearl and Bareinboim[^pearl].  The marginal estimand is not appropriate in our context for the following reasons:
+
+* Pearl and Bareinboim developed their approach to apply to complex situations where a covariate may be related to the amount of treatment received.  We are dealing only with exogeneous pre-existing patient-level covariates here.
+* The transport Equation 3.4 of Pearl and Bareinboim require the use of the covariate distribution in the target population.  This distribution is not usually available when a clinical trial finding is published or is evaluated by regulators.
+* It is easier to transport an efficacy estimate to an individual patient (at least under the no-interaction assumption or if interactions are correctly modeled in the fully conditional model).  The one patient is the target and one only needs to know her/his covariate value, not the distribution of an entire target population.
+* We are ultimately interested in individual patient decision making, not group decision making.
+
 # Lack of Comparisons
 
 Benkeser _et al_ showed large efficiency gains of their approach over
@@ -392,6 +401,8 @@ This work was supported by CONNECTS and by CTSA award No. UL1 TR002243 from the 
 [^lee]: Lee Y, Nelder JA (2004): Conditional and marginal models: Another view.  *Statistical Science* **19**:219-228.
 
 [^mcc]: McCullagh, P (1980): Regression models for ordinal data. *Journal of the Royal Statistical Society Series B* **42**:109-142.
+
+[^pearl]: Pearl J, Bareinboim E (2014): External validity: From do-calculus to transportability across populations.  *Statistical Science* **29**:579-595.
 
 [^rob]: Robinson, LD, Jewell NP (1991): Some surprising results about covariate adjustment in logistic regression models.  *International Statistical Review* **58**:227-240.
 
