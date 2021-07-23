@@ -307,6 +307,7 @@ Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about t
 ## Other Resources
 
 * [General resources](https://hbiostat.org/bayes)
+* [Bernoulli's Fallacy](https://aubreyclayton.com/bernoulli) by Aubrey Clayton
 * [Statistical Remedies for Medical Researchers](https://link.springer.com/book/10.1007%2F978-3-030-43714-5) by Peter Thall
 * [Bayesian estimation supersedes the t test](http://www.indiana.edu/~kruschke/articles/Kruschke2013JEPG.pdf) by John Kruschke
 * [Bayesian t-tests](https://vuorre.netlify.app/post/2017/01/02/how-to-compare-two-groups-with-robust-bayesian-estimation-using-r-stan-and-brms)
