@@ -1,7 +1,7 @@
 +++
 title = "Statistical Errors in the Medical Literature"
 date = 2017-04-08
-modified = 2020-11-15
+modified = 2021-08-02
 tags = ["prediction", "logic", "p-value", "validation", "bayes", "evidence", "subgroup", "dichotomization", "medicine", "inference", "change-scores", "RCT", "personalized-medicine", "responder-analysis", "hypothesis-testing", "medical-literature", "2017"]
 [author]
 +++
@@ -272,7 +272,7 @@ This form of dichotomania has been discredited by [Stephen
 Senn](http://hbiostat.org/papers/Senn/dichotomania.pdf) who
 provided a similar example in which he decoded the response function to
 show that the lucky patient is one (in the NEJM case) who has a starting
-blood pressure of 74mmHg. His example is below:
+blood pressure of 94mmHg. His example is below:
 
 {{< figure src="/img/dichotomaniaFig3.png" width="60%" >}}
 
