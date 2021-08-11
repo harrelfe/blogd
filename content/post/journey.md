@@ -301,9 +301,9 @@ Many believe that p-values are useful and that there is a logic by which p-value
 I feel that the formal interpretations of the p-value has not sufficiently addressed the question of whether the treatment works.  The Bayesian approach is more direct, while embracing uncertainties.  A Bayesian conclusion when the posterior probability of treatment effectiveness is 0.93 may be "Under data model M and skeptical prior P, the treatment probably (0.93) works".  So if I act as if the treatment works, I have a probability of 0.07 of being wrong, under that prior.
 
 ------------------------------------------------------------------------
-Frank's [Plenary Session Podcast](https://soundcloud.com/plenarysession/206-heart-failure-choosing-a-specialty-the-bayesian-approach-with-dr-frank-harrell) on Bayesian thinking.
-
-Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about this article that are not on this blog.
+* Frank's [Plenary Session Podcast](https://soundcloud.com/plenarysession/206-heart-failure-choosing-a-specialty-the-bayesian-approach-with-dr-frank-harrell) on Bayesian thinking.
+* Frank's [Learning Bayesian Statistics Podcast](https://www.learnbayesstats.com/episode/45-biostats-clinical-trial-design-frank-harrell) on Bayes, clinical trial design, and the journey to biostatistics and Bayes
+* Go [here](https://news.ycombinator.com/item?id=13684429) for discussions about this article that are not on this blog.
 
 --------------------------------------
 ## Other Resources
