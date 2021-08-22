@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-08-06
+modified = 2021-08-22
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -311,6 +311,7 @@ I feel that the formal interpretations of the p-value has not sufficiently addre
 * [General resources](https://hbiostat.org/bayes)
 * [Bernoulli's Fallacy](https://aubreyclayton.com/bernoulli) by Aubrey Clayton
 * [Statistical Remedies for Medical Researchers](https://link.springer.com/book/10.1007%2F978-3-030-43714-5) by Peter Thall
+* [Bayesian data analysis for newcomers](https://link.springer.com/article/10.3758/s13423-017-1272-1) by John Kruschke and Torrin Liddell
 * [Bayesian estimation supersedes the t test](http://www.indiana.edu/~kruschke/articles/Kruschke2013JEPG.pdf) by John Kruschke
 * [Bayesian t-tests](https://vuorre.netlify.app/post/2017/01/02/how-to-compare-two-groups-with-robust-bayesian-estimation-using-r-stan-and-brms)
 * [Statistical Rethinking](http://xcelab.net/rm/statistical-rethinking) examples with [R brms](https://osf.io/97t6w)
