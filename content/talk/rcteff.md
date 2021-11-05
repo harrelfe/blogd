@@ -1,13 +1,13 @@
 +++
-date = 2020-10-23  # Schedule page publish date.
+date = 2021-11-04  # Schedule page publish date.
 
-title = "Ways to Make Randomized Clinical Trials More Statistically Efficient"
-time_start = 2020-11-18
-time_end   = 2020-11-18
+title = "Modernizing Clinical Trial Design and Analysis to Improve Efficiency & Flexibility"
+time_start = 2021-11-04
+time_end   = 2021-11-04
 abstract = "This presentation covers several ways to make clinical trials more efficient and to reduce the chance of ending with an equivocal result.  Some of the approaches covered are Bayesian sequential designs allowing for study extension if results are promising, not being tied by type I assertion probabilities/α spending, using high-information longitudinal ordinal outcomes, and covariate adjustment."
 abstract_short = ""
-event = "<ul><li>UCLA Cardiology Grand Rounds 2020-10-23</li><li>Vanderbilt University Department of Biostatistics 2020-11-18</li></ul>"
-event_url = ""
+event = "<ul><li>UCLA Cardiology Grand Rounds 2020-10-23</li><li>Vanderbilt University Department of Biostatistics 2020-11-18</li><li>Vanderbilt Translational Research Forum 2021-11-04</ul>"
+event_url = "https://my.vanderbilt.edu/translationalresearchforum"
 location = ""
 
 # Is this a selected talk? (true/false)
