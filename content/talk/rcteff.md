@@ -6,7 +6,7 @@ time_start = 2021-11-04
 time_end   = 2021-11-04
 abstract = "This presentation covers several ways to make clinical trials more efficient and to reduce the chance of ending with an equivocal result.  Some of the approaches covered are Bayesian sequential designs allowing for study extension if results are promising, not being tied by type I assertion probabilities/α spending, using high-information longitudinal ordinal outcomes, and covariate adjustment."
 abstract_short = ""
-event = "<ul><li>UCLA Cardiology Grand Rounds 2020-10-23</li><li>Vanderbilt University Department of Biostatistics 2020-11-18</li><li>Vanderbilt Translational Research Forum 2021-11-04</ul>"
+event = "<ul><li>UCLA Cardiology Grand Rounds 2020-10-23 <a href=\"https://youtu.be/1liOEyeDRbU\">video</a></li><li>Vanderbilt University Department of Biostatistics 2020-11-18</li><li>Vanderbilt Translational Research Forum 2021-11-04</ul>"
 event_url = "https://my.vanderbilt.edu/translationalresearchforum"
 location = ""
 
@@ -21,7 +21,7 @@ selected = true
 # Links (optional).
 url_pdf = ""
 url_slides = "http://hbiostat.org/talks/rcteff.html"
-url_video = "https://youtu.be/1liOEyeDRbU"
+url_video = "https://youtu.be/GPcaum9rlKw"
 url_code = ""
 
 # Does the content use math formatting?
