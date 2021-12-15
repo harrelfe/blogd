@@ -1,5 +1,5 @@
 +++
-date = 2021-11-04  # Schedule page publish date.
+date = 2021-11-16  # Schedule page publish date.
 
 title = "Modernizing Clinical Trial Design and Analysis to Improve Efficiency & Flexibility"
 time_start = 2021-11-04

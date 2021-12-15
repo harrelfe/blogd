@@ -2,7 +2,7 @@
 title: Incorrect Covariate Adjustment May Be More Correct than Adjusted Marginal Estimates
 author: Frank Harrell
 date: '2021-06-29'
-modified: ''
+modified: '2021-12-15'
 slug: robcov
 tags:
   - 2021
@@ -16,7 +16,7 @@ header:
   image: ''
 ---
 
-<!-- title: Non-Robustness of Covariate Adjustment is a Non-Issue<br><small>or</small><br>Non-Robust Covariate Adjustment May Be More Accurate Than Robust Marginal Covariate Adjustment<br><small>or</small><br>Incorrect Covariate Adjustment Is More Correct than Adjusted Marginal Estimation -->
+<!-- title: Non-Robustness of Covariate Adjustment is a Non-Issue<br><small>or</small><br>Non-Robust Covariate Adjustment May Be More Accurate Than Robust Marginal Covariate Adjustment<br><small>or</small><br>Incorrect Covariate Adjustment Is More Correct than Adjusted Marginal Estimation  -->
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -159,8 +159,7 @@ f
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -276,8 +275,7 @@ g
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -371,8 +369,7 @@ rob
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -468,8 +465,7 @@ h
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -640,8 +636,7 @@ lrm(y ~ tx + age, data=d)
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -730,8 +725,7 @@ lrm(y ~ tx + age + sex, data=d)
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -827,8 +821,7 @@ lrm(y ~ tx + lsp(age, 65) + sex, data=d)
  
  <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr>
-<th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -967,3 +960,5 @@ Risk differences are clinically relevant measures of treatment effect.  But beca
 # References
 
 [^ben]: Benkeser D, Díaz I, Luedtke A, Segal J, Scharfstein D, Rosenblum M (2020): Improving precision and power in randomized trials for COVID-19 treatments using covariate adjustment, for binary, ordinal, and time-to-event outcomes.  To appear in _Biometrics_, DOI:10.1111/biom.13377.
+
+* [Covariate adjustment in randomised trials: canonical link functions protect against model mis-specification](https://arxiv.org/abs/2107.07278) by IR White, TP Morris, E Williamson

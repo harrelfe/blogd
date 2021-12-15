@@ -3,7 +3,7 @@ title: Commentary on Improving Precision and Power in Randomized Trials for COVI
   Treatments Using Covariate Adjustment, for Binary, Ordinal, and Time-to-Event Outcomes
 author: "Frank E Harrell Jr"
 date: '2021-07-17'
-updated: '2021-10-04'
+updated: '2021-12-15'
 slug: ipp
 draft: no
 categories: []
@@ -380,6 +380,8 @@ This work was supported by CONNECTS and by CTSA award No. UL1 TR002243 from the 
 * [Incorrect covariate adjustment may be more correct than adjusted marginal estimates](/post/robcov) by FE Harrell
 * [Avoiding one-number summaries of treatment effects for RCTs with binary outcomes](/post/rdist) by FE Harrell
 * [The R marginaleffects package](https://vincentarelbundock.github.io/marginaleffects) by Vincent Arel-Bundock
+* [Covariate adjustment in randomised trials: canonical link functions protect against model mis-specification](https://arxiv.org/abs/2107.07278) by IR White, TP Morris, E Williamson
+
 
 # References
 
