@@ -45,7 +45,7 @@ pr <- markupSpecs$markdown$pr
 
 # Introduction
 
-Reviewers who do not seem to worry about the proportional hazards assumption in a Cox model or the equal variance assumption in a $t$-test seem to worry a good deal about the proportional odds (PO) assumption in a semiparametric ordinal logistic regression model.  This in spite of the fact that proportional hazards and equal variance are exact analogies to the PO assumption in other models.  Furthermore, when there is no covariate adjustment, the PO model is equivalent to the Wilcoxon test, and reviewers do not typically criticize the Wilcoxon test or realize that it has optimum power only under the PO assumption.
+Reviewers who do not seem to worry about the proportional hazards assumption in a Cox model or the equal variance assumption in a $t$-test seem to worry a good deal about the proportional odds (PO) assumption in a semiparametric ordinal logistic regression model.  This in spite of the fact that proportional hazards and equal variance in other models are exact analogies to the PO assumption.  Furthermore, when there is no covariate adjustment, the PO model is equivalent to the Wilcoxon test, and reviewers do not typically criticize the Wilcoxon test or realize that it has optimum power only under the PO assumption.
 
 The purpose of this report is to (1) demonstrate examinations of the PO assumption for a treatment effect in a two-treatment observational comparison, and (2) discuss various issues around PO model analysis and alternative analyses using cutpoints on the outcome variable.  It is shown that exercises such as comparing predicted vs. observed values can be misleading when the sample size is not very large.
 
