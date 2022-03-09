@@ -95,22 +95,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable778888 {
+ .hmisctable969180 {
  border: none;
  font-size: 85%;
  }
- .hmisctable778888 td {
+ .hmisctable969180 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable778888 th {
+ .hmisctable969180 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable778888">
+ <table class="hmisctable969180">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -120,22 +120,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable180930 {
+ .hmisctable455490 {
  border: none;
  font-size: 85%;
  }
- .hmisctable180930 td {
+ .hmisctable455490 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable180930 th {
+ .hmisctable455490 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable180930">
+ <table class="hmisctable455490">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -146,22 +146,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable415799 {
+ .hmisctable640318 {
  border: none;
  font-size: 85%;
  }
- .hmisctable415799 td {
+ .hmisctable640318 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable415799 th {
+ .hmisctable640318 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable415799">
+ <table class="hmisctable640318">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -680,6 +680,8 @@ round(simPOcuts(n=210, odds.ratio=0.3, p=p), 2)
     Simulation 9  0.85 0.45 0.36 0.40 0.54 0.61
     Simulation 10 0.36 0.34 0.31 0.26 0.21 0.22
 
+See [here](https://github.com/harrelfe/Hmisc/blob/master/R/popower.s) for `simPOcuts` source code.
+
 # Examining the PO Assumption
 
 For discrete Y we are interested in checking the impact of
@@ -696,7 +698,7 @@ done using the following steps:
 -   For all the covariate combinations evaluate predicted probabilities for all levels of Y using the PO model and the relaxed assumption models
 -   Use the bootstrap to compute confidence intervals for the differences in predicted values betwween a PO model and a relaxed model. This will put the differences in the right context by accounting for uncertainties. This guards against over-emphasis of differences when the sample size does not support estimation, especially for the relaxed model with more parameters. Note that the same problem occurs when comparing predicted unadjusted probabilities to observed proportions, as observed proportions can be noisy.
 
-Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies. Similarly, level 0 has only 6 patients, so we combine it with level 1. The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect. The multinomial model allows not only non-PO for `trt` but also for `baseline`.
+Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies. Similarly, level 0 has only 6 patients, so we combine it with level 1. The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect. The multinomial model allows not only non-PO for `trt` but also for `baseline`. See [here](https://github.com/harrelfe/rms/blob/master/R/impactPO.r) for `impactPO` source code.
 
 ``` r
 nd <- data.frame(trt=levels(d$trt), baseline=4)
@@ -1102,6 +1104,10 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
 
     Concordance probability from Wilcoxon statistic: 0.6002083
     Concordance probability estimated from OR: 0.604937
+
+# Further Reading
+
+See a similar case study in [RMS Section 13.3.5](https://hbiostat.org/doc/rms.pdf). In that example, PO is violated.
 
 # Computing Environment
 

@@ -82,6 +82,8 @@ set.seed(1)
 round(simPOcuts(n=210, odds.ratio=0.3, p=p), 2)
 ```
 
+See [here](https://github.com/harrelfe/Hmisc/blob/master/R/popower.s) for `simPOcuts` source code.
+
 # Examining the PO Assumption
 
 For discrete Y we are interested in checking the impact of
@@ -99,7 +101,7 @@ done using the following steps:
 * Use the bootstrap to compute confidence intervals for the differences in predicted values betwween a PO model and a relaxed model.  This will put the differences in the right context by accounting for uncertainties.  This guards against over-emphasis of differences when the sample size does not support estimation, especially for the relaxed model with more parameters.  Note that the same problem occurs when comparing predicted unadjusted probabilities to observed proportions, as observed proportions can be noisy.
 
 
-Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies.  Similarly, level 0 has only 6 patients, so we combine it with level 1.  The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect.  The multinomial model allows not only non-PO for `trt` but also for `baseline`.
+Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies.  Similarly, level 0 has only 6 patients, so we combine it with level 1.  The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect.  The multinomial model allows not only non-PO for `trt` but also for `baseline`.  See [here](https://github.com/harrelfe/rms/blob/master/R/impactPO.r) for `impactPO` source code.
 
 ```{r impactpo}
 nd <- data.frame(trt=levels(d$trt), baseline=4)
@@ -185,6 +187,10 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
     'Concordance probability estimated from OR: ',
     or ^ 0.66 / (1 + or ^ 0.66), '\n', sep='')
 ```
+
+# Further Reading
+
+See a similar case study in [RMS Section 13.3.5](https://hbiostat.org/doc/rms.pdf).  In that example, PO is violated.
 
 # Computing Environment
 `r markupSpecs$html$session()`
