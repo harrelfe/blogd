@@ -1,0 +1,190 @@
+--- 
+title: Assessing the Proportional Odds Assumption and Its Impact
+author: Frank Harrell
+date: '2022-03-09'
+modified: ''
+slug: impactpo
+tags:
+  - 2022
+  - accuracy-score
+  - dichotomization
+  - endpoints
+  - ordinal
+link-citations: yes
+summary: 'This article demonstrates how the proportional odds assumption and its impact can be assessed.'
+header:
+  caption: ''
+  image: ''
+---
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<style>
+.table {
+  width: 50%;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+require(rms)
+knitrSet(lang='blogdown')
+options(prType='html')
+ggp <- ggplotlyr   # ggplotlyr is in Hmisc
+# Gets around a bug in tooltip construction with ggplotly
+pr <- markupSpecs$markdown$pr
+```
+
+# Introduction
+
+Reviewers who do not seem to worry about the proportional hazards assumption in a Cox model or the equal variance assumption in a $t$-test seem to worry a good deal about the proportional odds (PO) assumption in a semiparametric ordinal logistic regression model.  This in spite of the fact that proportional hazards and equal variance are exact analogies to the PO assumption in other models.  Furthermore, when there is no covariate adjustment, the PO model is equivalent to the Wilcoxon test, and reviewers do not typically criticize the Wilcoxon test or realize that it has optimum power only under the PO assumption.
+
+The purpose of this report is to (1) demonstrate examinations of the PO assumption for a treatment effect in a two-treatment observational comparison, and (2) discuss various issues around PO model analysis and alternative analyses using cutpoints on the outcome variable.  It is shown that exercises such as comparing predicted vs. observed values can be misleading when the sample size is not very large.
+
+# Dataset
+
+The dataset, taken from a real observational study,  consists of a 7-level ordinal outcome variable `y` having values 0-6, a treatment variable `trt`, and a strong baseline variable `baseline` defined by a disease scale that is related to `y` but with more resolution.  This is a dominating covariate, and failure to adjust for it will result in a weaker treatment comparison.  `trt` levels are A and B, with 48 patients given treatment B and 100 given treatment A.
+
+```{r desc,results='asis'}
+getHdata(txpo)
+d <- txpo
+dd <- datadist(d); options(datadist='dd')
+html(describe(d))
+with(d, pr(obj=table(trt, y)))
+```
+
+# Proportional Odds Model
+
+```{r mod1,results='asis'}
+f <- lrm(y ~ trt + baseline, data=d)
+f
+summary(f)
+anova(f)
+```
+
+# Volatility of ORs Using Different Cutoffs
+
+Even when the data generating mechanism is exactly proportional odds for treatment, different cutoffs of the response variable Y can lead to much different ORs when the sample size is not in the thousands.  This is just the play of chance (sampling variation).  To illustrate this point,  consider the observed proportions of Y for `trt=A` as population probabilities for A.  Apply an odds ratio of 0.3 to get the population distribution of Y for treated patients.  For 10 simulated trials, sample from these two multinomial distributions and compute sample ORs for all Y cutoffs.  
+
+```{r sim}
+p <- table(d$y[d$trt == 'A'])
+p <- p / sum(p)
+p   # probabilities for SOC
+set.seed(1)
+round(simPOcuts(n=210, odds.ratio=0.3, p=p), 2)
+```
+
+# Examining the PO Assumption
+
+For discrete Y we are interested in checking the impact of
+the PO assumption on predicted probabilities for all of the Y
+categories, while also allowing for covariate adjustment.  This can be
+done using the following steps:
+
+* Select a set of covariate settings over which to evaluate accuracy of predictions
+* Vary at least one of the predictors, i.e., the one for which you want to assess the impact of the PO assumption
+* Fit a PO model the usual way
+* Fit models that relaxes the PO assumption
+   + to relax the PO assumption for all predictors fit a multinomial logistic model
+   + to relax the PO assumption for a subset of predictors fit a partial PO (PPO) model
+* For all the covariate combinations evaluate predicted probabilities for all levels of Y using the PO model and the relaxed assumption models
+* Use the bootstrap to compute confidence intervals for the differences in predicted values betwween a PO model and a relaxed model.  This will put the differences in the right context by accounting for uncertainties.  This guards against over-emphasis of differences when the sample size does not support estimation, especially for the relaxed model with more parameters.  Note that the same problem occurs when comparing predicted unadjusted probabilities to observed proportions, as observed proportions can be noisy.
+
+
+Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies.  Similarly, level 0 has only 6 patients, so we combine it with level 1.  The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect.  The multinomial model allows not only non-PO for `trt` but also for `baseline`.
+
+```{r impactpo}
+nd <- data.frame(trt=levels(d$trt), baseline=4)
+d$y5 <- with(d, pmin(pmax(y, 1), 5))
+w <- impactPO(y5 ~ trt + baseline, nonpo = ~ trt,
+              data=d, newdata=nd, B=300)
+w
+```
+
+Comparisons of the PO model fit with models that relax the PO assumption above can be summarized as follows.
+
+* By AIC, the model that is most likely to have the best cross-validation performance is the fully PO model (the lower the AIC the better)
+* There is no evidence for non-PO, either when judging against a model that relaxes the PO assumption for treatment (P=0.48) or against a multinomial logistic model that does not assume PO for any variables (P=0.30).
+* The McFadden adjusted $R^2$ index, in line with AIC, indicates the best fit is from the PO model
+* The Cox-Snell adjusted $R^2$ indicates the PO model is competitive.  See [this](https://hbiostat.org/bib/r2.html) for information about general adjusted $R^2$ measures.
+* Nonparametric bootstrap percentile confidence intervals for the difference in predicted values between the PO model and one of the relaxed models take into account uncertainties and correlations of both sets of estimates.  In all cases the confidence intervals are quite wide and include 0 (except for one case, where the lower confidence limit is 0.002), which is very much in line with apparent differences being clouded by overfitting (high number of parameters in non-PO models).
+
+These assessments must be kept in mind when interpreting the inter-model agreement between probabilities of all levels of the ordinal outcome in the graphic that follows.  According to AIC and adjusted $R^2$, the estimates from the partial PO model and especially those from the multinomial model are overfitted.  This is related to the issue that odds ratios computed from oversimplifying an ordinal response by dichotomizing it are noisy (also see the next to last section below).
+
+```{r plimpactpo}
+revo <- function(z) {
+  z <- as.factor(z)
+  factor(z, levels=rev(levels(as.factor(z))))
+}
+ggplot(w$estimates, aes(x=method, y=Probability, fill=revo(y))) +
+  facet_wrap(~ trt) + geom_col() +
+  xlab('') + guides(fill=guide_legend(title=''))
+```
+
+AIC is essentially a forecast of what is likely to happen were the accuracy of two competing models be computed on a new dataset not used to fit the model.  Had the observational study's sample size been much larger, we could have randomly split the data into training and test samples and had a head-to-head comparison of the predictive accuracy of a PO model vs. a non-PO (multinomial or partial PO) model in the test sample.  Non-PO models will be more unbiased but pay a significant price in terms of variance of estimates.  The AIC and adjusted $R^2$ analyses above suggest that the PO model will have lower mean squared errors of outcome probability estimates due to the strong reduction in variance (also see below).
+
+
+# Efficiency of Analyses Using Cutpoints
+
+<p class="rquote">Clearly, the dependence of the proportional odds model on the assumption of proportionality can be over-stressed.  Suppose that two different statisticians would cut the same three-point scale at different cut points. It is hard to see how anybody who could accept either dichotomy could object to the compromise answer produced by the proportional odds model. — <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.3603">Stephen Senn</a>
+</p>
+
+
+Above I considered evidence in favor of making the PO assumption. Now consider the cost of **not** making the assumption.  What is the efficiency of using a dichotomous endpoint?  Efficiency can be captured by comparing the variance of an inefficient estimate to the variance of the most efficient estimate (which comes from the PO model by using the full information in all levels of the outcome variable).  We don't know the true variances of estimated treatment effects so instead use the estimated variances from fitted PO and binary logistic models.
+
+```{r eff}
+vtrt <- function(fit) vcov(fit)['trt=B', 'trt=B']
+vpo <- vtrt(f)
+w <- NULL
+for(cutoff in 2 : 6) {
+  h <- lrm(y >= cutoff ~ trt + baseline, data=d)
+  eff <- vpo / vtrt(h)
+  w <- rbind(w, data.frame(Cutoff=paste0('y≥', cutoff),
+                           Efficiency=round(eff, 2),
+                           `Sample Size Ratio`=round(1/eff, 1),
+                           check.names=FALSE))
+  }
+w
+```
+
+Under PO the odds ratio from the PO model estimates the same quantity as the odds ratio from any dichotomization of the outcome.  The relative efficiency of a dichotomized analysis is the variance of the most efficient (PO model) model's log odds ratio for treatment divided by the variance of the log odds ratio from a binary logistic model using the dichomization.
+The optimal cutoff (mainly due to being a middle value in the frequency distribution) is y≥4.  For this dichotomization the effiency is 0.56 (i.e., analyzing y≥4 vs. y is equivalent to discarding 44% of the sample) and the variance of the treatment log odds ratio is $1.8 \times$ greater than the variance of the log odds ratio from the proportional odds model without binning.  This means that the study would have to be $1.8 \times$ larger to have the same power when dichotomizing the outcome as a smaller study that did not dichotomize it.  Other dichotomizations result in even worse efficiency.
+
+For more examples of relative efficiencies for various outcome configurations see [Information Gain From Using Ordinal Instead of Binary Outcomes](https://www.fharrell.com/post/ordinal-info).
+
+# PO Model Results are Meaningful Even When PO is Violated
+
+Putting aside covariate adjustment, the PO model is equivalent to a Wilcoxon-Mann-Whitney two-sample rank-sum test statistic.  The normalized Wilcoxon statistic (concordance probability; also called probability index) is to within a high degree of approximation a simple function of the estimated odds ratio from a PO model fit.  Over a wide variety of datasets satisfying and violating PO, the $R^2$ for predicting the log odds ratio from the logit of the scaled Wilcoxon statistic is 0.996, and the mean absolute error in predicting the concordance probability from the log odds ratio is 0.002.  See [Violation of Proportional Odds is Not Fatal](https://www.fharrell.com/post/po) and [If You Like the Wilcoxon Test You Must Like the Proportional Odds Model](https://www.fharrell.com/post/wpo).
+
+Let's compare the actual Wilcoxon concordance probability with the concordance probability estimated from the odds ratio without covariate adjustment, $\frac{\mathrm{OR}^{0.66}}{1 + \mathrm{OR}^{0.66}}$.
+
+```{r wilcox}
+w <- wilcox.test(y ~ trt, data=d)
+w
+W <- w$statistic
+concord <- W / prod(table(d$trt))
+```
+```{r wilcox2,results='asis'}
+u <- lrm(y ~ trt, data=d)
+u
+```
+
+Note that the $C$ statistic in the above table handles ties differently than the concordance probability we are interested in here.
+
+```{r wilcox3}
+or <- exp(- coef(u)['trt=B'])
+cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
+    'Concordance probability estimated from OR: ',
+    or ^ 0.66 / (1 + or ^ 0.66), '\n', sep='')
+```
+
+# Computing Environment
+`r markupSpecs$html$session()`
