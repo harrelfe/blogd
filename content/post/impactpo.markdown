@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: ''
+modified: '2022-03-10'
 slug: impactpo
 tags:
   - 2022
@@ -95,22 +95,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable109944 {
+ .hmisctable161217 {
  border: none;
  font-size: 85%;
  }
- .hmisctable109944 td {
+ .hmisctable161217 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable109944 th {
+ .hmisctable161217 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable109944">
+ <table class="hmisctable161217">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -120,22 +120,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable102188 {
+ .hmisctable914356 {
  border: none;
  font-size: 85%;
  }
- .hmisctable102188 td {
+ .hmisctable914356 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable102188 th {
+ .hmisctable914356 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable102188">
+ <table class="hmisctable914356">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -146,22 +146,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable299891 {
+ .hmisctable169811 {
  border: none;
  font-size: 85%;
  }
- .hmisctable299891 td {
+ .hmisctable169811 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable299891 th {
+ .hmisctable169811 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable299891">
+ <table class="hmisctable169811">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -805,23 +805,29 @@ Above I considered evidence in favor of making the PO assumption. Now consider t
 vtrt <- function(fit) vcov(fit)['trt=B', 'trt=B']
 vpo <- vtrt(f)
 w <- NULL
-for(cutoff in 2 : 6) {
+for(cutoff in 1 : 6) {
   h <- lrm(y >= cutoff ~ trt + baseline, data=d)
   eff <- vpo / vtrt(h)
+  # To discuss later: critical multipicative error in OR
+  cor <- exp(sqrt(vtrt(h) - vpo))
   w <- rbind(w, data.frame(Cutoff=paste0('y≥', cutoff),
                            Efficiency=round(eff, 2),
                            `Sample Size Ratio`=round(1/eff, 1),
+                           `Critical OR Factor`=round(cor, 2),
                            check.names=FALSE))
   }
 w
 ```
 
-      Cutoff Efficiency Sample Size Ratio
-    1    y≥2       0.38               2.6
-    2    y≥3       0.44               2.3
-    3    y≥4       0.56               1.8
-    4    y≥5       0.29               3.5
-    5    y≥6       0.09              10.6
+      Cutoff Efficiency Sample Size Ratio Critical OR Factor
+    1    y≥1       0.13               7.6               2.33
+    2    y≥2       0.38               2.6               1.52
+    3    y≥3       0.44               2.3               1.44
+    4    y≥4       0.56               1.8               1.34
+    5    y≥5       0.29               3.5               1.68
+    6    y≥6       0.09              10.6               2.77
+
+The last column is discussed in a later section.
 
 Under PO the odds ratio from the PO model estimates the same quantity as the odds ratio from any dichotomization of the outcome. The relative efficiency of a dichotomized analysis is the variance of the most efficient (PO model) model’s log odds ratio for treatment divided by the variance of the log odds ratio from a binary logistic model using the dichomization.
 The optimal cutoff (mainly due to being a middle value in the frequency distribution) is y≥4. For this dichotomization the effiency is 0.56 (i.e., analyzing y≥4 vs. y is equivalent to discarding 44% of the sample) and the variance of the treatment log odds ratio is `\(1.8 \times\)` greater than the variance of the log odds ratio from the proportional odds model without binning. This means that the study would have to be `\(1.8 \times\)` larger to have the same power when dichotomizing the outcome as a smaller study that did not dichotomize it. Other dichotomizations result in even worse efficiency.
@@ -829,6 +835,8 @@ The optimal cutoff (mainly due to being a middle value in the frequency distribu
 For more examples of relative efficiencies for various outcome configurations see [Information Gain From Using Ordinal Instead of Binary Outcomes](https://www.fharrell.com/post/ordinal-info).
 
 # PO Model Results are Meaningful Even When PO is Violated
+
+## Overall Efficacy Assessment
 
 Putting aside covariate adjustment, the PO model is equivalent to a Wilcoxon-Mann-Whitney two-sample rank-sum test statistic. The normalized Wilcoxon statistic (concordance probability; also called probability index) is to within a high degree of approximation a simple function of the estimated odds ratio from a PO model fit. Over a wide variety of datasets satisfying and violating PO, the `\(R^2\)` for predicting the log odds ratio from the logit of the scaled Wilcoxon statistic is 0.996, and the mean absolute error in predicting the concordance probability from the log odds ratio is 0.002. See [Violation of Proportional Odds is Not Fatal](https://www.fharrell.com/post/po) and [If You Like the Wilcoxon Test You Must Like the Proportional Odds Model](https://www.fharrell.com/post/wpo).
 
@@ -1104,6 +1112,22 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
 
     Concordance probability from Wilcoxon statistic: 0.6002083
     Concordance probability estimated from OR: 0.604937
+
+In the absence of adjustment covariates, the treatment odds ratio estimate from a PO model **is** essentially the Wilcoxon statistic whether or not PO holds. Many statisticians are comfortable with using the Wilcoxon statistic for judging which treatment is better overall, e.g., which treatment tends to move responses towards the favorable end of the scale. So one can seldom go wrong in using the PO model to judge which treatment is better, even when PO does not hold.
+
+## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
+
+Just as in the case where one thinks that a sex by treatment interaction may be present, actually estimating such an interaction effect [can make treatment estimates worse](https://www.fharrell.com/post/demohte) in small samples even when the interaction is truly present. This is because estimating an unknown quantity well requires both minimal bias and good precision (low variance), and adding a parameter to the model increases variance (one must estimate both the main effect and the interaction, equivalent to estimating separate treatment effects for females and males). The probability that an estimate is within a given tolerance of the true value is closely related to the mean squared error (MSE) of the estimator. MSE equals variance plus the square of bias. Bias is the systematic error that can result from model misspecification, e.g., fitting a common OR (assuming PO) when the treatment OR needs to vary for some levels of Y (non-PO).
+
+A log odds ratio estimate for a specific cutoff Y≥y derived from a model that dichotomized the raw data at y will tend to be unbiased for estimating that specific log odds ratio. Suppose the log OR has variance `\(u\)`. The MSE of the log OR estimate is `\(u\)` since the bias is approximately zero. Now consider estimating the common OR in a PO model and using that to estimate the OR for Y≥y. Suppose that common log OR has variance `\(v\)` and bias `\(b\)` ($b$ is a weighted log OR the PO model estimates minus the true log OR for Y≥y) so that MSE of the log OR for the PO model is `\(v + b^2\)`. The multiplicative bias (fold-change bias) is `\(e^b\)`. How large must this multiplicative bias in the OR estimate be before the tailored model for Y≥y has lower mean squared error (on the log scale) than the less-well-fitting PO model? By comparing the two MSEs of `\(u\)` and `\(v + b^2\)` we find that the critical multiplicative error in the OR is `\(\exp(\sqrt{u - v})\)`.
+
+For the dataset we have been analyzing, the critical fold change in OR is tabulated in the table above under the column `Critical OR Factor`. For example, for the lowest cutoff this factor is 2.33. This is interpreted as saying that an ill-fitting PO model would still break even with a tailored well-fitting model (one that suffers from having higher variance of `\(\hat{\beta}\)` due to not breaking ties in Y) in terms of the chance of having the OR estimate close to the true OR, as long as the true combined estimand PO OR is not more than a factor of 2.33 away from the true OR for Y≥1. For example, if the OR that the PO model is estimating is 2, this estimate would be equal in accuracy to a tailored sure-to-fit estimate if the true PO is 4.66, and would be better than the tailored estimate if the true OR is less than 4.66.
+
+Looking over all possible cutoffs, a typical OR critical fold change is 1.5. Loosely speaking if ORs for two different cutoffs have a ratio less than 1.5 and greater than 1/1.5 the PO model will provide a more accurate treatment OR for a specific cutoff than will an analysis built around estimating the OR only for that cutoff. As the sample size grows, the critical multiplicative change in OR will fall. This leads to the next section.
+
+# A Continuous Solution
+
+Instead of assessing the adequacy of the PO assumption, hoping that the data contain enough information to discern whether a PO model is adequate and then making a binary decision (PO or non-PO model), a far better approach is to allow for non-PO to the extent that the current sample size allows. By scaling the amount of non-PO allowed, resulting in a reasonable amount of borrowing of information across categories of Y, one can achieve a good mean squared error of an effect estimator. This can be achieved using a Bayesian partial proportional odds model with a skeptical prior distribution for the parameters representing departures from the PO assumption. As the sample size increases, the prior wears off, and the PO assumption is progressively relaxed. All uncertainties are accounted for, and the analyst need not make a PO/non-PO choice. This is implemented in the R `rmsb` package [blrm function](https://hbiostat.org/R/rmsb/blrm.html). See [this](https://hbiostat.org/proj/covid19/statdesign.html#analysis) for discussion of using this approach for a formal analysis studying to what extent a treatment effects one part of the outcome scale differently than it affects other parts.
 
 # Further Reading
 

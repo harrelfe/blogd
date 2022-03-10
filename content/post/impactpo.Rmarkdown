@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: ''
+modified: '2022-03-10'
 slug: impactpo
 tags:
   - 2022
@@ -146,16 +146,21 @@ Above I considered evidence in favor of making the PO assumption. Now consider t
 vtrt <- function(fit) vcov(fit)['trt=B', 'trt=B']
 vpo <- vtrt(f)
 w <- NULL
-for(cutoff in 2 : 6) {
+for(cutoff in 1 : 6) {
   h <- lrm(y >= cutoff ~ trt + baseline, data=d)
   eff <- vpo / vtrt(h)
+  # To discuss later: critical multipicative error in OR
+  cor <- exp(sqrt(vtrt(h) - vpo))
   w <- rbind(w, data.frame(Cutoff=paste0('y≥', cutoff),
                            Efficiency=round(eff, 2),
                            `Sample Size Ratio`=round(1/eff, 1),
+                           `Critical OR Factor`=round(cor, 2),
                            check.names=FALSE))
   }
 w
 ```
+
+The last column is discussed in a later section.
 
 Under PO the odds ratio from the PO model estimates the same quantity as the odds ratio from any dichotomization of the outcome.  The relative efficiency of a dichotomized analysis is the variance of the most efficient (PO model) model's log odds ratio for treatment divided by the variance of the log odds ratio from a binary logistic model using the dichomization.
 The optimal cutoff (mainly due to being a middle value in the frequency distribution) is y≥4.  For this dichotomization the effiency is 0.56 (i.e., analyzing y≥4 vs. y is equivalent to discarding 44% of the sample) and the variance of the treatment log odds ratio is $1.8 \times$ greater than the variance of the log odds ratio from the proportional odds model without binning.  This means that the study would have to be $1.8 \times$ larger to have the same power when dichotomizing the outcome as a smaller study that did not dichotomize it.  Other dichotomizations result in even worse efficiency.
@@ -163,6 +168,7 @@ The optimal cutoff (mainly due to being a middle value in the frequency distribu
 For more examples of relative efficiencies for various outcome configurations see [Information Gain From Using Ordinal Instead of Binary Outcomes](https://www.fharrell.com/post/ordinal-info).
 
 # PO Model Results are Meaningful Even When PO is Violated
+## Overall Efficacy Assessment
 
 Putting aside covariate adjustment, the PO model is equivalent to a Wilcoxon-Mann-Whitney two-sample rank-sum test statistic.  The normalized Wilcoxon statistic (concordance probability; also called probability index) is to within a high degree of approximation a simple function of the estimated odds ratio from a PO model fit.  Over a wide variety of datasets satisfying and violating PO, the $R^2$ for predicting the log odds ratio from the logit of the scaled Wilcoxon statistic is 0.996, and the mean absolute error in predicting the concordance probability from the log odds ratio is 0.002.  See [Violation of Proportional Odds is Not Fatal](https://www.fharrell.com/post/po) and [If You Like the Wilcoxon Test You Must Like the Proportional Odds Model](https://www.fharrell.com/post/wpo).
 
@@ -187,6 +193,22 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
     'Concordance probability estimated from OR: ',
     or ^ 0.66 / (1 + or ^ 0.66), '\n', sep='')
 ```
+
+In the absence of adjustment covariates, the treatment odds ratio estimate from a PO model **is** essentially the Wilcoxon statistic whether or not PO holds.  Many statisticians are comfortable with using the Wilcoxon statistic for judging which treatment is better overall, e.g., which treatment tends to move responses towards the favorable end of the scale.  So one can seldom go wrong in using the PO model to judge which treatment is better, even when PO does not hold.
+
+## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
+
+Just as in the case where one thinks that a sex by treatment interaction may be present, actually estimating such an interaction effect [can make treatment estimates worse](https://www.fharrell.com/post/demohte) in small samples even when the interaction is truly present.  This is because estimating an unknown quantity well requires both minimal bias and good precision (low variance), and adding a parameter to the model increases variance (one must estimate both the main effect and the interaction, equivalent to estimating separate treatment effects for females and males).  The probability that an estimate is within a given tolerance of the true value is closely related to the mean squared error (MSE) of the estimator.  MSE equals variance plus the square of bias.  Bias is the systematic error that can result from model misspecification, e.g., fitting a common OR (assuming PO) when the treatment OR needs to vary for some levels of Y (non-PO).
+
+A log odds ratio estimate for a specific cutoff Y≥y derived from a model that dichotomized the raw data at y will tend to be unbiased for estimating that specific log odds ratio.  Suppose the log OR has variance $u$.  The MSE of the log OR estimate is $u$ since the bias is approximately zero.  Now consider estimating the common OR in a PO model and using that to estimate the OR for Y≥y.  Suppose that common log OR has variance $v$ and bias $b$ ($b$ is a weighted log OR the PO model estimates minus the true log OR for Y≥y) so that MSE of the log OR for the PO model is $v + b^2$.  The multiplicative bias (fold-change bias) is $e^b$.   How large must this multiplicative bias in the OR estimate be before the tailored model for Y≥y has lower mean squared error (on the log scale) than the less-well-fitting PO model?  By comparing the two MSEs of $u$ and $v + b^2$ we find that the critical multiplicative error in the OR is $\exp(\sqrt{u - v})$.
+
+For the dataset we have been analyzing, the critical fold change in OR is tabulated in the table above under the column `Critical OR Factor`.  For example, for the lowest cutoff this factor is 2.33.  This is interpreted as saying that an ill-fitting PO model would still break even with a tailored well-fitting model (one that suffers from having higher variance of $\hat{\beta}$ due to not breaking ties in Y) in terms of the chance of having the OR estimate close to the true OR, as long as the true combined estimand PO OR is not more than a factor of 2.33 away from the true OR for Y≥1.  For example, if the OR that the PO model is estimating is 2, this estimate would be equal in accuracy to a tailored sure-to-fit estimate if the true PO is 4.66, and would be better than the tailored estimate if the true OR is less than 4.66.
+
+Looking over all possible cutoffs, a typical OR critical fold change is 1.5.  Loosely speaking if ORs for two different cutoffs have a ratio less than 1.5 and greater than 1/1.5 the PO model will provide a more accurate treatment OR for a specific cutoff than will an analysis built around estimating the OR only for that cutoff.  As the sample size grows, the critical multiplicative change in OR will fall.  This leads to the next section.
+
+# A Continuous Solution
+
+Instead of assessing the adequacy of the PO assumption, hoping that the data contain enough information to discern whether a PO model is adequate and then making a binary decision (PO or non-PO model), a far better approach is to allow for non-PO to the extent that the current sample size allows.  By scaling the amount of non-PO allowed, resulting in a reasonable amount of borrowing of information across categories of Y, one can achieve a good mean squared error of an effect estimator.  This can be achieved using a Bayesian partial proportional odds model with a skeptical prior distribution for the parameters representing departures from the PO assumption.  As the sample size increases, the prior wears off, and the PO assumption is progressively relaxed.  All uncertainties are accounted for, and the analyst need not make a PO/non-PO choice.  This is implemented in the R `rmsb` package [blrm function](https://hbiostat.org/R/rmsb/blrm.html).  See [this](https://hbiostat.org/proj/covid19/statdesign.html#analysis) for discussion of using this approach for a formal analysis studying to what extent a treatment effects one part of the outcome scale differently than it affects other parts.
 
 # Further Reading
 
