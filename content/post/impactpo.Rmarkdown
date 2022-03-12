@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-10'
+modified: '2022-03-12'
 slug: impactpo
 tags:
   - 2022
@@ -11,7 +11,7 @@ tags:
   - endpoints
   - ordinal
 link-citations: yes
-summary: 'This article demonstrates how the proportional odds assumption and its impact can be assessed.'
+summary: 'This article demonstrates how the proportional odds (PO) assumption and its impact can be assessed.  Advantages of a continuous Bayesian blend of PO and non-PO are also discussed.'
 header:
   caption: ''
   image: ''
@@ -206,7 +206,7 @@ A log odds ratio estimate for a specific cutoff Y≥y derived from a model that 
 For the dataset we have been analyzing, the critical fold change in OR is tabulated in the table above under the column `Critical OR Factor`.  For example, for the lowest cutoff this factor is 2.33.  This is interpreted as saying that an ill-fitting PO model would still break even with a tailored well-fitting model (one that suffers from having higher variance of $\hat{\beta}$ due to not breaking ties in Y) in terms of the chance of having the OR estimate close to the true OR, as long as the true combined estimand PO OR is not more than a factor of 2.33 away from the true OR for Y≥1.  For example, if the OR that the PO model is estimating is 2, this estimate would be equal in accuracy to a tailored sure-to-fit estimate if the true PO is 4.66, and would be better than the tailored estimate if the true OR is less than 4.66.
 
 Looking over all possible cutoffs, a typical OR critical fold change is 1.5.  Loosely speaking if ORs for two different cutoffs have a ratio less than 1.5 and greater than 1/1.5 the PO model will provide a more accurate treatment OR for a specific cutoff than will an analysis built around estimating the OR only for that cutoff.  As the sample size grows, the critical multiplicative change in OR will fall.  This leads to the next section.
-
+<a name="cs"></a>
 # A Continuous Solution
 
 Instead of assessing the adequacy of the PO assumption, hoping that the data contain enough information to discern whether a PO model is adequate and then making a binary decision (PO or non-PO model), a far better approach is to allow for non-PO to the extent that the current sample size allows.  By scaling the amount of non-PO allowed, resulting in a reasonable amount of borrowing of information across categories of Y, one can achieve a good mean squared error of an effect estimator.  This can be achieved using a Bayesian partial proportional odds model with a skeptical prior distribution for the parameters representing departures from the PO assumption.  As the sample size increases, the prior wears off, and the PO assumption is progressively relaxed.  All uncertainties are accounted for, and the analyst need not make a PO/non-PO choice.  This is implemented in the R `rmsb` package [blrm function](https://hbiostat.org/R/rmsb/blrm.html).  See [this](https://hbiostat.org/proj/covid19/statdesign.html#analysis) for discussion of using this approach for a formal analysis studying to what extent a treatment effects one part of the outcome scale differently than it affects other parts.
@@ -341,7 +341,7 @@ rmse <- function(which, actual) {
 }
 
 z <- cbind('Y>=1'=rmse('Y>=1', lors[1]), 'Y=2'=rmse('Y=2', lors[2]))
-kab(z, caption='Simulated rooot MSEs')
+kab(z, caption='Simulated rooot MSEs', digits=3)
 ```
 
 In a mixed Bayesian/frequentist sense (computing MSE of a posterior mean), the optimum MSE in estimating the two treatment effects (log ORs) was obtained at $\gamma=2$.  The observed shrinkage factors do not track very well with the approximate ones derived earlier.  A better approximation is needed.
