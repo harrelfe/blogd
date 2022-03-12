@@ -95,22 +95,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable361893 {
+ .hmisctable320733 {
  border: none;
  font-size: 85%;
  }
- .hmisctable361893 td {
+ .hmisctable320733 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable361893 th {
+ .hmisctable320733 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable361893">
+ <table class="hmisctable320733">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -120,22 +120,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable596503 {
+ .hmisctable993641 {
  border: none;
  font-size: 85%;
  }
- .hmisctable596503 td {
+ .hmisctable993641 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable596503 th {
+ .hmisctable993641 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable596503">
+ <table class="hmisctable993641">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -146,22 +146,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable639042 {
+ .hmisctable614908 {
  border: none;
  font-size: 85%;
  }
- .hmisctable639042 td {
+ .hmisctable614908 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable639042 th {
+ .hmisctable614908 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable639042">
+ <table class="hmisctable614908">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -696,7 +696,7 @@ done using the following steps:
     -   to relax the PO assumption for all predictors fit a multinomial logistic model
     -   to relax the PO assumption for a subset of predictors fit a partial PO (PPO) model
 -   For all the covariate combinations evaluate predicted probabilities for all levels of Y using the PO model and the relaxed assumption models
--   Use the bootstrap to compute confidence intervals for the differences in predicted values betwween a PO model and a relaxed model. This will put the differences in the right context by accounting for uncertainties. This guards against over-emphasis of differences when the sample size does not support estimation, especially for the relaxed model with more parameters. Note that the same problem occurs when comparing predicted unadjusted probabilities to observed proportions, as observed proportions can be noisy.
+-   Use the bootstrap to compute confidence intervals for the differences in predicted values between a PO model and a relaxed model. This will put the differences in the right context by accounting for uncertainties. This guards against over-emphasis of differences when the sample size does not support estimation, especially for the relaxed model with more parameters. Note that the same problem occurs when comparing predicted unadjusted probabilities to observed proportions, as observed proportions can be noisy.
 
 Level 5 of `y` has only 5 patients so we combine it with level 6 for fitting the two relaxed models that depend on individual cell frequencies. Similarly, level 0 has only 6 patients, so we combine it with level 1. The PPO model is fitted with the `VGAM` R package, and the `nonpo` argument below signifies that the PO assumption is only being relaxed for the treatment effect. The multinomial model allows not only non-PO for `trt` but also for `baseline`. See [here](https://github.com/harrelfe/rms/blob/master/R/impactPO.r) for `impactPO` source code.
 
@@ -808,7 +808,7 @@ w <- NULL
 for(cutoff in 1 : 6) {
   h <- lrm(y >= cutoff ~ trt + baseline, data=d)
   eff <- vpo / vtrt(h)
-  # To discuss later: critical multipicative error in OR
+  # To discuss later: critical multiplicative error in OR
   cor <- exp(sqrt(vtrt(h) - vpo))
   w <- rbind(w, data.frame(Cutoff=paste0('y≥', cutoff),
                            Efficiency=round(eff, 2),
@@ -829,8 +829,8 @@ w
 
 The last column is discussed in a later section.
 
-Under PO the odds ratio from the PO model estimates the same quantity as the odds ratio from any dichotomization of the outcome. The relative efficiency of a dichotomized analysis is the variance of the most efficient (PO model) model’s log odds ratio for treatment divided by the variance of the log odds ratio from a binary logistic model using the dichomization.
-The optimal cutoff (mainly due to being a middle value in the frequency distribution) is y≥4. For this dichotomization the effiency is 0.56 (i.e., analyzing y≥4 vs. y is equivalent to discarding 44% of the sample) and the variance of the treatment log odds ratio is `\(1.8 \times\)` greater than the variance of the log odds ratio from the proportional odds model without binning. This means that the study would have to be `\(1.8 \times\)` larger to have the same power when dichotomizing the outcome as a smaller study that did not dichotomize it. Other dichotomizations result in even worse efficiency.
+Under PO the odds ratio from the PO model estimates the same quantity as the odds ratio from any dichotomization of the outcome. The relative efficiency of a dichotomized analysis is the variance of the most efficient (PO model) model’s log odds ratio for treatment divided by the variance of the log odds ratio from a binary logistic model using the dichotomization.
+The optimal cutoff (mainly due to being a middle value in the frequency distribution) is y≥4. For this dichotomization the efficiency is 0.56 (i.e., analyzing y≥4 vs. y is equivalent to discarding 44% of the sample) and the variance of the treatment log odds ratio is `\(1.8 \times\)` greater than the variance of the log odds ratio from the proportional odds model without binning. This means that the study would have to be `\(1.8 \times\)` larger to have the same power when dichotomizing the outcome as a smaller study that did not dichotomize it. Other dichotomizations result in even worse efficiency.
 
 For more examples of relative efficiencies for various outcome configurations see [Information Gain From Using Ordinal Instead of Binary Outcomes](https://www.fharrell.com/post/ordinal-info).
 
@@ -1124,8 +1124,10 @@ A log odds ratio estimate for a specific cutoff Y≥y derived from a model that 
 For the dataset we have been analyzing, the critical fold change in OR is tabulated in the table above under the column `Critical OR Factor`. For example, for the lowest cutoff this factor is 2.33. This is interpreted as saying that an ill-fitting PO model would still break even with a tailored well-fitting model (one that suffers from having higher variance of `\(\hat{\beta}\)` due to not breaking ties in Y) in terms of the chance of having the OR estimate close to the true OR, as long as the true combined estimand PO OR is not more than a factor of 2.33 away from the true OR for Y≥1. For example, if the OR that the PO model is estimating is 2, this estimate would be equal in accuracy to a tailored sure-to-fit estimate if the true PO is 4.66, and would be better than the tailored estimate if the true OR is less than 4.66.
 
 Looking over all possible cutoffs, a typical OR critical fold change is 1.5. Loosely speaking if ORs for two different cutoffs have a ratio less than 1.5 and greater than 1/1.5 the PO model will provide a more accurate treatment OR for a specific cutoff than will an analysis built around estimating the OR only for that cutoff. As the sample size grows, the critical multiplicative change in OR will fall. This leads to the next section.
+
 <a name="cs"></a>
-\# A Continuous Solution
+
+# A Continuous Solution
 
 Instead of assessing the adequacy of the PO assumption, hoping that the data contain enough information to discern whether a PO model is adequate and then making a binary decision (PO or non-PO model), a far better approach is to allow for non-PO to the extent that the current sample size allows. By scaling the amount of non-PO allowed, resulting in a reasonable amount of borrowing of information across categories of Y, one can achieve a good mean squared error of an effect estimator. This can be achieved using a Bayesian partial proportional odds model with a skeptical prior distribution for the parameters representing departures from the PO assumption. As the sample size increases, the prior wears off, and the PO assumption is progressively relaxed. All uncertainties are accounted for, and the analyst need not make a PO/non-PO choice. This is implemented in the R `rmsb` package [blrm function](https://hbiostat.org/R/rmsb/blrm.html). See [this](https://hbiostat.org/proj/covid19/statdesign.html#analysis) for discussion of using this approach for a formal analysis studying to what extent a treatment effects one part of the outcome scale differently than it affects other parts.
 
@@ -1343,7 +1345,7 @@ rmse <- function(which, actual) {
 }
 
 z <- cbind('Y>=1'=rmse('Y>=1', lors[1]), 'Y=2'=rmse('Y=2', lors[2]))
-kab(z, caption='Simulated rooot MSEs', digits=3)
+kab(z, caption='Simulated root MSEs', digits=3)
 ```
 
 |         | Y\>=1 |   Y=2 |
@@ -1359,7 +1361,7 @@ kab(z, caption='Simulated rooot MSEs', digits=3)
 | γ=10    | 0.309 | 0.294 |
 | γ=50    | 0.310 | 0.296 |
 
-Table 1: Simulated rooot MSEs
+Table 1: Simulated root MSEs
 
 In a mixed Bayesian/frequentist sense (computing MSE of a posterior mean), the optimum MSE in estimating the two treatment effects (log ORs) was obtained at `\(\gamma=2\)`. The observed shrinkage factors do not track very well with the approximate ones derived earlier. A better approximation is needed.
 
