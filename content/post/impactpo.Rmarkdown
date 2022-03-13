@@ -44,8 +44,9 @@ pr <- markupSpecs$markdown$pr
 kab <- knitr::kable
 ```
 
-{{< figure src="/img/pomap.png" width="100%" >}}
-[Original figure](https://atlas.mindmup.com/vbiostat/po)
+<a href="https://atlas.mindmup.com/vbiostat/po"><img src="/img/pomap.png" width="100%" alt=""></a>
+
+<!-- [Original figure](https://atlas.mindmup.com/vbiostat/po) -->
 
 # Introduction
 
