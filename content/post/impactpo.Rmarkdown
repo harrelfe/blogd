@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-12'
+modified: '2022-03-13'
 slug: impactpo
 tags:
   - 2022
@@ -43,6 +43,9 @@ ggp <- ggplotlyr   # ggplotlyr is in Hmisc
 pr <- markupSpecs$markdown$pr
 kab <- knitr::kable
 ```
+
+{{< figure src="/img/pomap.png" width="100%" >}}
+[Original figure](https://atlas.mindmup.com/vbiostat/po)
 
 # Introduction
 
