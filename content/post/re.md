@@ -1,7 +1,7 @@
 ---
 title: "Longitudinal Data: Think Serial Correlation First, Random Effects Second"
 author: Frank Harrell
-date: '2022-03-16'
+date: '2022-03-15'
 modified: ''
 slug: re
 categories: []
