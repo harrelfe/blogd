@@ -2,7 +2,7 @@
 title: "Longitudinal Data: Think Serial Correlation First, Random Effects Second"
 author: Frank Harrell
 date: '2022-03-15'
-modified: ''
+modified: '2022-03-16'
 slug: re
 categories: []
 tags:
@@ -35,7 +35,9 @@ $$P(Y(t)\geq y | X, Y(t-1)) = \mathrm{expit}(\alpha_{y} + X\beta + f(Y(t-1), t))
 Here the $\alpha$s are intercepts, and there are $k-1$ of them when $Y$ takes on $k$ distinct values.
 $\mathrm{expit}(x)$ is $\frac{1}{1 + \exp(-x)}$ and the function $f$ expresses how you want to model the effect of the previous state.  This may require multiple parameters, all of which are treated just like $\beta$.  The strength of effect of $Y(t-1)$ goes along with the strength of the intra-subject correlation, and involvement of $t$ adds further flexibility in correlation patterms.
 
-Mixed effects models are indispensable when a goal is to estimate the outcome trajectory for an individual subject.  When the goal is instead to make group level estimates (e.g., treatment differences in trajectories) then one can do excellent analyses without using random effects.  Above all, don’t fall into a default model of only using random intercepts to handle within-subject correlations of serial measurements.  This is unlikely to fit the correlation structure in play.  And it will not lead to the correct power calculation for your next longitudinal study.
+Generalized estimating equations (GEE) is a flexible way to model longitudinal responses, but it has some disadvantages: it is a large sample method; if does not use a full likelihood function so cannot be used in a Bayesian context; not being full likelihood the repeated observations are not properly "connected" to each other, so dropouts and missed visits must be missing completely at random, not just missing at random as full likelihood methods require.  Generalized least squares, Markov models when no random effects are added, and GEE are all examples of _marginal models_, marginal meaning in the sense of not being conditional on subject so not attempting to estimate individual subjects' trajectories.
+
+Mixed effects models are indispensable when a goal is to estimate the outcome trajectory for an individual subject.  When the goal is instead to make group level estimates (e.g., treatment differences in trajectories) then one can do excellent analyses without using random effects.  Above all, don’t default to only using random intercepts to handle within-subject correlations of serial measurements.  This is unlikely to fit the correlation structure in play.  And it will not lead to the correct power calculation for your next longitudinal study.
 
 ## Other Resources
 
