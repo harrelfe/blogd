@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-13'
+modified: '2022-03-19'
 slug: impactpo
 tags:
   - 2022
@@ -121,7 +121,7 @@ Comparisons of the PO model fit with models that relax the PO assumption above c
 * By AIC, the model that is most likely to have the best cross-validation performance is the fully PO model (the lower the AIC the better)
 * There is no evidence for non-PO, either when judging against a model that relaxes the PO assumption for treatment (P=0.48) or against a multinomial logistic model that does not assume PO for any variables (P=0.30).
 * The McFadden adjusted $R^2$ index, in line with AIC, indicates the best fit is from the PO model
-* The Cox-Snell adjusted $R^2$ indicates the PO model is competitive.  See [this](https://hbiostat.org/bib/r2.html) for information about general adjusted $R^2$ measures.
+* The Maddala-Cox-Snell adjusted $R^2$ indicates the PO model is competitive.  See [this](https://hbiostat.org/bib/r2.html) for information about general adjusted $R^2$ measures.
 * Nonparametric bootstrap percentile confidence intervals for the difference in predicted values between the PO model and one of the relaxed models take into account uncertainties and correlations of both sets of estimates.  In all cases the confidence intervals are quite wide and include 0 (except for one case, where the lower confidence limit is 0.002), which is very much in line with apparent differences being clouded by overfitting (high number of parameters in non-PO models).
 
 These assessments must be kept in mind when interpreting the inter-model agreement between probabilities of all levels of the ordinal outcome in the graphic that follows.  According to AIC and adjusted $R^2$, the estimates from the partial PO model and especially those from the multinomial model are overfitted.  This is related to the issue that odds ratios computed from oversimplifying an ordinal response by dichotomizing it are noisy (also see the next to last section below).

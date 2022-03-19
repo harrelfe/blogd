@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-13'
+modified: '2022-03-19'
 slug: impactpo
 tags:
   - 2022
@@ -99,22 +99,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable479580 {
+ .hmisctable644840 {
  border: none;
  font-size: 85%;
  }
- .hmisctable479580 td {
+ .hmisctable644840 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable479580 th {
+ .hmisctable644840 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable479580">
+ <table class="hmisctable644840">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -124,22 +124,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable246436 {
+ .hmisctable820085 {
  border: none;
  font-size: 85%;
  }
- .hmisctable246436 td {
+ .hmisctable820085 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable246436 th {
+ .hmisctable820085 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable246436">
+ <table class="hmisctable820085">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -150,22 +150,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable730036 {
+ .hmisctable808583 {
  border: none;
  font-size: 85%;
  }
- .hmisctable730036 td {
+ .hmisctable808583 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable730036 th {
+ .hmisctable808583 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable730036">
+ <table class="hmisctable808583">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -725,8 +725,8 @@ w
     LR chi^2 test for PO             2.48   7.22       
       d.f.                            3      6         
       Pr(>chi^2)                     0.4792 0.3013     
-    Cox-Snell R2              0.374  0.385  0.404      
-    Cox-Snell R2 adj          0.366  0.364  0.371      
+    MCS R2                    0.389  0.400  0.420      
+    MCS R2 adj                0.381  0.378  0.386      
     McFadden R2               0.149  0.155  0.165      
     McFadden R2 adj           0.141  0.133  0.130      
     Mean |difference| from PO        0.021  0.042      
@@ -778,7 +778,7 @@ Comparisons of the PO model fit with models that relax the PO assumption above c
 -   By AIC, the model that is most likely to have the best cross-validation performance is the fully PO model (the lower the AIC the better)
 -   There is no evidence for non-PO, either when judging against a model that relaxes the PO assumption for treatment (P=0.48) or against a multinomial logistic model that does not assume PO for any variables (P=0.30).
 -   The McFadden adjusted `\(R^2\)` index, in line with AIC, indicates the best fit is from the PO model
--   The Cox-Snell adjusted `\(R^2\)` indicates the PO model is competitive. See [this](https://hbiostat.org/bib/r2.html) for information about general adjusted `\(R^2\)` measures.
+-   The Maddala-Cox-Snell adjusted `\(R^2\)` indicates the PO model is competitive. See [this](https://hbiostat.org/bib/r2.html) for information about general adjusted `\(R^2\)` measures.
 -   Nonparametric bootstrap percentile confidence intervals for the difference in predicted values between the PO model and one of the relaxed models take into account uncertainties and correlations of both sets of estimates. In all cases the confidence intervals are quite wide and include 0 (except for one case, where the lower confidence limit is 0.002), which is very much in line with apparent differences being clouded by overfitting (high number of parameters in non-PO models).
 
 These assessments must be kept in mind when interpreting the inter-model agreement between probabilities of all levels of the ordinal outcome in the graphic that follows. According to AIC and adjusted `\(R^2\)`, the estimates from the partial PO model and especially those from the multinomial model are overfitted. This is related to the issue that odds ratios computed from oversimplifying an ordinal response by dichotomizing it are noisy (also see the next to last section below).
@@ -1376,7 +1376,7 @@ See a similar case study in [RMS Section 13.3.5](https://hbiostat.org/doc/rms.pd
 # Computing Environment
 
 <pre>
- R version 4.1.2 (2021-11-01)
+ R version 4.1.3 (2022-03-10)
  Platform: x86_64-pc-linux-gnu (64-bit)
  Running under: Pop!_OS 21.10
  
@@ -1388,11 +1388,11 @@ See a similar case study in [RMS Section 13.3.5](https://hbiostat.org/doc/rms.pd
  [1] stats     graphics  grDevices utils     datasets  methods   base     
  
  other attached packages:
- [1] rmsb_0.0.2      rms_6.2-1       SparseM_1.81    Hmisc_4.6-1    
+ [1] rmsb_0.0.2      rms_6.2-1       SparseM_1.81    Hmisc_4.7-0    
  [5] ggplot2_3.3.3   Formula_1.2-4   survival_3.2-13 lattice_0.20-45
  </pre>
  To cite R in publications use:
- <p>R Core Team (2021).
+ <p>R Core Team (2022).
  <em>R: A Language and Environment for Statistical Computing</em>.
  R Foundation for Statistical Computing, Vienna, Austria.
  <a href="https://www.R-project.org/">https://www.R-project.org/</a>. 
@@ -1402,7 +1402,7 @@ To cite the <tt>Hmisc</tt> package in publications use:
 
  <p>Harrell Jr F (2022).
  <em>Hmisc: Harrell Miscellaneous</em>.
- R package version 4.6-1, <a href="https://hbiostat.org/R/Hmisc/">https://hbiostat.org/R/Hmisc/</a>. 
+ R package version 4.7-0, <a href="https://hbiostat.org/R/Hmisc/">https://hbiostat.org/R/Hmisc/</a>. 
  </p>
  
 To cite the <tt>rms</tt> package in publications use:
