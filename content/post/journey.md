@@ -1,7 +1,7 @@
 +++
 title = "My Journey From Frequentist to Bayesian Statistics"
 date = 2017-02-19
-modified = 2021-08-22
+modified = 2022-03-28
 tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "posterior", "drug-evaluation", "principles", "evidence", "hypothesis-testing", "2017"]
 +++
 
@@ -20,6 +20,8 @@ tags = ["inference", "p-value", "likelihood", "RCT", "bayes", "multiplicity", "p
 |  |  <small>Those who criticize Bayes for having to choose a prior must remember that the frequentist approach leads to different p-values on the <b>same data</b> depending on how intentions are handled (e.g., observing 6 heads out of 10 tosses vs. having to toss 10 times to observe 6 heads; accounting for earlier inconsequential data looks in sequential testing).</small> |
 |  |  |
 |  |  <small>When was the last time you observed a sampling distribution, empirically and objectively? When was the last time you saw someone justify their choice of a sampling distribution, or tested it? -- [Stephen Martin](https://twitter.com/smartin2018/status/1057500260782800898)</small> |
+|  |  |
+|  | <small>The subjectivist (i.e. Bayesian) states his judgements, whereas the objectivist sweeps them under the carpet by calling assumptions knowledge, and he basks in the glorious objectivity of science. --  IJ Good</small> |
 |  |  |
 |  | <small>Null hypothesis testing is simple because it kicks down the road the gymnastics needed to subjectively convert observations about data to evidence about parameters.</small> |
 |  |  |
