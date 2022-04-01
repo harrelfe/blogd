@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-19'
+modified: '2022-04-01'
 slug: impactpo
 tags:
   - 2022
@@ -99,22 +99,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable644840 {
+ .hmisctable171061 {
  border: none;
  font-size: 85%;
  }
- .hmisctable644840 td {
+ .hmisctable171061 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable644840 th {
+ .hmisctable171061 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable644840">
+ <table class="hmisctable171061">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -124,22 +124,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable820085 {
+ .hmisctable714661 {
  border: none;
  font-size: 85%;
  }
- .hmisctable820085 td {
+ .hmisctable714661 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable820085 th {
+ .hmisctable714661 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable820085">
+ <table class="hmisctable714661">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -150,22 +150,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable808583 {
+ .hmisctable682467 {
  border: none;
  font-size: 85%;
  }
- .hmisctable808583 td {
+ .hmisctable682467 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable808583 th {
+ .hmisctable682467 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable808583">
+ <table class="hmisctable682467">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -238,7 +238,7 @@ max \|∂log <i>L</i>/∂β\| 4×10<sup>-13</sup>
 d.f. 2
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i> 1.624
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">2,148</span></sub> 0.365
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 <i>D</i><sub>xy</sub> 0.556
@@ -251,22 +251,10 @@ d.f. 2
 Pr(\>χ<sup>2</sup>) \<0.0001
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>r</sub> 5.071
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">2,141.3</span></sub> 0.379
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 γ 0.571
-</td>
-</tr>
-<tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>p</sub> 0.310
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-τ<sub>a</sub> 0.449
 </td>
 </tr>
 <tr>
@@ -278,6 +266,7 @@ Pr(\>χ<sup>2</sup>) \<0.0001
 Brier 0.151
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+τ<sub>a</sub> 0.449
 </td>
 </tr>
 </tbody>
@@ -725,8 +714,8 @@ w
     LR chi^2 test for PO             2.48   7.22       
       d.f.                            3      6         
       Pr(>chi^2)                     0.4792 0.3013     
-    MCS R2                    0.389  0.400  0.420      
-    MCS R2 adj                0.381  0.378  0.386      
+    MCS R2                    0.374  0.385  0.404      
+    MCS R2 adj                0.366  0.364  0.371      
     McFadden R2               0.149  0.155  0.165      
     McFadden R2 adj           0.141  0.133  0.130      
     Mean |difference| from PO        0.021  0.042      
@@ -919,7 +908,7 @@ max \|∂log <i>L</i>/∂β\| 2×10<sup>-7</sup>
 d.f. 1
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i> 0.285
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">1,148</span></sub> 0.021
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 <i>D</i><sub>xy</sub> 0.110
@@ -932,22 +921,10 @@ d.f. 1
 Pr(\>χ<sup>2</sup>) 0.0409
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>r</sub> 1.330
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">1,141.3</span></sub> 0.022
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 γ 0.247
-</td>
-</tr>
-<tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>p</sub> 0.070
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-τ<sub>a</sub> 0.088
 </td>
 </tr>
 <tr>
@@ -959,6 +936,7 @@ Pr(\>χ<sup>2</sup>) 0.0409
 Brier 0.240
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+τ<sub>a</sub> 0.088
 </td>
 </tr>
 </tbody>
@@ -1118,6 +1096,110 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
     Concordance probability estimated from OR: 0.604937
 
 In the absence of adjustment covariates, the treatment odds ratio estimate from a PO model **is** essentially the Wilcoxon statistic whether or not PO holds. Many statisticians are comfortable with using the Wilcoxon statistic for judging which treatment is better overall, e.g., which treatment tends to move responses towards the favorable end of the scale. So one can seldom go wrong in using the PO model to judge which treatment is better, even when PO does not hold.
+
+## Simulation Study of Effect of Adjusting for a Highly Non-PO Covariate
+
+What if the treatment operates in PO but an important covariate strongly violates its PO assumption? Let’s find out by simulating a specific departure from PO for a binary covariate. For a discrete ordinal outcome with levels 0,1,…,6 let the intercepts corresponding to `\(Y=1, ..., Y=6\)` be `\(\alpha = [4.4, 2.6, 0.7, -0.2, -2, -2.4]\)`. Let the true treatment effect be `\(\beta=-1.0\)`. The simulated covariate `\(X\)` is binary with a prevalence of `\(\frac{1}{2}\)`. The true effect of `\(X\)` is to have an OR of 3.0 on `\(Y\geq 1\)`, `\(Y\geq 2\)`, `\(Y\geq 3\)` but to have an OR of `\(\frac{1}{3}\)` on `\(Y\geq 4\)`, `\(Y\geq 5\)` and `\(Y=6\)`. So the initial regression coefficient for `\(X\)` is `\(\log(3)\)` and the additional effect of `\(X\)` on `\(Y\geq y\)` once `\(y\)` crosses to 4 and above is a decrement in its prevailing log odds by `\(2\log(3)\)`. So here is our model to simulate from:
+
+`$$\Pr(Y \geq y | \mathrm{trt}, X) = \mathrm{expit}(\alpha_{y} - [\mathrm{trt=B}] + \log(3) X -2\log(3) X [y \geq 4])$$`
+
+Over simulations compare these three estimates and their standard error:
+
+-   unadjusted treatment effect
+-   treatment effect adjusted for covariate assuming both treatment and covariate act in PO
+-   treatment effect adjusted for covariate assuming treatment is PO but allowing the covariate to be arbitrarily non-PO
+
+To test the simulation, simulate a very large sample size of n=50,000 and examine the coefficient estimates from the correct partial PO model and from two other models.
+
+``` r
+sim <- function(n, nsim=100) {
+  tx <- c(rep(0, n/2), rep(1, n/2))
+  x  <- c(rep(0, n/4), rep(1, n/4), rep(0, n/4), rep(1, n/4))
+  # Construct a matrix of logits of cumulative probabilities
+  L              <- matrix(alpha, nrow=n, ncol=6, byrow=TRUE)
+  L[tx == 1,]    <- L[tx == 1, ] + beta
+  L[x == 1, ]    <- L[x  == 1, ] + log(3)
+  L[x == 1, 4:6] <- L[x == 1, 4:6] - 2 * log(3)
+  P <- plogis(L)                   # cumulative probs
+  P <- cbind(1, P) - cbind(P, 0)   # cell probs
+  
+  b <- v <- matrix(NA, nrow=nsim, ncol=3)
+  colnames(b) <- colnames(v) <- c('PPO', 'PO', 'No X')
+  y <- integer(n)
+  a <- 'tx'
+  msim <- 0
+  for(i in 1 : nsim) {
+    for(j in 1 : n) y[j] <- sample(0:6, 1, prob=P[j, ])
+    f <- try(vglm(y ~ tx + x, cumulative(reverse=TRUE, parallel=FALSE ~ x)))
+    if(inherits(f, 'try-error')) next
+    msim <- msim + 1
+    g <- lrm(y ~ tx + x)
+    h <- lrm(y ~ tx)
+    b[msim, ] <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
+    v[msim, ] <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a]) 
+  }
+  b <- b[1:msim,, drop=FALSE]
+  v <- v[1:msim,, drop=FALSE]
+  bbar   <- apply(b, 2, mean)
+  bmed   <- apply(b, 2, median)
+  bse    <- sqrt(apply(v, 2, mean))
+  bsemed <- sqrt(apply(v, 2, median))
+  sd   <- if(msim < 2) rep(NA, 3) else sqrt(diag(cov(b)))
+  list(summary=cbind('Mean beta'               = bbar,
+                     'Median beta'             = bmed,
+                     'Sqrt mean estimated var' = bse,
+                     'Median estimated SE'     = bsemed,
+                     'Empirical SD'            = sd),
+       sims=list(beta=b, variance=v),
+       nsim=msim)
+}
+
+require(VGAM)
+```
+
+``` r
+alpha <- c(4.4, 2.6, 0.7, -0.2, -2, -2.4)
+beta <- -1
+set.seed(1)
+round(sim(50000, 1)$summary, 4)
+```
+
+         Mean beta Median beta Sqrt mean estimated var Median estimated SE
+    PPO    -0.9832     -0.9832                  0.0176              0.0176
+    PO     -0.9271     -0.9271                  0.0168              0.0168
+    No X   -0.9280     -0.9280                  0.0168              0.0168
+         Empirical SD
+    PPO            NA
+    PO             NA
+    No X           NA
+
+With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error. Non-PO in `\(X\)` does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR). But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether.
+
+Now simulate 1000 trials with n=300 and study how the various models perform.
+
+``` r
+simdone <- TRUE
+set.seed(7)
+if(simdone) s <- readRDS('/tmp/simtx.rds') else {
+  s <- sim(300, 1000)
+  saveRDS(s, '/tmp/simtx.rds')
+}
+cat('Convergence in', s$nsim, 'simulations\n\n')
+```
+
+    Convergence in 972 simulations
+
+``` r
+knitr::kable(round(s$summary, 4))
+```
+
+|      | Mean beta | Median beta | Sqrt mean estimated var | Median estimated SE | Empirical SD |
+|:-----|----------:|------------:|------------------------:|--------------------:|-------------:|
+| PPO  |   -1.0110 |     -0.9949 |                  0.2270 |              0.2280 |       0.2278 |
+| PO   |   -0.9562 |     -0.9509 |                  0.2188 |              0.2182 |       0.2185 |
+| No X |   -0.9552 |     -0.9501 |                  0.2187 |              0.2182 |       0.2182 |
+
+The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate. The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error. Both are close to the estimate from the proper model—the partial PO model that allows for different effects of `\(X\)` over the categories of `\(Y\)`.
 
 ## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
 
@@ -1385,11 +1467,13 @@ See a similar case study in [RMS Section 13.3.5](https://hbiostat.org/doc/rms.pd
  LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
  
  attached base packages:
- [1] stats     graphics  grDevices utils     datasets  methods   base     
+ [1] splines   stats4    stats     graphics  grDevices utils     datasets 
+ [8] methods   base     
  
  other attached packages:
- [1] rmsb_0.0.2      rms_6.2-1       SparseM_1.81    Hmisc_4.7-0    
- [5] ggplot2_3.3.3   Formula_1.2-4   survival_3.2-13 lattice_0.20-45
+ [1] rmsb_0.0.2      VGAM_1.1-5      rms_6.3-0       SparseM_1.81   
+ [5] Hmisc_4.7-0     ggplot2_3.3.3   Formula_1.2-4   survival_3.2-13
+ [9] lattice_0.20-45
  </pre>
  To cite R in publications use:
  <p>R Core Team (2022).
@@ -1417,6 +1501,13 @@ To cite the <tt>rmsb</tt> package in publications use:
  <p>Harrell F (2021).
  <em>rmsb: Bayesian Regression Modeling Strategies</em>.
  R package version 0.0.2, <a href="https://hbiostat.org/R/rmsb/">https://hbiostat.org/R/rmsb/</a>. 
+ </p>
+ 
+To cite the <tt>VGAM</tt> package in publications use:
+
+ <p>Yee TW (2015).
+ <em>Vector Generalized Linear and Additive Models: With an Implementation in R</em>.
+ Springer, New York, USA. 
  </p>
  
 To cite the <tt>ggplot2</tt> package in publications use:

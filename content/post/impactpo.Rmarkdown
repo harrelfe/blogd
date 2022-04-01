@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-03-19'
+modified: '2022-04-01'
 slug: impactpo
 tags:
   - 2022
@@ -200,6 +200,87 @@ cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
 ```
 
 In the absence of adjustment covariates, the treatment odds ratio estimate from a PO model **is** essentially the Wilcoxon statistic whether or not PO holds.  Many statisticians are comfortable with using the Wilcoxon statistic for judging which treatment is better overall, e.g., which treatment tends to move responses towards the favorable end of the scale.  So one can seldom go wrong in using the PO model to judge which treatment is better, even when PO does not hold.
+
+## Simulation Study of Effect of Adjusting for a Highly Non-PO Covariate
+
+What if the treatment operates in PO but an important covariate strongly violates its PO assumption?  Let's find out by simulating a specific departure from PO for a binary covariate.  For a discrete ordinal outcome with levels 0,1,...,6 let the intercepts corresponding to $Y=1, ..., Y=6$ be $\alpha = [4.4, 2.6, 0.7, -0.2, -2, -2.4]$.  Let the true treatment effect be $\beta=-1.0$.  The simulated covariate $X$ is binary with a prevalence of $\frac{1}{2}$.  The true effect of $X$ is to have an OR of 3.0 on $Y\geq 1$, $Y\geq 2$, $Y\geq 3$ but to have an OR of $\frac{1}{3}$ on $Y\geq 4$, $Y\geq 5$ and $Y=6$.  So the initial regression coefficient for $X$ is $\log(3)$ and the additional effect of $X$ on $Y\geq y$ once $y$ crosses to 4 and above is a decrement in its prevailing log odds by $2\log(3)$.  So here is our model to simulate from:
+
+$$\Pr(Y \geq y | \mathrm{trt}, X) = \mathrm{expit}(\alpha_{y} - [\mathrm{trt=B}] + \log(3) X -2\log(3) X [y \geq 4])$$
+
+Over simulations compare these three estimates and their standard error:
+
+* unadjusted treatment effect
+* treatment effect adjusted for covariate assuming both treatment and covariate act in PO
+* treatment effect adjusted for covariate assuming treatment is PO but allowing the covariate to be arbitrarily non-PO
+
+To test the simulation, simulate a very large sample size of n=50,000 and examine the coefficient estimates from the correct partial PO model and from two other models.
+
+```{r simtry}
+sim <- function(n, nsim=100) {
+  tx <- c(rep(0, n/2), rep(1, n/2))
+  x  <- c(rep(0, n/4), rep(1, n/4), rep(0, n/4), rep(1, n/4))
+  # Construct a matrix of logits of cumulative probabilities
+  L              <- matrix(alpha, nrow=n, ncol=6, byrow=TRUE)
+  L[tx == 1,]    <- L[tx == 1, ] + beta
+  L[x == 1, ]    <- L[x  == 1, ] + log(3)
+  L[x == 1, 4:6] <- L[x == 1, 4:6] - 2 * log(3)
+  P <- plogis(L)                   # cumulative probs
+  P <- cbind(1, P) - cbind(P, 0)   # cell probs
+  
+  b <- v <- matrix(NA, nrow=nsim, ncol=3)
+  colnames(b) <- colnames(v) <- c('PPO', 'PO', 'No X')
+  y <- integer(n)
+  a <- 'tx'
+  msim <- 0
+  for(i in 1 : nsim) {
+    for(j in 1 : n) y[j] <- sample(0:6, 1, prob=P[j, ])
+    f <- try(vglm(y ~ tx + x, cumulative(reverse=TRUE, parallel=FALSE ~ x)))
+    if(inherits(f, 'try-error')) next
+    msim <- msim + 1
+    g <- lrm(y ~ tx + x)
+    h <- lrm(y ~ tx)
+    b[msim, ] <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
+    v[msim, ] <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a]) 
+  }
+  b <- b[1:msim,, drop=FALSE]
+  v <- v[1:msim,, drop=FALSE]
+  bbar   <- apply(b, 2, mean)
+  bmed   <- apply(b, 2, median)
+  bse    <- sqrt(apply(v, 2, mean))
+  bsemed <- sqrt(apply(v, 2, median))
+  sd   <- if(msim < 2) rep(NA, 3) else sqrt(diag(cov(b)))
+  list(summary=cbind('Mean beta'               = bbar,
+                     'Median beta'             = bmed,
+                     'Sqrt mean estimated var' = bse,
+                     'Median estimated SE'     = bsemed,
+                     'Empirical SD'            = sd),
+       sims=list(beta=b, variance=v),
+       nsim=msim)
+}
+
+require(VGAM)
+alpha <- c(4.4, 2.6, 0.7, -0.2, -2, -2.4)
+beta <- -1
+set.seed(1)
+round(sim(50000, 1)$summary, 4)
+```
+
+With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error.  Non-PO in $X$ does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR).  But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether.
+
+Now simulate 1000 trials with n=300 and study how the various models perform.
+
+```{r dosim}
+simdone <- TRUE
+set.seed(7)
+if(simdone) s <- readRDS('/tmp/simtx.rds') else {
+  s <- sim(300, 1000)
+  saveRDS(s, '/tmp/simtx.rds')
+}
+cat('Convergence in', s$nsim, 'simulations\n\n')
+knitr::kable(round(s$summary, 4))
+```
+
+The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate.  The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error.  Both are close to the estimate from the proper model---the partial PO model that allows for different effects of $X$ over the categories of $Y$.
 
 ## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
 
