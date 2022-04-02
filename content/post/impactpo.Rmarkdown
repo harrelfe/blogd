@@ -11,7 +11,7 @@ tags:
   - endpoints
   - ordinal
 link-citations: yes
-summary: 'This article demonstrates how the proportional odds (PO) assumption and its impact can be assessed.  Advantages of a continuous Bayesian blend of PO and non-PO are also discussed.'
+summary: 'This article demonstrates how the proportional odds (PO) assumption and its impact can be assessed.  General robustness to non-PO on either a main variable of interest or on an adjustment covariate are exemplified.  Advantages of a continuous Bayesian blend of PO and non-PO are also discussed.'
 header:
   caption: ''
   image: ''
@@ -177,7 +177,7 @@ For more examples of relative efficiencies for various outcome configurations se
 
 Putting aside covariate adjustment, the PO model is equivalent to a Wilcoxon-Mann-Whitney two-sample rank-sum test statistic.  The normalized Wilcoxon statistic (concordance probability; also called probability index) is to within a high degree of approximation a simple function of the estimated odds ratio from a PO model fit.  Over a wide variety of datasets satisfying and violating PO, the $R^2$ for predicting the log odds ratio from the logit of the scaled Wilcoxon statistic is 0.996, and the mean absolute error in predicting the concordance probability from the log odds ratio is 0.002.  See [Violation of Proportional Odds is Not Fatal](https://www.fharrell.com/post/po) and [If You Like the Wilcoxon Test You Must Like the Proportional Odds Model](https://www.fharrell.com/post/wpo).
 
-Let's compare the actual Wilcoxon concordance probability with the concordance probability estimated from the odds ratio without covariate adjustment, $\frac{\mathrm{OR}^{0.66}}{1 + \mathrm{OR}^{0.66}}$.
+Let's compare the actual Wilcoxon concordance probability with the concordance probability estimated from the odds ratio without covariate adjustment, $\frac{\mathrm{OR}^{0.65}}{1 + \mathrm{OR}^{0.65}}$.
 
 ```{r wilcox}
 w <- wilcox.test(y ~ trt, data=d)
@@ -196,14 +196,14 @@ Note that the $C$ statistic in the above table handles ties differently than the
 or <- exp(- coef(u)['trt=B'])
 cat('Concordance probability from Wilcoxon statistic: ', concord, '\n',
     'Concordance probability estimated from OR: ',
-    or ^ 0.66 / (1 + or ^ 0.66), '\n', sep='')
+    or ^ 0.65 / (1 + or ^ 0.65), '\n', sep='')
 ```
 
 In the absence of adjustment covariates, the treatment odds ratio estimate from a PO model **is** essentially the Wilcoxon statistic whether or not PO holds.  Many statisticians are comfortable with using the Wilcoxon statistic for judging which treatment is better overall, e.g., which treatment tends to move responses towards the favorable end of the scale.  So one can seldom go wrong in using the PO model to judge which treatment is better, even when PO does not hold.
 
 ## Simulation Study of Effect of Adjusting for a Highly Non-PO Covariate
 
-What if the treatment operates in PO but an important covariate strongly violates its PO assumption?  Let's find out by simulating a specific departure from PO for a binary covariate.  For a discrete ordinal outcome with levels 0,1,...,6 let the intercepts corresponding to $Y=1, ..., Y=6$ be $\alpha = [4.4, 2.6, 0.7, -0.2, -2, -2.4]$.  Let the true treatment effect be $\beta=-1.0$.  The simulated covariate $X$ is binary with a prevalence of $\frac{1}{2}$.  The true effect of $X$ is to have an OR of 3.0 on $Y\geq 1$, $Y\geq 2$, $Y\geq 3$ but to have an OR of $\frac{1}{3}$ on $Y\geq 4$, $Y\geq 5$ and $Y=6$.  So the initial regression coefficient for $X$ is $\log(3)$ and the additional effect of $X$ on $Y\geq y$ once $y$ crosses to 4 and above is a decrement in its prevailing log odds by $2\log(3)$.  So here is our model to simulate from:
+What if the treatment operates in PO but an important covariate strongly violates its PO assumption?  Let's find out by simulating a specific departure from PO for a binary covariate.  For a discrete ordinal outcome with levels 0,1,...,6 let the intercepts corresponding to $Y=1, ..., 6$ be $\alpha = [4.4, 2.6, 0.7, -0.2, -2, -2.4]$.  Let the true treatment effect be $\beta=-1.0$.  The simulated covariate $X$ is binary with a prevalence of $\frac{1}{2}$.  The true effect of $X$ is to have an OR of 3.0 on $Y\geq 1$, $Y\geq 2$, $Y\geq 3$ but to have an OR of $\frac{1}{3}$ on $Y\geq 4$, $Y\geq 5$ and $Y=6$.  So the initial regression coefficient for $X$ is $\log(3)$ and the additional effect of $X$ on $Y\geq y$ once $y$ crosses to 4 and above is a decrement in its prevailing log odds by $2\log(3)$.  So here is our model to simulate from:
 
 $$\Pr(Y \geq y | \mathrm{trt}, X) = \mathrm{expit}(\alpha_{y} - [\mathrm{trt=B}] + \log(3) X -2\log(3) X [y \geq 4])$$
 
@@ -225,7 +225,7 @@ sim <- function(n, nsim=100) {
   L[x == 1, ]    <- L[x  == 1, ] + log(3)
   L[x == 1, 4:6] <- L[x == 1, 4:6] - 2 * log(3)
   P <- plogis(L)                   # cumulative probs
-  P <- cbind(1, P) - cbind(P, 0)   # cell probs
+  P <- cbind(1, P) - cbind(P, 0)   # cell probs (each row sums to 1.0)
   
   b <- v <- matrix(NA, nrow=nsim, ncol=3)
   colnames(b) <- colnames(v) <- c('PPO', 'PO', 'No X')
@@ -265,7 +265,7 @@ set.seed(1)
 round(sim(50000, 1)$summary, 4)
 ```
 
-With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error.  Non-PO in $X$ does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR).  But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether.
+With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error.  Non-PO in $X$ does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR).  But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether (not shown here).
 
 Now simulate 1000 trials with n=300 and study how the various models perform.
 
@@ -280,13 +280,13 @@ cat('Convergence in', s$nsim, 'simulations\n\n')
 knitr::kable(round(s$summary, 4))
 ```
 
-The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate.  The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error.  Both are close to the estimate from the proper model---the partial PO model that allows for different effects of $X$ over the categories of $Y$.
+The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate.  The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error.  Both are close to the estimate from the proper model---the partial PO model that allows for different effects of $X$ over the categories of $Y$.  And for all three models the standard error of the treatment effect estimated from that model's information matrix is very accurate as judged by the closeness to the empirical SD of the simulated regression coefficient estimates.
 
 ## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
 
-Just as in the case where one thinks that a sex by treatment interaction may be present, actually estimating such an interaction effect [can make treatment estimates worse](https://www.fharrell.com/post/demohte) in small samples even when the interaction is truly present.  This is because estimating an unknown quantity well requires both minimal bias and good precision (low variance), and adding a parameter to the model increases variance (one must estimate both the main effect and the interaction, equivalent to estimating separate treatment effects for females and males).  The probability that an estimate is within a given tolerance of the true value is closely related to the mean squared error (MSE) of the estimator.  MSE equals variance plus the square of bias.  Bias is the systematic error that can result from model misspecification, e.g., fitting a common OR (assuming PO) when the treatment OR needs to vary for some levels of Y (non-PO).
+Just as in the case where one thinks that a sex by treatment interaction may be present, actually estimating such an interaction effect [can make treatment estimates worse for both sexes](https://www.fharrell.com/post/demohte) in small samples even when the interaction is truly present.  This is because estimating an unknown quantity well requires both minimal bias and good precision (low variance), and adding a parameter to the model increases variance (one must estimate both the main effect and the interaction, equivalent to estimating separate treatment effects for females and males).  The probability that an estimate is within a given tolerance of the true value is closely related to the mean squared error (MSE) of the estimator.  MSE equals variance plus the square of bias.  Bias is the systematic error that can result from model misspecification, e.g., fitting a common OR (assuming PO) when the treatment OR needs to vary for some levels of Y (non-PO).
 
-A log odds ratio estimate for a specific cutoff Y≥y derived from a model that dichotomized the raw data at y will tend to be unbiased for estimating that specific log odds ratio.  Suppose the log OR has variance $u$.  The MSE of the log OR estimate is $u$ since the bias is approximately zero.  Now consider estimating the common OR in a PO model and using that to estimate the OR for Y≥y.  Suppose that common log OR has variance $v$ and bias $b$ ($b$ is a weighted log OR the PO model estimates minus the true log OR for Y≥y) so that MSE of the log OR for the PO model is $v + b^2$.  The multiplicative bias (fold-change bias) is $e^b$.   How large must this multiplicative bias in the OR estimate be before the tailored model for Y≥y has lower mean squared error (on the log scale) than the less-well-fitting PO model?  By comparing the two MSEs of $u$ and $v + b^2$ we find that the critical multiplicative error in the OR is $\exp(\sqrt{u - v})$.
+A log odds ratio estimate for a specific cutoff Y≥y derived from a model that dichotomized the raw data at y will tend to be unbiased for estimating that specific log odds ratio.  Suppose the log OR has variance $u$.  The MSE of the log OR estimate is $u$ since the bias is approximately zero.  Now consider estimating the common OR in a PO model and using that to estimate the OR for Y≥y.  Suppose that common log OR has variance $v$ and bias $b$ ($b$ is a weighted log OR the PO model estimates minus the true log OR for Y≥y) so that MSE of the log OR for the PO model is $v + b^2$.  The multiplicative bias (fold-change bias) is $e^b$.   How large must this multiplicative bias in the OR estimate be (i.e., how much non-PO needs to exist) before the tailored model for Y≥y has lower mean squared error (on the log scale) than the less-well-fitting PO model?  By comparing the two MSEs of $u$ and $v + b^2$ we find that the critical multiplicative error in the OR is $\exp(\sqrt{u - v})$.
 
 For the dataset we have been analyzing, the critical fold change in OR is tabulated in the table above under the column `Critical OR Factor`.  For example, for the lowest cutoff this factor is 2.33.  This is interpreted as saying that an ill-fitting PO model would still break even with a tailored well-fitting model (one that suffers from having higher variance of $\hat{\beta}$ due to not breaking ties in Y) in terms of the chance of having the OR estimate close to the true OR, as long as the true combined estimand PO OR is not more than a factor of 2.33 away from the true OR for Y≥1.  For example, if the OR that the PO model is estimating is 2, this estimate would be equal in accuracy to a tailored sure-to-fit estimate if the true PO is 4.66, and would be better than the tailored estimate if the true OR is less than 4.66.
 
