@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-04-01'
+modified: '2022-04-03'
 slug: impactpo
 tags:
   - 2022
@@ -99,22 +99,22 @@ bottom: -1ex;
 </style>
  <font color="MidnightBlue"><div align=center><span style="font-weight:bold">d <br><br> 3  Variables   148  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">y</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFDQ0NJSUlNTU1YWFhhYWFnZ2dzc3OgoKCkpKSnp6esrKyvr6+ysrKzs7O0tLS2tra3t7e7u7vDw8PU1NTa2trl5eXq6urr6+v///+UIJEyAAAAaklEQVQYlZ3QyQqAMAwE0LG17q37Fo3//5nSiCClJ+cy5DGngCUzel8dpufGJdmw+lqxPfdvXpYoG/NhIqpLamFJKbJoSeLXuZJ1mr7rs4nyiCgPQHUEvJNnDAHrQthxlvCEjrWWnyQZO9xNDxe6yXp1BQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable638202 {
+ .hmisctable277186 {
  border: none;
  font-size: 85%;
  }
- .hmisctable638202 td {
+ .hmisctable277186 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable638202 th {
+ .hmisctable277186 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable638202">
+ <table class="hmisctable277186">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th></tr>
  <tr><td>148</td><td>0</td><td>7</td><td>0.954</td><td>3</td><td>1.759</td></tr>
  </table>
@@ -124,22 +124,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  Proportion 0.041 0.128 0.264 0.162 0.270 0.034 0.101
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">trt</span> <style>
- .hmisctable797046 {
+ .hmisctable160924 {
  border: none;
  font-size: 85%;
  }
- .hmisctable797046 td {
+ .hmisctable160924 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable797046 th {
+ .hmisctable160924 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable797046">
+ <table class="hmisctable160924">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
  <tr><td>148</td><td>0</td><td>2</td></tr>
  </table>
@@ -150,22 +150,22 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAANCAMAAACae25RAAAAXVBMVEUAAAAzMzM3Nzc7OztAQEBBQUFD
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">baseline</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHAAAAANCAMAAABGghpmAAABdFBMVEUAAAABAQECAgIDAwMGBgYICAgLCwsMDAwNDQ0ODg4PDw8QEBARERESEhIUFBQZGRkbGxseHh4iIiIkJCQlJSUpKSksLCwxMTE4ODg6Ojo7Ozs+Pj5AQEBGRkZLS0tMTExNTU1PT09SUlJTU1NUVFRWVlZYWFhZWVlbW1tcXFxfX19gYGBhYWFiYmJkZGRnZ2doaGhqampra2tsbGxtbW1wcHBycnJzc3N4eHh5eXl6enp7e3t8fHx9fX1+fn6Dg4OGhoaHh4eNjY2Pj4+RkZGTk5OWlpaXl5eYmJibm5uhoaGioqKlpaWmpqapqamrq6uvr6+wsLCysrK3t7e5ubm9vb3Dw8PGxsbHx8fNzc3Ozs7R0dHV1dXW1tbY2Nja2trb29vc3Nze3t7f39/g4ODh4eHj4+Pk5OTl5eXn5+fo6Ojp6enq6urr6+vs7Ozu7u7w8PDy8vLz8/P29vb39/f4+Pj6+vr7+/v8/Pz9/f3+/v7////XCqOCAAABVElEQVQ4je3U6zMCARAA8FURhTxK5HBIkhzJK0nelLwfoceR9MCKpGj/edeZM/eFqT70wdgPO7s7s/Ob/bKAqHZgDQOIGuephvEP/gGQ5xsm+MrD46liqRTVXsgw8i4bL//CH0C/V97lbn4BowVy6aoAl/fkc3OXVBVtQVqr/yiVhejXJCwHURGgWW2FYMiSJ72V4sPP9PD4DUbf6XiOcrBKXihQPEsBBVIqQ2cQFsFwkTIpSoBPAt+uywQj27DjFsAjCN72DUhgum6fnK0CuDi0IIA6F/kgQUY7fwhbUwwTu4RT3m5MRGDFPK29f7Kf04YqT3cv4r7XL6TXWKmMFCXsZEYAhV9qBQ4G2zvMuAu25u5e8eWxBryCTeRaMAljYIU0aiZxHUKoZ5UcjKpMpqZx4JSsvtMCNhjR9PSDC5cgiW1Ocd/ACsndIKQLOJD+qEON+An34mFS/g0JYgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable630071 {
+ .hmisctable951378 {
  border: none;
  font-size: 85%;
  }
- .hmisctable630071 td {
+ .hmisctable951378 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable630071 th {
+ .hmisctable951378 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable630071">
+ <table class="hmisctable951378">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>148</td><td>0</td><td>37</td><td>0.993</td><td>20.31</td><td>17.63</td><td> 0</td><td> 0</td><td> 4</td><td>20</td><td>32</td><td>38</td><td>42</td></tr>
  </table>
@@ -1112,7 +1112,7 @@ Over simulations compare these three estimates and their standard error:
 To test the simulation, simulate a very large sample size of n=50,000 and examine the coefficient estimates from the correct partial PO model and from two other models.
 
 ``` r
-sim <- function(n, nsim=100) {
+sim <- function(beta, n, nsim=100) {
   tx <- c(rep(0, n/2), rep(1, n/2))
   x  <- c(rep(0, n/4), rep(1, n/4), rep(0, n/4), rep(1, n/4))
   # Construct a matrix of logits of cumulative probabilities
@@ -1123,8 +1123,8 @@ sim <- function(n, nsim=100) {
   P <- plogis(L)                   # cumulative probs
   P <- cbind(1, P) - cbind(P, 0)   # cell probs (each row sums to 1.0)
   
-  b <- v <- matrix(NA, nrow=nsim, ncol=3)
-  colnames(b) <- colnames(v) <- c('PPO', 'PO', 'No X')
+  b <- v <- pv <- matrix(NA, nrow=nsim, ncol=3)
+  colnames(b) <- colnames(v) <- colnames(pv) <- c('PPO', 'PO', 'No X')
   y <- integer(n)
   a <- 'tx'
   msim <- 0
@@ -1135,22 +1135,28 @@ sim <- function(n, nsim=100) {
     msim <- msim + 1
     g <- lrm(y ~ tx + x)
     h <- lrm(y ~ tx)
-    b[msim, ] <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
-    v[msim, ] <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a]) 
+    co <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
+    vs <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a])
+    b[msim,  ] <- co
+    v[msim,  ] <- vs
+    pv[msim, ] <- 2 * pnorm(- abs(co / sqrt(vs)))
   }
-  b <- b[1:msim,, drop=FALSE]
-  v <- v[1:msim,, drop=FALSE]
+  b  <- b [1:msim,, drop=FALSE]
+  v  <- v [1:msim,, drop=FALSE]
+  pv <- pv[1:msim,, drop=FALSE]
   bbar   <- apply(b, 2, mean)
   bmed   <- apply(b, 2, median)
   bse    <- sqrt(apply(v, 2, mean))
   bsemed <- sqrt(apply(v, 2, median))
   sd   <- if(msim < 2) rep(NA, 3) else sqrt(diag(cov(b)))
+  pow  <- if(nsim < 2) rep(NA, 3) else apply(pv, 2, function(x) mean(x < 0.05))
   list(summary=cbind('Mean beta'               = bbar,
                      'Median beta'             = bmed,
                      'Sqrt mean estimated var' = bse,
                      'Median estimated SE'     = bsemed,
-                     'Empirical SD'            = sd),
-       sims=list(beta=b, variance=v),
+                     'Empirical SD'            = sd,
+                     'Power'                   = pow),
+       sims=list(beta=b, variance=v, p=pv),
        nsim=msim)
 }
 
@@ -1159,47 +1165,64 @@ require(VGAM)
 
 ``` r
 alpha <- c(4.4, 2.6, 0.7, -0.2, -2, -2.4)
-beta <- -1
 set.seed(1)
-round(sim(50000, 1)$summary, 4)
+round(sim(beta=-1, 50000, 1)$summary, 4)
 ```
 
          Mean beta Median beta Sqrt mean estimated var Median estimated SE
     PPO    -0.9832     -0.9832                  0.0176              0.0176
     PO     -0.9271     -0.9271                  0.0168              0.0168
     No X   -0.9280     -0.9280                  0.0168              0.0168
-         Empirical SD
-    PPO            NA
-    PO             NA
-    No X           NA
+         Empirical SD Power
+    PPO            NA    NA
+    PO             NA    NA
+    No X           NA    NA
 
 With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error. Non-PO in `\(X\)` does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR). But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether (not shown here).
 
-Now simulate 1000 trials with n=300 and study how the various models perform.
+Now simulate 2000 trials with n=300 and study how the various models perform.
 
 ``` r
 simdone <- TRUE
 set.seed(7)
-if(simdone) s <- readRDS('/tmp/simtx.rds') else {
-  s <- sim(300, 1000)
-  saveRDS(s, '/tmp/simtx.rds')
+if(simdone) simr <- readRDS('/tmp/simtx.rds') else {
+  s  <- sim(-1, 300, 2000)
+  s0 <- sim( 0, 300, 2000)  # also simulate under the null
+  simr <- list(s=s, s0=s0)
+  saveRDS(simr, '/tmp/simtx.rds')
 }
-cat('Convergence in', s$nsim, 'simulations\n\n')
+cat('Convergence in', simr$s$nsim, 'simulations\n\n')
 ```
 
-    Convergence in 972 simulations
+    Convergence in 1947 simulations
 
 ``` r
-knitr::kable(round(s$summary, 4))
+knitr::kable(round(simr$s$summary, 4))
 ```
 
-|      | Mean beta | Median beta | Sqrt mean estimated var | Median estimated SE | Empirical SD |
-|:-----|----------:|------------:|------------------------:|--------------------:|-------------:|
-| PPO  |   -1.0110 |     -0.9949 |                  0.2270 |              0.2280 |       0.2278 |
-| PO   |   -0.9562 |     -0.9509 |                  0.2188 |              0.2182 |       0.2185 |
-| No X |   -0.9552 |     -0.9501 |                  0.2187 |              0.2182 |       0.2182 |
+|      | Mean beta | Median beta | Sqrt mean estimated var | Median estimated SE | Empirical SD |  Power |
+|:-----|----------:|------------:|------------------------:|--------------------:|-------------:|-------:|
+| PPO  |   -1.0157 |     -1.0100 |                  0.2273 |              0.2281 |       0.2340 | 0.9979 |
+| PO   |   -0.9609 |     -0.9565 |                  0.2189 |              0.2184 |       0.2227 | 0.9974 |
+| No X |   -0.9599 |     -0.9556 |                  0.2188 |              0.2183 |       0.2227 | 0.9974 |
 
 The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate. The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error. Both are close to the estimate from the proper model—the partial PO model that allows for different effects of `\(X\)` over the categories of `\(Y\)`. And for all three models the standard error of the treatment effect estimated from that model’s information matrix is very accurate as judged by the closeness to the empirical SD of the simulated regression coefficient estimates.
+
+Check simulations under the null, i.e., with `\(\beta=0\)` for treatment. Look at the distribution of p-values for the three model’s treatment 2-sided Wald tests (which should be uniform), and the empirical `\(\alpha\)`, the fraction of Wald p-values `\(< 0.05\)`.
+
+``` r
+p <- simr$s0$sims$p
+par(mfrow=c(2,2))
+for(i in 1 : 3) {
+  pow <- paste0('Fraction P<0.05: ', round(mean(p[, i] < 0.05), 3))
+  hist(p[, i], main=paste(colnames(p)[i], '  ', pow), xlab='P-value', 
+       sub=, nclass=50)
+}
+```
+
+<img src="/post/impactpo_files/figure-html/nullsim-1.png" width="672" />
+
+`\(\alpha\)` under the improper (with respect to `\(X\)`) PO model is just under that of the model ignoring `\(X\)`, which is estimated to be at the nominal 0.05. The estimated `\(\alpha\)` for the appropriate partial PO model is just over 0.05.
 
 ## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
 

@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-04-01'
+modified: '2022-04-03'
 slug: impactpo
 tags:
   - 2022
@@ -216,7 +216,7 @@ Over simulations compare these three estimates and their standard error:
 To test the simulation, simulate a very large sample size of n=50,000 and examine the coefficient estimates from the correct partial PO model and from two other models.
 
 ```{r simtry}
-sim <- function(n, nsim=100) {
+sim <- function(beta, n, nsim=100) {
   tx <- c(rep(0, n/2), rep(1, n/2))
   x  <- c(rep(0, n/4), rep(1, n/4), rep(0, n/4), rep(1, n/4))
   # Construct a matrix of logits of cumulative probabilities
@@ -227,8 +227,8 @@ sim <- function(n, nsim=100) {
   P <- plogis(L)                   # cumulative probs
   P <- cbind(1, P) - cbind(P, 0)   # cell probs (each row sums to 1.0)
   
-  b <- v <- matrix(NA, nrow=nsim, ncol=3)
-  colnames(b) <- colnames(v) <- c('PPO', 'PO', 'No X')
+  b <- v <- pv <- matrix(NA, nrow=nsim, ncol=3)
+  colnames(b) <- colnames(v) <- colnames(pv) <- c('PPO', 'PO', 'No X')
   y <- integer(n)
   a <- 'tx'
   msim <- 0
@@ -239,48 +239,70 @@ sim <- function(n, nsim=100) {
     msim <- msim + 1
     g <- lrm(y ~ tx + x)
     h <- lrm(y ~ tx)
-    b[msim, ] <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
-    v[msim, ] <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a]) 
+    co <- c(coef(f)[a],   coef(g)[a],   coef(h)[a])
+    vs <- c(vcov(f)[a,a], vcov(g)[a,a], vcov(h)[a,a])
+    b[msim,  ] <- co
+    v[msim,  ] <- vs
+    pv[msim, ] <- 2 * pnorm(- abs(co / sqrt(vs)))
   }
-  b <- b[1:msim,, drop=FALSE]
-  v <- v[1:msim,, drop=FALSE]
+  b  <- b [1:msim,, drop=FALSE]
+  v  <- v [1:msim,, drop=FALSE]
+  pv <- pv[1:msim,, drop=FALSE]
   bbar   <- apply(b, 2, mean)
   bmed   <- apply(b, 2, median)
   bse    <- sqrt(apply(v, 2, mean))
   bsemed <- sqrt(apply(v, 2, median))
   sd   <- if(msim < 2) rep(NA, 3) else sqrt(diag(cov(b)))
+  pow  <- if(nsim < 2) rep(NA, 3) else apply(pv, 2, function(x) mean(x < 0.05))
   list(summary=cbind('Mean beta'               = bbar,
                      'Median beta'             = bmed,
                      'Sqrt mean estimated var' = bse,
                      'Median estimated SE'     = bsemed,
-                     'Empirical SD'            = sd),
-       sims=list(beta=b, variance=v),
+                     'Empirical SD'            = sd,
+                     'Power'                   = pow),
+       sims=list(beta=b, variance=v, p=pv),
        nsim=msim)
 }
 
 require(VGAM)
 alpha <- c(4.4, 2.6, 0.7, -0.2, -2, -2.4)
-beta <- -1
 set.seed(1)
-round(sim(50000, 1)$summary, 4)
+round(sim(beta=-1, 50000, 1)$summary, 4)
 ```
 
 With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error.  Non-PO in $X$ does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR).  But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether (not shown here).
 
-Now simulate 1000 trials with n=300 and study how the various models perform.
+Now simulate 2000 trials with n=300 and study how the various models perform.
 
 ```{r dosim}
 simdone <- TRUE
 set.seed(7)
-if(simdone) s <- readRDS('/tmp/simtx.rds') else {
-  s <- sim(300, 1000)
-  saveRDS(s, '/tmp/simtx.rds')
+if(simdone) simr <- readRDS('/tmp/simtx.rds') else {
+  s  <- sim(-1, 300, 2000)
+  s0 <- sim( 0, 300, 2000)  # also simulate under the null
+  simr <- list(s=s, s0=s0)
+  saveRDS(simr, '/tmp/simtx.rds')
 }
-cat('Convergence in', s$nsim, 'simulations\n\n')
-knitr::kable(round(s$summary, 4))
+cat('Convergence in', simr$s$nsim, 'simulations\n\n')
+knitr::kable(round(simr$s$summary, 4))
 ```
 
 The second line of the summary shows what to expect when fitting a PO model in the presence of severe non-PO for an important covariate.  The mean estimated treatment effect is the same as not adjusting for the covariate and so is its estimated standard error.  Both are close to the estimate from the proper model---the partial PO model that allows for different effects of $X$ over the categories of $Y$.  And for all three models the standard error of the treatment effect estimated from that model's information matrix is very accurate as judged by the closeness to the empirical SD of the simulated regression coefficient estimates.
+
+Check simulations under the null, i.e., with $\beta=0$ for treatment.  Look at the distribution of p-values for the three model's treatment 2-sided Wald tests (which should be uniform), and the empirical $\alpha$, the fraction of Wald p-values $< 0.05$.
+
+```{r nullsim,fig.height=4,fit.width=6,top=1}
+p <- simr$s0$sims$p
+par(mfrow=c(2,2))
+for(i in 1 : 3) {
+  pow <- paste0('Fraction P<0.05: ', round(mean(p[, i] < 0.05), 3))
+  hist(p[, i], main=paste(colnames(p)[i], '  ', pow), xlab='P-value', 
+       sub=, nclass=50)
+}
+```
+
+$\alpha$ under the improper (with respect to $X$) PO model is just under that of the model ignoring $X$, which is estimated to be at the nominal 0.05. The estimated $\alpha$ for the appropriate partial PO model is just over 0.05.
+
 
 ## Using the PO Model to Estimate the Treatment Effect for a Specific Y Cutoff
 
