@@ -7,6 +7,7 @@ slug: po
 categories: []
 tags:
   - 2020
+  - ordinal
   - accuracy-score
   - RCT
   - regression
@@ -127,11 +128,10 @@ axis(1, at=g(Delta), labels=as.character(Delta),
 axis(1, at=g(Delta2), tcl=.25, col.ticks=gray(.7), labels=FALSE, line=-7)
 title(xlab=expression(Delta), line=-10)
 axis(1, at=lor, as.character(lor),
-     tcl=-.5, mgp=c(-3, 0.8, 0), line=-7)
+     tcl=-.5, line=-7)  # mgp=c(-3, 0.8, 0)
 axis(1, at=lor2, tcl=-.25, col.ticks=gray(.7), labels=FALSE, line=-7)
 title(xlab=expression(beta), line=-4.5)
 
-     
 axis(1, at=log(or),  labels=as.character(or))
 axis(1, at=log(or2), tcl=-.25, col.ticks=gray(.7), labels=FALSE)
 title(xlab='Odds Ratio')
@@ -180,3 +180,8 @@ When PO does not hold, the odds ratio from the proportional odds model represent
 If you like the Wilcoxon test for comparing an ordinal response variable Y across treatments, or you like standard rank correlation measures for describing the strength of association between X and Y, you must like the PO model for summarizing treatment effects on ordinal (or continuous) Y.  In a clinical trial we are interested in estimating the degree to which a treatment favorably redistributes patients across levels of Y in order to get a unified analysis of how a treatment improves patient outcomes.  The PO model does that.  And the natural parameter, concordance probability P(B > A), is a simple function of the PO model's treatment odds ratio.
 
 The place where a serious departure from the parallelism/PO assumption makes a large difference is in estimating treatment effects on individual outcome levels.  For example, an overall odds ratio indicating that treatment benefits patients on an array of nonfatal outcomes may be in the opposite direction of how the treatment affects mortality.  Though the overall average treatment effect estimated by assuming PO may rightfully claim a positive net clinical benefit of treatment, one can get a different picture when estimating the mortality effect ignoring all the other outcomes.  This may be addressed using the  _partial proportional odds model_ of [Peterson and Harrell, 1990](https://www.jstor.org/stable/2347760) as implemented [here](https://hbiostat.org/R/rmsb/blrm.html) and discussed in the COVID-19 context [here](https://hbiostat.org/proj/covid19/statdesign.html#univariate-ordinal-outcome).
+
+# Further Reading
+
+* https://hbiostat.org/bib/po
+* https://www.fharrell.com/tag/ordinal

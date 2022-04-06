@@ -9,6 +9,7 @@ summary: This article gives examples of information gained by using ordinal over
 tags:
 - RCT
 - design
+- ordinal
 - dichotomization
 - inference
 - precision
