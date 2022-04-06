@@ -400,7 +400,7 @@ for(i in 1 : nt) {
 
 # Summary
 
-The unadjusted proportional odds model’s odds ratio estimate almost perfectly reflects the Wilcoxon test statistic regardless of the degree of non-proportional odds and sample size. A simple formula `\(c = \frac{\mathrm{OR}^{0.65}}{1 + \mathrm{OR}^{0.65}}\)` allows for conversion between the two, and even under severe non-PO the mean absolute error in estimating `\(c\)` from OR is 0.008. Importantly, the PO results and the Wilcoxon statistic never disagree on the direction of the treatment effect, and they never disagree about the exact equality of treatments, i.e., OR=1.0 if and only if there is complete overlap in the two groups ($c=0.5$ and Wilcoxon `\(P\)`-value is 1.0).
+The unadjusted proportional odds model’s odds ratio estimate almost perfectly reflects the Wilcoxon test statistic regardless of the degree of non-proportional odds and sample size. A simple formula `\(c = \frac{\mathrm{OR}^{0.65}}{1 + \mathrm{OR}^{0.65}}\)` allows for conversion between the two, and even under severe non-PO the mean absolute error in estimating `\(c\)` from OR is 0.008. Importantly, the PO results and the Wilcoxon statistic never disagree on the direction of the treatment effect, and they never disagree about the exact equality of treatments, i.e., OR=1.0 if and only if there is complete overlap in the two groups indicated by `\(c=\frac{1}{2}\)` with the Wilcoxon `\(P\)`-value being 1.0.
 
 # Further Reading
 
