@@ -1,7 +1,7 @@
 --- 
 title: Equivalence of Wilcoxon Statistic and Proportional Odds Model
 author: Frank Harrell
-date: '2022-04-05'
+date: '2022-04-06'
 modified: ''
 slug: powilcoxon
 tags:
@@ -56,7 +56,7 @@ This has been explored in two of my blog articles:
 
 For background and references for the PO model see [this](https://hbiostat.org/bib/po).
 
-In this report I go a step further and repeat the simulations done for the first blog article (but with more repetitions and many more conditions) and stratify the results by the degree of non-proportional odds exhibited in each random sample. Random trials were simulated for sample sizes 20, 25, 30, 40, 50, 60, …, 100, 150, 200, 500, 1000. For each trial, 0:1 group assignments were generated such that the number of subjects in the first treatment group is `\(n \times u\)` rounded to the nearest integer, where `\(u\)` is a random uniform value between `\(\frac{1}{3}\)` and `\(\frac{2}{3}\)` . Ordinal responses Y were generated in four ways by using all combinations of the following two aspects:
+In this report I go a step further and repeat the simulations done for the first blog article (but with more repetitions and many more conditions) and stratify the results by the degree of non-proportional odds exhibited in each random sample. Random trials were simulated for sample sizes 20, 25, 30, 40, 50, 60, …, 100, 150, 200, 500, 1000. For each trial, 0:1 group assignments were generated such that the number of subjects in the first treatment group is `\(n \times u\)` rounded to the nearest integer, where `\(u\)` is a random uniform value between `\(\frac{1}{3}\)` and `\(\frac{2}{3}\)` . Ordinal responses Y were generated in five ways by using combinations of the following two aspects:
 
 -   More continuous vs. more discrete Y
     -   sampling with replacement from the integers 1 to n for the current sample size n
@@ -66,7 +66,7 @@ In this report I go a step further and repeat the simulations done for the first
     -   Unequal sampling probabilities, allowing arbitrarily large (or null) treatment effects and arbitrarily large (or small) non-PO for all sample sizes. This is done by taking a random sample of size n or m from a uniform distribution, taking these as the multinomial probabilities for Y in the first group, sampling n0 Y from these unequal probabilities. Then repeat the process independently for the second group with n1 observations. The two sets of multinomial probabilities are disconnected, allowing arbitrarily large non-PO.
     -   Sampling from two normal distributions with varying true differences in means and varying ratios of standard deviations. For this case, large non-PO occurs when the SDs are much different. Trial data for the number of participants assigned to the first group are simulated from a normal distribution with mean `\(\mu\)` and SD `\(\sigma\)` where `\(\mu\)` is a draw from a uniform distribution ranging over -1.5 to 1.5 and `\(\sigma\)` is a draw from a uniform distribution ranging over 0.4 to 3.0. Then new single draws are made for `\(\mu\)` and `\(\sigma\)` for the second sample, and the sample is similarly drawn from a normal distribution. Both sets of sample values are multiplied by ten and rounded to the nearest integer. For this type of random number generation, n vs. m is ignored so there are more simulations for this third type.
 
-One hundred trials are run for each sample size and for each of these six combinations. This process generates many configurations of ties and distinct values of Y, and degrees of non-proportionality.
+One hundred trials are run for each sample size and for each of five combinations. This process generates many configurations of ties and distinct values of Y, degrees of non-proportionality, and treatment allocation ratios.
 
 # Quantifying the Departure from PO
 
@@ -237,7 +237,7 @@ ggfreqScatter(d$n, npo, by=Ydiscrete, xlab='N', xbreaks=xb, xtrans=log)
 <img src="/post/powilcoxon_files/figure-html/qnpo-1.png" width="768" /><img src="/post/powilcoxon_files/figure-html/qnpo-2.png" width="768" />
 
 To derive the approximating equation for computing the concordance probability use robust regression to predict logit of concordance probability from the PO log(OR). `\(c\)` is curtailed to `\([0.02, 0.98]\)` before taking the logit to not allow infinite estimates.
-Logit($c$) is the chosen transformation because it transforms `\(c\)` to be on an unrestricted scale, just as the log odds ratio is. By good fortune (or some unknown theoretical argument) this happens to yield almost perfect linearity. (Note that quadratic and cubic polynomials were tried on the robust regression fit, with no improvement in `\(R^2\)` or mean absolute prediction error.)
+`\(\mathrm{logit}(c)\)` is the chosen transformation because it transforms `\(c\)` to be on an unrestricted scale, just as the log odds ratio is. By good fortune (or some unknown theoretical argument) this happens to yield almost perfect linearity. (Note that quadratic and cubic polynomials were tried on the robust regression fit, with no improvement in `\(R^2\)` or mean absolute prediction error.)
 
 ``` r
 g  <- function(beta, concord, subset=1:length(beta)) {
@@ -397,6 +397,10 @@ for(i in 1 : nt) {
 ```
 
 <img src="/post/powilcoxon_files/figure-html/highestnpo-1.png" width="576" />
+
+# Summary
+
+The unadjusted proportional odds model’s odds ratio estimate almost perfectly reflects the Wilcoxon test statistic regardless of the degree of non-proportional odds and sample size. A simple formula `\(c = \frac{\mathrm{OR}^{0.65}}{1 + \mathrm{OR}^{0.65}}\)` allows for conversion between the two, and even under severe non-PO the mean absolute error in estimating `\(c\)` from OR is 0.008. Importantly, the PO results and the Wilcoxon statistic never disagree on the direction of the treatment effect, and they never disagree about the exact equality of treatments, i.e., OR=1.0 if and only if there is complete overlap in the two groups ($c=0.5$ and Wilcoxon `\(P\)`-value is 1.0).
 
 # Further Reading
 
