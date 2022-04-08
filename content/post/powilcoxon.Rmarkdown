@@ -4,6 +4,7 @@ author: Frank Harrell
 date: '2022-04-06'
 modified: '2022-04-07'
 slug: powilcoxon
+format: hugo
 tags:
   - 2022
   - endpoints
@@ -84,12 +85,11 @@ This procedure is virtually the same as computing empirical log odds ratios for 
 The indexes of non-PO are exemplified by taking samples of size n=50 in a similar way to how the simulation will be run later.  The plotted ECDFs for the two groups are on the logit scale.  The index of non-parallelism of these two transformed curves appears on each panel.  The bottom right panel shows the relationship of the two indexes.
 
 ```{r setup,include=FALSE}
-require(Hmisc)
+require(rms)
 knitrSet(lang='blogdown')
 ```
 
 ```{r illusnonpo,fig.width=8,fig.height=5}
-require(rms)
 # Function to curtail to [0.02, 0.98] before taking logit
 lg <- function(p) qlogis(pmax(pmin(p, 1. - 0.02), 0.02))
 # Function to curtail log ORs to [-6, 6]
@@ -162,8 +162,6 @@ for(i in 1 : 11) {
 }
 plot(z[, 1], z[, 2], xlab='npo1', ylab='npo2')
 ```
-
-The last plot shows the amount of agreement between the two indexes of non-PO.
 
 # Simulation
 
@@ -314,6 +312,8 @@ The intercept is virtually zero and the regression coefficient of the log(OR) is
 * $\frac{c}{1 - c} = \mathrm{OR}^{0.6453}$
 * $c = \frac{\mathrm{OR}^{0.6453}}{1 + \mathrm{OR}^{0.6453}}$
 
+Note that with *probit* ordinal regression there is an exact analytic result due to [Agresti and Kateri](https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565) that applies even under covariate adjustment: $\mathrm{logit}(c) = \frac{\beta}{\sqrt{2}} \approx 0.707\beta$ as compared to our $0.6453\beta$.  There is no known analytic result for the PO model.  As an interesting aside, $\frac{\frac{1}{\sqrt{2}}}{0.6453} \approx 1.096$ which is not close to 1.6, the [scaling constant that makes the logistic distribution most similar to the normal distribution](https://www.johndcook.com/blog/2010/05/18/normal-approximation-to-logistic).
+
 From here on the constant 0.65 will be used.  Now examine the relationship on the concordance probability scale.  The scatterplot uses colors to denote the frequency of occurrence of nearly coincident points.  The quality of the approximation on this scale is given by $R^{2}=0.996$.
 
 ```{r acc,fig.height=6,fig.width=7,results='asis'}
@@ -336,7 +336,7 @@ ggfreqScatter(ac(beta), cstat, xlab=xl, ylab=yl) +
   geom_abline(intercept=0,slope=1,alpha=.1,size=.2)
 ```
 
-Repeat the last graph stratified by intevals of study sample sizes.
+Repeat the last graph stratified by intervals of study sample sizes.
 
 ```{r accn,fig.height=7,fit.width=8}
 nn <- cut2(d$n, c(40, 60, 100, 200, 500))
@@ -355,14 +355,15 @@ c('linear npo' = r2(ols(ad ~ npo)),
   'npo + npo2' = r2(ols(ad ~ rcs(npo, 5) + rcs(npo2, 5)))), 3)
 dd <- datadist(npo, npo2); options(datadist='dd')
 f <- ols(ad ~ rcs(npo, 5))
-ggplot(Predict(f), ylab='MAD', rdata=data.frame(npo),
+ggplot(Predict(f), ylab='Mean |error|', xlab='Degree of Non-PO', 
+       rdata=data.frame(npo),
        histSpike.opts=list(frac=function(f) 0.01 + 0.02 * f / (max(f, 2) - 1),
                            side=1, nint=100))
 ```
 
 Spikes show the distribution of `npo` in 100 bins and shaded gray bands depict 0.95 pointwise confidence intervals from the tenth smallest `npo` to the tenth largest.  The worst MAD is estimated to be around 0.02 and the relationship steepens around `npo=0.5`.  Even though the best model for predicting MAD uses nonlinear functions of both non-PO indexes, for simplicity let's use the stronger of the two, `npo`, for key results.
 
-Earlier plots demonstrate the practical equivalence of the no-covariate PO model and the Wilcoxon test ($R^{2} = 0.996$), as the points hover about the line of identity (note that the points that are more consistent with a curved relationship are mostly singletons or frequency 2-4).  Here is a summary of the `r length(worst)` out of `r nrow(d)` simulated trials for which the discrepancy between predicted and actual $c$ was $> 0.075$.
+Earlier plots demonstrate the practical equivalence of the no-covariate PO model and the Wilcoxon test ( $R^{2} = 0.996$ ), as the points hover about the line of identity (note that the points that are more consistent with a curved relationship are mostly singletons or frequency 2-4).  Here is a summary of the `r length(worst)` out of `r nrow(d)` simulated trials for which the discrepancy between predicted and actual $c$ was $> 0.075$.
 
 ```{r worst}
 f <- function(x) sum(duplicated(x))
