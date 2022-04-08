@@ -360,7 +360,7 @@ See which version of the non-PO index best predicts the approximation error, and
 ```{r whichnpo,fig.width=4,fig.height=3.5}
 #| fig.width: 5
 #| fig.height: 3.75
-#| fig.cap: "Mean absolute error in estimating the 0-1 scaled Wilcoxon statistic $c$ from the PO model odds ratio, as a function of the degree of non-PO evident in the sample.  The $y$-axis is scaled to $\\frac{1}{10}$th the maximum possible error.  Heights of spikes are proportional to the number of simulated trials that had the indicated amount of non-PO."
+#| fig.cap: "Mean absolute error in estimating the 0-1 scaled Wilcoxon statistic $c$ from the PO model odds ratio, as a function of the degree of non-PO evident in the sample.  The $y$-axis is scaled to $\\frac{1}{10}$th the maximum possible error.  Heights of spikes are proportional to the number of simulated trials that had the indicated amount of non-PO after the non-PO metric is split into 100 bins.  Gray shaded bands depict 0.95 pointwise confidence intervals for the tenth smallest `npo` to the tenth largest."
 
 r2 <- function(fit) fit$stats['R2']
 round(
@@ -378,7 +378,7 @@ ggplot(Predict(f), ylab='Mean |error|', xlab='Degree of Non-PO',
                            side=1, nint=100))
 ```
 
-Spikes show the distribution of `npo` in 100 bins and shaded gray bands depict 0.95 pointwise confidence intervals from the tenth smallest `npo` to the tenth largest.  The worst MAD is estimated to be around 0.02 and the relationship steepens around `npo=0.5`.  Even though the best model for predicting MAD uses nonlinear functions of both non-PO indexes, for simplicity let's use the stronger of the two, `npo`, for key results.
+The worst MAD is estimated to be around 0.02 and the relationship steepens around `npo=0.5`.  Even though the best model for predicting MAD uses nonlinear functions of both non-PO indexes, for simplicity let's use the stronger of the two, `npo`, for key results.
 
 Earlier plots demonstrate the practical equivalence of the no-covariate PO model and the Wilcoxon test ( $R^{2} = 0.996$ ), as the points hover about the line of identity.  Here is a summary of the `r length(worst)` out of `r nrow(d)` simulated trials for which the discrepancy between predicted and actual $c$ was $> 0.075$.
 
