@@ -425,15 +425,24 @@ To explore the data patterns that corresponded to the strongest PO violations ac
 ```{r highestnpo,fig.width=6,fig.height=6}
 par(mfrow=c(7,6), mar=c(.5,.1,.1,.1), mgp=c(.5, .4, 0))
 nt <- min(length(largenpo), 42)
+ww <- NULL
 for(i in 1 : nt) {
   w <- largenpo[[i]]
   np <- npod(w$y0, w$y1, pl=TRUE, axes=FALSE, ylim=c(-4,4))
   r <- max(c(w$n0 / w$n1, w$n1 / w$n0))
   m <- max(w$y0, w$y1)
   text(m, -3, paste0('n=', w$n0 + w$n1, '  ratio=', round(r, 1)), adj=1)
-  if(abs(np[1] - 2.95) < 0.01) print(w)
+  if(abs(np[1] - 2.95) < 0.01) ww <- w
 }
 ```
+
+::: {.column-margin}
+Here are details of the simulated trial that resulted in non-PO of 2.95.
+
+```{r highestdetails}
+ww
+```
+:::
 
 # Summary
 
