@@ -450,8 +450,8 @@ The unadjusted proportional odds model's odds ratio estimate almost perfectly re
 
 # Further Reading
 
-* https://hbiostat.org/bib/po
-* https://www.fharrell.com/tag/ordinal
+* <https://hbiostat.org/bib/po>
+* <https://www.fharrell.com/tag/ordinal>
 
 # Computing Environment
 
