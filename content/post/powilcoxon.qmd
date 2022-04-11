@@ -3,7 +3,7 @@ title: Equivalence of Wilcoxon Statistic and Proportional Odds Model
 author:
   - name: Frank Harrell
     url: https://hbiostat.org
-date: "2022-04-08"
+date: "2022-04-06"
 format:
   html:
     self-contained: true
@@ -96,6 +96,16 @@ require(rms)
 lg <- function(p) qlogis(pmax(pmin(p, 1. - 0.02), 0.02))
 # Function to curtail log ORs to [-6, 6]
 cu <- function(x) pmin(pmax(x, -6), 6)
+# Function to print a list
+listpr <- function(x) {
+  g <- function(z)
+	  if(is.character(z)) paste(z,           collapse=', ') else
+	                      paste(round(z, 4), collapse=', ')
+  w <- sapply(x, g)
+	d <- data.frame(name=names(w), value=w)
+	rownames(d) <- NULL
+	kabl(d, col.names=NULL)
+	}
 
 # Function to quantify degree of non-proportional odds first by computing the
 # Gini's mean difference of the difference between
@@ -319,7 +329,7 @@ The intercept is virtually zero and the regression coefficient of the log(OR) is
 * $c = \frac{\mathrm{OR}^{0.6453}}{1 + \mathrm{OR}^{0.6453}}$
 
 ::: {.column-margin}
-Note that with *probit* ordinal regression there is an exact analytic result due to [Agresti and Kateri](https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565) that applies even under covariate adjustment: $\mathrm{logit}(c) = \frac{\beta}{\sqrt{2}} \approx 0.707\beta$ as compared to our $0.6453\beta$.  There is no known analytic result for the PO model.  As an interesting aside, $\frac{\frac{1}{\sqrt{2}}}{0.6453} \approx 1.096$ which is not close to 1.6, the [scaling constant that makes the logistic distribution most similar to the normal distribution](https://www.johndcook.com/blog/2010/05/18/normal-approximation-to-logistic).
+Note that with *probit* ordinal regression there is an exact analytic result due to [Agresti and Kateri](https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565) that applies even under covariate adjustment: $\Phi^{-1}(c) = \frac{\beta}{\sqrt{2}} \approx 0.707\beta$ as compared to our $0.6453\beta$.  There is no known analytic result for the PO model.  As an interesting aside, $\frac{\frac{1}{\sqrt{2}}}{0.6453} \approx 1.096$ which is not close to 1.6, the [scaling constant that makes the logistic distribution most similar to the normal distribution](https://www.johndcook.com/blog/2010/05/18/normal-approximation-to-logistic).
 :::
 
 From here on the constant 0.65 will be used.  Now examine the relationship on the concordance probability scale.  The scatterplot uses colors to denote the frequency of occurrence of nearly coincident points.  The quality of the approximation on this scale is given by $R^{2}=0.996$.
@@ -440,7 +450,7 @@ for(i in 1 : nt) {
 Here are details of the simulated trial that resulted in non-PO of 2.95.
 
 ```{r highestdetails}
-ww
+listpr(ww)
 ```
 :::
 
