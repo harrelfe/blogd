@@ -46,7 +46,7 @@ The Wilcoxon-Mann-Whitney two-sample rank-sum test is a nonparametric test that 
 * Rank all $n$ observations, using midranks for ties
 * The Wilcoxon statistic $W$ is the sum of the ranks for those observations belonging to the second group
 * The Mann-Whitney statistic $U$ equals $W - \frac{m(m+1)}{2}$ where $m$ is the number of observations in the second group
-* The concordance probability $c$, also called the _probability index_, is $U$ divided by the product of the two groups' sample sizes. $c$ treats ties as having a concordance of $\frac{1}{2}$, which stems from the use of midranks for ties in computing $W$.  $c$ is the probability that a randomly chosen subject from the second group has a response Y that is larger than that of a randomly chosen subject from the first group, plus $\frac{1}{2}$ times the probability that they are tied on Y.  $c$ is just the Wilcoxon statistic rescaled to $[0,1]$.
+* The concordance probability $c$, also called the _probability index_, is $U$ divided by the product of the two groups' sample sizes. $c$ treats ties as having a concordance of $\frac{1}{2}$, which stems from the use of midranks for ties in computing $W$.  $c$ is the probability that a randomly chosen subject from the second group has a response Y that is larger than that of a randomly chosen subject from the first group, plus $\frac{1}{2}$ times the probability that they are tied on Y.  $c$ is just the Wilcoxon statistic re-scaled to $[0,1]$.
 
 The proportional odds (PO) ordinal logistic model is a generalization of the Wilcoxon-Mann-Whitney two-sample rank-sum test that allows for covariates.  When there are no covariates, the two methods are equivalent in two ways:
 
@@ -60,7 +60,20 @@ This has been explored in two of my blog articles:
 
 For background and references for the PO model see [this](https://hbiostat.org/bib/po).
 
-In this report I go a step further and repeat the simulations done for the first blog article (but with more repetitions and many more conditions) and stratify the results by the degree of non-proportional odds exhibited in each random sample.  Random trials were simulated for sample sizes 20, 25, 30, 40, 50, 60, ..., 100, 150, 200, 500, 1000.  For each trial, 0:1 group assignments were generated such that the number of subjects in the first treatment group is $n \times u$ rounded to the nearest integer, where $u$ is a random uniform value between $\frac{1}{3}$ and $\frac{2}{3}$ .  Ordinal responses Y were generated in five ways by using combinations of the following two aspects:
+Those unfamiliar with the theory of linear rank statistics will sometimes make the claim that the Wilcoxon test does not assume proportional odds.  That this is not the case can be seen in multiple ways:
+
+* The OR from the PO model is almost exactly a simple monotonic function of the Wilcoxon statistic (the main topic of this article)
+* The PO model score test and the Wilcoxon statistic are mathematically equivalent (see above) just as the score test from the Cox proportional hazards model is the same as the logrank test statistic
+* As explained [here](https://myweb.uiowa.edu/pbreheny/uk/teaching/621/notes/9-27.pdf) by Patrick Breheny, linear rank tests such as the Wilcoxon test are derived in general by solving for the locally most powerful test.  Each type of linear rank test comes from a generating distribution.  Here are some examples:
+   + Normal generating distribution: the optimal weight for the rank $r$ of the response variable is the expected value of order statistic $r$ from a standard normal distribution (Fisher-Yates normal scores) or their approximation $\Phi^{-1}(\frac{r}{n+1})$ (van der Waerden scores); this gives rise to the probit ordinal regression model
+   + Double exponential (Laplace) distribution: the observation weight is $\mathrm{sign}(r - \frac{n+1}{2})$ (Mood median test or sign test)
+   + Logistic distribution: optimal weights are the ordinary ranks $r$.  The logistic generating distribution means the two distributions are parallel on the inverse logistic (logit) scale, i.e., PO holds
+
+So the Wilcoxon test is designed for a logistic distribution/PO situation, i.e, that is where it has the most power.  Hence it is fair to say that the Wilcoxon test assumes PO.  The fact that the Wilcoxon test does not assume PO in order to validly compute $p$-values is of no consequence; under the null hypothesis the treatment is irrelevant so **must** operate in proportional odds.  It must also operate in proportional hazards and a wide variety of other model assumptions.  Since treatment doesn't affect the distribution under the null, there are no distribution shift assumptions.
+
+The Wilcoxon two-sample test, invented in 1947, is embraced by most statisticians and clinical trialists, and it doesn't matter to them whether the test assumes PO or not.  Our argument is that since the unadjusted PO model is equivalent to the Wilcoxon test, any reviewer accepting of the Wilcoxon test should logically be accepting of the PO model.  The only possible criticism would be that adjusting for covariates that do not satisfy the PO assumpting would ruin the assessment of the treatment effect in the PO model.  That this is not the case is demonstrated by an extreme non-PO example [here](https://fharrell.com/post/impactpo).
+
+In this report I go a step further that earlier blog articles and repeat the simulations done with more repetitions and many more conditions and stratify the results by the degree of non-proportional odds exhibited in each random sample.  Random trials were simulated for sample sizes 20, 25, 30, 40, 50, 60, ..., 100, 150, 200, 500, 1000.  For each trial, 0:1 group assignments were generated such that the number of subjects in the first treatment group is $n \times u$ rounded to the nearest integer, where $u$ is a random uniform value between $\frac{1}{3}$ and $\frac{2}{3}$ .  Ordinal responses Y were generated in five ways by using combinations of the following two aspects:
 
 * More continuous vs. more discrete Y
    + sampling with replacement from the integers 1 to n for the current sample size n
@@ -77,11 +90,11 @@ One hundred trials are run for each sample size and for each of five combination
 For a given sample the degree of non-PO is quantified using the following steps:
 
 * Compute the empirical cumulative distribution function (ECDF) of Y stratified by group assignment
-* Evaluate these ECDFs at the combined set of distinct Y values occuring in the data for either group
+* Evaluate these ECDFs at the combined set of distinct Y values occurring in the data for either group
 * When an ECDF value is outside [0.02, 0.98] set it to that nearest boundary
 * Take the logits of the two ECDFs
 * Compute over the grid of combined distinct values the difference between the two logit CDFs to examine parallelism.  Parallel curves on the logit scale indicate PO.
-* Quantify the non-parallelism by taking Gini's mean diference of all the differences (a robust competitor of the standard deviation that is the mean of all pairwise absolute differences).  A low value indicates parallelism.  The lowest possible value of 0.0 indicates equidistant logit ECDFs across all values of Y.
+* Quantify the non-parallelism by taking Gini's mean difference of all the differences (a robust competitor of the standard deviation that is the mean of all pairwise absolute differences).  A low value indicates parallelism.  The lowest possible value of 0.0 indicates equidistant logit ECDFs across all values of Y.
 
 This procedure is virtually the same as computing empirical log odds ratios for all possible cutoffs of Y and looking at their variation.  It differs only in how differences are computed for a cutpoint that is outside the data for one of the groups.  It may give too much weight to unstable ORs, so also compute a second measure of non-PO, not using any extrapolation, that is a weighted standard deviation of log ORs over all cutoffs of $Y$, with weights equal to the estimated variance of the log odds ratios.  This index can be computed whenever there are at least two cutpoints having neither 0.0 nor 1.0 proportions in either group.
 
