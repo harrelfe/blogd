@@ -23,6 +23,7 @@ format:
     toc-location: left
     captions: true
     cap-location: margin
+    reference-location: margin
 comments:
   hypothesis: true
 
