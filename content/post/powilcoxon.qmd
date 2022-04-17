@@ -24,6 +24,12 @@ format:
     captions: true
     cap-location: margin
     reference-location: margin
+    number-sections: true
+  docx:
+    toc: false
+    number-sections: true
+    captions: true
+
 comments:
   hypothesis: true
 

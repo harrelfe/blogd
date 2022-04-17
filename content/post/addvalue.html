@@ -4,7 +4,7 @@ author: "Frank Harrell"
 date: '2018-10-17'
 categories: []
 link-citations: yes
-modified: '2020-11-15'
+modified: '2022-04-17'
 slug: addvalue
 summary: Researchers have used contorted, inefficient, and arbitrary analyses to demonstrated added value in biomarkers, genes, and new lab measurements.  Traditional statistical measures have always been up to the task, and are more powerful and more flexible.  It's time to revisit them, and to add a few slight twists to make them more helpful.
 tags:
@@ -21,8 +21,6 @@ bibliography: harrelfe.bib
 ---
 
 <script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
-<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
-<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
 
 
 <style>
@@ -45,7 +43,7 @@ When the outcome variable Y is continuous, there are only three measures of adde
 </div>
 <div id="how-did-we-get-here" class="section level1">
 <h1>How Did We Get Here</h1>
-<p>Statisticians have no better sense of history than other scientists. In the quest for publishing new ideas, measures of added value are constantly being invented by statisticians, without asking whether older methods already solve the problem at hand. Some of the examples of measures that are commonly used but are not needed in this setting are the <span class="math inline">\(c\)</span>-index (<span class="citation">Harrell et al. (<a href="#ref-har82" role="doc-biblioref">1982</a>)</span>; area under the ROC curve if the outcome is binary), and <a href="https://onlinelibrary.wiley.com/toc/10970258/27/2">IDI and NRI</a>. They are not needed because measures based on standard regression methods are not only adequate to the task, but are more powerful and <strong>more flexible and insightful</strong>, especially when interactions are involved. Especially problematic are measures such as the categorical version of NRI (net reclassification improvement) which not only requires arbitrary categorization of risk estimates but then goes on to use inefficient binary summaries from them. Pencina (personal communication) has regretted including statistical tests for these measures in his highly-cited paper, as these tests have nowhere near the power of the gold-standard likelihood ratio test.</p>
+<p>Statisticians have no better sense of history than other scientists. In the quest for publishing new ideas, measures of added value are constantly being invented by statisticians, without asking whether older methods already solve the problem at hand. Some of the examples of measures that are commonly used but are not needed in this setting are the <span class="math inline">\(c\)</span>-index (<span class="citation">F. E. Harrell et al. (<a href="#ref-har82" role="doc-biblioref">1982</a>)</span>; area under the ROC curve if the outcome is binary), and <a href="https://onlinelibrary.wiley.com/toc/10970258/27/2">IDI and NRI</a>. They are not needed because measures based on standard regression methods are not only adequate to the task, but are more powerful and <strong>more flexible and insightful</strong>, especially when interactions are involved. Especially problematic are measures such as the categorical version of NRI (net reclassification improvement) which not only requires arbitrary categorization of risk estimates but then goes on to use inefficient binary summaries from them. Pencina (personal communication) has regretted including statistical tests for these measures in his highly-cited paper, as these tests have nowhere near the power of the gold-standard likelihood ratio test.</p>
 <p>Comparing two c-indexes (one from the base model and one from the larger model containing the new biomarkers) is a low-power procedure. This is because the c-index is a rank measure (the concordance probability from the Wilcoxon test or Somers’ <span class="math inline">\(D_{xy}\)</span> rank correlation) that does not sufficiently reward extreme predictions that are correct<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. And taking the difference between two c-indexes corresponds to taking the difference in two Wilcoxon statistics, which is never done. Instead, a head-to-head comparison is demanded. This can be done by using a different U-statistic based on all possible pairs of observations and counting the fraction of pairs for which one model is “more concordant” with the outcome than the other model. This respects pairings of pairings, and is implemented in the R <code>Hmisc</code> package <code>rcorrp.cens</code> function. Still, this is not as powerful as the likelihood ratio <span class="math inline">\(\chi^2\)</span> test.</p>
 <p>Worse than any of these problems is the continued use of <a href="/post/class-damage">discontinuous improper accuracy scoring rules</a> such as sensitivity, specificity, precision, and recall.</p>
 </div>
@@ -67,7 +65,7 @@ where <span class="math inline">\(\text{var}(\hat{P})\)</span> is the sample var
 <p>A different type of key measure will also be exemplified in the case study: differences in predicted values between the base model and the expanded model.</p>
 <div id="relative-explained-variation" class="section level2">
 <h2>Relative Explained Variation</h2>
-<p>Relative explained variation is a simple concept that has the extra advantage of being completely free of the distribution of Y and the customized error variance or SST necessary for computing the proportion of explained variance for distributions other than the normal. For a linear model relative explained variation is the ratio of the <span class="math inline">\(R^2\)</span> for the base model to the larger <span class="math inline">\(R^2\)</span> for the combined model that contains also the new markers being tested. And since for <span class="math inline">\(R^{2} \leq 0.25\)</span>, <span class="math inline">\(-n \log(1 - R^{2})\)</span> is approximately <span class="math inline">\(n R^{2}\)</span>, the relative variation explained by the base variables is approximately equal to the <em>adequacy index</em> discussed in the maximum likelihood estimation chapter of <a href="http://hbiostat.org/rms">Regression Modeling Strategies</a> (<span class="citation">Harrell (<a href="#ref-rms2" role="doc-biblioref">2015</a>)</span>): <span class="math display">\[\text{Adequacy index} = \text{LR}_{A} / \text{LR}_{AB}\]</span> where the base model is denoted by A, the added predictors (e.g., biomarkers) are denoted by B, AB represents the combined model with A and B as predictors, and LR is defined above. Here adequacy refers to the adequacy of the model that ignores the new predictors.</p>
+<p>Relative explained variation is a simple concept that has the extra advantage of being completely free of the distribution of Y and the customized error variance or SST necessary for computing the proportion of explained variance for distributions other than the normal. For a linear model relative explained variation is the ratio of the <span class="math inline">\(R^2\)</span> for the base model to the larger <span class="math inline">\(R^2\)</span> for the combined model that contains also the new markers being tested. And since for <span class="math inline">\(R^{2} \leq 0.25\)</span>, <span class="math inline">\(-n \log(1 - R^{2})\)</span> is approximately <span class="math inline">\(n R^{2}\)</span>, the relative variation explained by the base variables is approximately equal to the <em>adequacy index</em> discussed in the maximum likelihood estimation chapter of <a href="http://hbiostat.org/rms">Regression Modeling Strategies</a> (<span class="citation">Frank E. Harrell (<a href="#ref-rms2" role="doc-biblioref">2015</a>)</span>): <span class="math display">\[\text{Adequacy index} = \text{LR}_{A} / \text{LR}_{AB}\]</span> where the base model is denoted by A, the added predictors (e.g., biomarkers) are denoted by B, AB represents the combined model with A and B as predictors, and LR is defined above. Here adequacy refers to the adequacy of the model that ignores the new predictors.</p>
 <p>Whether using the adequacy index or relative variation explained, one minus such an index is the fraction of new information provided by predictors in B. It is the proportion of explainable variation that is explained by B.</p>
 <p>To emphasize the simplicity of relative explained variation, it is just the ratio of variances of predicted values. And other statistical indexes may be computed from the predicted values, such as the mean absolute difference from the mean predicted value, and the <span class="math inline">\(g\)</span> index described in <em>Regression Modeling Strategies</em>. The latter is the mean absolute difference between any two predicted values. But it is possible for the <span class="math inline">\(g\)</span> index for AB to be smaller than that for model A.</p>
 </div>
@@ -78,7 +76,7 @@ where <span class="math inline">\(\text{var}(\hat{P})\)</span> is the sample var
 <p>The dataset is available from the Vanderbilt Department of Biostatistics wiki, and includes 2258 patients with all variables measured. It may be automatically downloaded using the R <code>Hmisc getHdata</code> function. The dataset is also analyzed in the <a href="http://hbiostat.org/doc/bbr.pdf">BBR diagnosis chapter</a> and <a href="http://hbiostat.org/talks/memtab18.pdf">here</a>. The latter link contains more analyses that compare pre- and post-test probabilities.</p>
 <div id="development-of-binary-logistic-model" class="section level2">
 <h2>Development of Binary Logistic Model</h2>
-<p>We first fit a binary logistic regression model with interactions, modeling age and cholesterol in a smooth nonlinear fashion using restricted cubic splines with default knot<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> locations. The nonlinear interaction between age and cholesterol is a restricted one such that terms that are nonlinear in both predictors are excluded. This is to save degrees of freedom. The code below also fits the base model containing only age and sex.</p>
+<p>We first fit a binary logistic regression model with interactions, modeling age and cholesterol in a smooth nonlinear fashion using restricted cubic splines with default knot <a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> locations. The nonlinear interaction between age and cholesterol is a restricted one such that terms that are nonlinear in both predictors are excluded. This is to save degrees of freedom. The code below also fits the base model containing only age and sex.</p>
 <p>Estimated log odds of the risk of significant CAD is plotted against cholesterol for ages 40 and 70 years for males. One can readily see that the diagnostic value of cholesterol is greater for younger patients, and there is some evidence that very low total cholesterol is risky at age 70.</p>
 <pre class="r"><code>require(rms)</code></pre>
 <pre class="r"><code>options(prType=&#39;html&#39;)
@@ -131,7 +129,7 @@ LR χ<sup>2</sup> 489.51
 d.f. 7
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i> 1.216
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">7,2258</span></sub> 0.192
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 <i>D</i><sub>xy</sub> 0.539
@@ -145,27 +143,15 @@ d.f. 7
 Pr(&gt;χ<sup>2</sup>) &lt;0.0001
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>r</sub> 3.372
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">7,1520.4</span></sub> 0.272
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 γ 0.546
 </td>
 </tr>
 <tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-max |∂log <i>L</i>/∂β| 1×10<sup>-7</sup>
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>p</sub> 0.242
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-τ<sub>a</sub> 0.242
-</td>
-</tr>
-<tr>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+max |∂log <i>L</i>/∂β| 1×10<sup>-7</sup>
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
 </td>
@@ -173,6 +159,7 @@ max |∂log <i>L</i>/∂β| 1×10<sup>-7</sup>
 Brier 0.177
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+τ<sub>a</sub> 0.242
 </td>
 </tr>
 </tbody>
@@ -383,7 +370,7 @@ LR χ<sup>2</sup> 596.99
 d.f. 15
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i> 1.401
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">15,2258</span></sub> 0.227
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 <i>D</i><sub>xy</sub> 0.590
@@ -397,27 +384,15 @@ d.f. 15
 Pr(&gt;χ<sup>2</sup>) &lt;0.0001
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>r</sub> 4.060
+<i>R</i><sup><span style="font-size: 70%;">2</span></sup><sub style='position: relative; left: -.47em; bottom: -.4em;'><span style="font-size: 70%;">15,1520.4</span></sub> 0.318
 </td>
 <td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
 γ 0.590
 </td>
 </tr>
 <tr>
-<td style="min-width: 9em; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
-max |∂log <i>L</i>/∂β| 4×10<sup>-5</sup>
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-<i>g</i><sub>p</sub> 0.266
-</td>
-<td style="min-width: 9em; border-right: 1px solid black; text-align: center;">
-τ<sub>a</sub> 0.265
-</td>
-</tr>
-<tr>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;">
+max |∂log <i>L</i>/∂β| 4×10<sup>-5</sup>
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
 </td>
@@ -425,6 +400,7 @@ max |∂log <i>L</i>/∂β| 4×10<sup>-5</sup>
 Brier 0.167
 </td>
 <td style="min-width: 9em; border-bottom: 2px solid grey; border-right: 1px solid black; text-align: center;">
+τ<sub>a</sub> 0.265
 </td>
 </tr>
 </tbody>
@@ -799,7 +775,13 @@ ra  &lt;- f$stats[&#39;R2&#39;]
 rb  &lt;- g$stats[&#39;R2&#39;]
 br2 &lt;- function(p) var(p) / (var(p) + sum(p * (1 - p)) / length(p))</code></pre>
 <p>In the table below, “Fraction of new information” is the proportion of total predictive information in age, sex, and cholesterol that was added by cholesterol (main effect + age interaction effect). “Fraction explained risk” is the <span class="math inline">\(R^2\)</span> measure explicitly for binary Y, i.e., the ratio of the variance of predicted risk to the sum of the variance of predicted risk and the average risk times (1 - risk), computed by the <code>br2</code> function above.</p>
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="1%" />
+<col width="45%" />
+<col width="41%" />
+<col width="12%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th></th>
@@ -906,6 +888,7 @@ br2 &lt;- function(p) var(p) / (var(p) + sum(p * (1 - p)) / length(p))</code></p
 <div id="areas-of-application" class="section level1">
 <h1>Areas of Application</h1>
 <p>The methods described here have wide applicability to diagnostic and prognostic research. One area in particular is ripe for applying the methods: genetics. Genetic markers have been touted as being valuable for diagnosis and prognosis. It would be worthwhile to quantify the added value of genetic markers using one of the above indexes, along with the graphics displaying diagnostic or prognostic yield for individual subjects.</p>
+<p>See <span class="citation">Fronczek et al. (<a href="#ref-fro21rel" role="doc-biblioref">2021</a>)</span> for an application of added relative information.</p>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
@@ -913,28 +896,31 @@ br2 &lt;- function(p) var(p) / (var(p) + sum(p * (1 - p)) / length(p))</code></p
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
-<div id="refs" class="references hanging-indent">
-<div id="ref-cho12simI">
-<p>Choodari-Oskooei, Babak, Patrick Royston, and Mahesh K. B. Parmar. 2012. “A Simulation Study of Predictive Ability Measures in a Survival Model I: Explained Variation Measures.” <em>Stat Med</em> 31 (23): 2627–43. <a href="https://doi.org/10.1002/sim.4242">https://doi.org/10.1002/sim.4242</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-cho12simI" class="csl-entry">
+Choodari-Oskooei, Babak, Patrick Royston, and Mahesh K. B. Parmar. 2012. <span>“A Simulation Study of Predictive Ability Measures in a Survival Model <span>I</span>: <span>Explained</span> Variation Measures.”</span> <em>Stat Med</em> 31 (23): 2627–43. <a href="https://doi.org/10.1002/sim.4242">https://doi.org/10.1002/sim.4242</a>.
 </div>
-<div id="ref-cho12simII">
-<p>Choodari-Oskooei, B., P. Royston, and Mahesh K. B. Parmar. 2012. “A Simulation Study of Predictive Ability Measures in a Survival Model II: Explained Randomness and Predictive Accuracy.” <em>Stat Med</em> 31 (23): 2644–59. <a href="https://doi.org/10.1002/sim.5460">https://doi.org/10.1002/sim.5460</a>.</p>
+<div id="ref-cho12simII" class="csl-entry">
+Choodari-Oskooei, B., P. Royston, and Mahesh K. B. Parmar. 2012. <span>“A Simulation Study of Predictive Ability Measures in a Survival Model <span>II</span>: Explained Randomness and Predictive Accuracy.”</span> <em>Stat Med</em> 31 (23): 2644–59. <a href="https://doi.org/10.1002/sim.5460">https://doi.org/10.1002/sim.5460</a>.
 </div>
-<div id="ref-har82">
-<p>Harrell, F. E., R. M. Califf, D. B. Pryor, K. L. Lee, and R. A. Rosati. 1982. “Evaluating the Yield of Medical Tests.” <em>JAMA</em> 247: 2543–6.</p>
+<div id="ref-fro21rel" class="csl-entry">
+Fronczek, Jakub, Kamil Polok, Dylan W. de Lange, Christian Jung, Michael Beil, Andrew Rhodes, Jesper Fjølner, et al. 2021. <span>“Relationship Between the <span>Clinical Frailty Scale</span> and Short-Term Mortality in Patients ≥ 80 Years Old Acutely Admitted to the <span>ICU</span>: A Prospective Cohort Study.”</span> <em>Critical Care</em> 25 (1): 231. <a href="https://doi.org/10.1186/s13054-021-03632-3">https://doi.org/10.1186/s13054-021-03632-3</a>.
 </div>
-<div id="ref-rms2">
-<p>Harrell, Frank E. 2015. <em>Regression Modeling Strategies, with Applications to Linear Models, Logistic and Ordinal Regression, and Survival Analysis</em>. Second edition. New York: Springer. <a href="https://doi.org/10.1007/978-3-319-19425-7">https://doi.org/10.1007/978-3-319-19425-7</a>.</p>
+<div id="ref-har82" class="csl-entry">
+Harrell, F. E., R. M. Califf, D. B. Pryor, K. L. Lee, and R. A. Rosati. 1982. <span>“Evaluating the Yield of Medical Tests.”</span> <em>JAMA</em> 247: 2543–46.
 </div>
-<div id="ref-ken88mea">
-<p>Kent, John T., and John O’Quigley. 1988. “Measures of Dependence for Censored Survival Data.” <em>Biometrika</em> 75: 525–34.</p>
+<div id="ref-rms2" class="csl-entry">
+Harrell, Frank E. 2015. <em>Regression <span>Modeling Strategies</span>, with <span>Applications</span> to <span>Linear Models</span>, <span>Logistic</span> and <span>Ordinal Regression</span>, and <span>Survival Analysis</span></em>. Second edition. <span>New York</span>: <span>Springer</span>. <a href="https://doi.org/10.1007/978-3-319-19425-7">https://doi.org/10.1007/978-3-319-19425-7</a>.
 </div>
-<div id="ref-sch03pre">
-<p>Schemper, Michael. 2003. “Predictive Accuracy and Explained Variation.” <em>Stat Med</em> 22: 2299–2308.</p>
+<div id="ref-ken88mea" class="csl-entry">
+Kent, John T., and John O’Quigley. 1988. <span>“Measures of Dependence for Censored Survival Data.”</span> <em>Biometrika</em> 75: 525–34.
+</div>
+<div id="ref-sch03pre" class="csl-entry">
+Schemper, Michael. 2003. <span>“Predictive Accuracy and Explained Variation.”</span> <em>Stat Med</em> 22: 2299–2308.
 </div>
 </div>
 </div>
-<div class="footnotes">
+<div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
 <li id="fn1"><p>The Wilcoxon, Spearman, and other rank tests are very powerful for testing for existence of an association, but not for assessing <em>differences</em> in the strength of association.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
