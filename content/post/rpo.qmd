@@ -63,7 +63,7 @@ where $\mathrm{expit}(z) = \frac{1}{1 + \exp(-z)}, \alpha_{1}=1, \alpha_{2}=0, \
 Consider probabilities of outcomes for a male on active treatment.  The $\beta$ part of the model is -0.9.  The probabilities of outcomes of level $y$ or worse are as follows:
 
 | $y$ | Meaning | log odds($Y\geq y$) | $\Pr(Y\geq y)$ |
-|-----|---------|--------------------|----------------|
+|-|-|-|-|
 | 1   | any pain           |  0.1    | 0.52 |
 | 2   | moderate or severe | -0.9    | 0.29 |
 | 3   | severe             | -1.9    | 0.13 |
@@ -84,8 +84,8 @@ For a gentle introduction see Section 7.6 in Biostatistics for Biomedical Resear
 
 **Biostatistics in Biomedical Research [PDF](https://hbiostat.org/doc/bbr.pdf) and [Chapters in HTML](https://hbiostat.org/bbr/md)**
 
-| **Topic ** | **Section** |
-|:-----------|:------------|
+| **Topic** | **Section** |
+|:-|:-|
 | Ordinal outcomes in clinical trials | 3.6 and 5.12.5 |
 | Proportional odds model             | 7.6 |
 | Power calculations tailored to the proportional odds model | 7.8.3 |
@@ -131,6 +131,10 @@ For reasons that can only be explained by unfamiliarity, many reviewers question
 
 Peterson and Harrell did not study operating characteristics of the likelihood ratio (LR) $\chi^2$ test for proportional odds, but in general LR tests have better performance than Wald and score tests^[See [this paper](https://conservancy.umn.edu/bitstream/handle/11299/166205/ThomasA_TheProportionalOddsModel.pdf?sequence=1) by Andrew Thomas who studied the likelihood ratio test for PO.].  See [this](https://fharrell.com/post/impactpo), which emphasizes the importance of assessing the (minimal) impact of the PO assumption rather than testing it, for details
 
+# Relaxing the PO Assumption
+
+[Peterson and Harrell (1990)](https://www.jstor.org/stable/2347760) developed the partial PO model to relax the PO (equal slopes / parallelism) assumption for one or more predictors.  See **Software** below for implementations.
+
 # Blog Articles on [fharrell.com](https://fharrell.com)
 
 * [Violation of proportional odds is not fatal](https://www.fharrell.com/post/po)
@@ -161,6 +165,20 @@ Peterson and Harrell did not study operating characteristics of the likelihood r
 
 * [PO Model vs. Binary Logistic Model Map](https://atlas.mindmup.com/vbiostat/po)
 * [Power, precision, and arbitrariness problems](https://fharrell.com/post/impactpo) from **not** using an ordinal model
+
+# Software
+**R**
+
+* [`rms` package](http://hbiostat.org/R/rms)
+   + [`lrm` function](https://www.rdocumentation.org/packages/rms/versions/6.2-0/topics/lrm) for discrete Y or continuous Y having not more than a couple of hundred distinct levels, only implements the logit link
+   + [`orm` function](https://www.rdocumentation.org/packages/rms/versions/6.2-0/topics/orm) is intended for continuous Y and efficiently handles up to several thousand distinct values; multiple link functions are handled
+* [`VGAM` package](https://www.stat.auckland.ac.nz/~yee/VGAM) for discrete Y implements a huge number of link functions and allows for general relaxation of proportional odds and related assumptions, allowing one to fit the partial proportional odds model
+* [`rmsb` package](http://hbiostat.org/R/rmsb)
+   + [`blrm` function](https://search.r-project.org/CRAN/refmans/rmsb/html/blrm.html) implements Bayesian proportional odds, partial PO, and constrained partial PO models with optional random intercepts for Y with up to perhaps 200 distinct values (execution time is linear in the number of distinct Y)
+
+**Other**
+
+All major statistical software packages have a proportional odds model.  The partial PO model is probably only implemented in R, and only `SAS JMP` has an efficient implementation like `rms::orm` for continuous Y.
 
 # General References
 * <https://hbiostat.org/bib/ordinal.html> which includes tutorials such as the one by Susan Scott et al.

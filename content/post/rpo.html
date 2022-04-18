@@ -2532,12 +2532,14 @@ vertical-align: -.125em;
 <li><a href="#tutorials-and-course-material" id="toc-tutorials-and-course-material" class="nav-link" data-scroll-target="#tutorials-and-course-material"> <span class="header-section-number">3</span> Tutorials and Course Material</a></li>
 <li><a href="#arguments-in-favor-of-wider-use-of-the-po-model" id="toc-arguments-in-favor-of-wider-use-of-the-po-model" class="nav-link" data-scroll-target="#arguments-in-favor-of-wider-use-of-the-po-model"> <span class="header-section-number">4</span> Arguments In Favor of Wider Use of the PO Model</a></li>
 <li><a href="#testing-the-po-assumption" id="toc-testing-the-po-assumption" class="nav-link" data-scroll-target="#testing-the-po-assumption"> <span class="header-section-number">5</span> Testing the PO Assumption</a></li>
-<li><a href="#blog-articles-on-fharrell.com" id="toc-blog-articles-on-fharrell.com" class="nav-link" data-scroll-target="#blog-articles-on-fharrell.com"> <span class="header-section-number">6</span> Blog Articles on <span>fharrell.com</span></a></li>
-<li><a href="#other-resources" id="toc-other-resources" class="nav-link" data-scroll-target="#other-resources"> <span class="header-section-number">7</span> Other Resources</a></li>
-<li><a href="#longitudinal-ordinal-models" id="toc-longitudinal-ordinal-models" class="nav-link" data-scroll-target="#longitudinal-ordinal-models"> <span class="header-section-number">8</span> Longitudinal Ordinal Models</a></li>
-<li><a href="#clinical-trial-design-resources" id="toc-clinical-trial-design-resources" class="nav-link" data-scroll-target="#clinical-trial-design-resources"> <span class="header-section-number">9</span> Clinical Trial Design Resources</a></li>
-<li><a href="#contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" id="toc-contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" class="nav-link" data-scroll-target="#contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis"> <span class="header-section-number">10</span> Contrasting Proportional Odds Model Analysis with Dichotomized Outcome Analysis</a></li>
-<li><a href="#general-references" id="toc-general-references" class="nav-link" data-scroll-target="#general-references"> <span class="header-section-number">11</span> General References</a></li>
+<li><a href="#relaxing-the-po-assumption" id="toc-relaxing-the-po-assumption" class="nav-link" data-scroll-target="#relaxing-the-po-assumption"> <span class="header-section-number">6</span> Relaxing the PO Assumption</a></li>
+<li><a href="#blog-articles-on-fharrell.com" id="toc-blog-articles-on-fharrell.com" class="nav-link" data-scroll-target="#blog-articles-on-fharrell.com"> <span class="header-section-number">7</span> Blog Articles on <span>fharrell.com</span></a></li>
+<li><a href="#other-resources" id="toc-other-resources" class="nav-link" data-scroll-target="#other-resources"> <span class="header-section-number">8</span> Other Resources</a></li>
+<li><a href="#longitudinal-ordinal-models" id="toc-longitudinal-ordinal-models" class="nav-link" data-scroll-target="#longitudinal-ordinal-models"> <span class="header-section-number">9</span> Longitudinal Ordinal Models</a></li>
+<li><a href="#clinical-trial-design-resources" id="toc-clinical-trial-design-resources" class="nav-link" data-scroll-target="#clinical-trial-design-resources"> <span class="header-section-number">10</span> Clinical Trial Design Resources</a></li>
+<li><a href="#contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" id="toc-contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" class="nav-link" data-scroll-target="#contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis"> <span class="header-section-number">11</span> Contrasting Proportional Odds Model Analysis with Dichotomized Outcome Analysis</a></li>
+<li><a href="#software" id="toc-software" class="nav-link" data-scroll-target="#software"> <span class="header-section-number">12</span> Software</a></li>
+<li><a href="#general-references" id="toc-general-references" class="nav-link" data-scroll-target="#general-references"> <span class="header-section-number">13</span> General References</a></li>
 </ul>
 </nav>
 </div>
@@ -2550,7 +2552,7 @@ vertical-align: -.125em;
 
 <div class="quarto-title"><h1 class="title display-7">Resources for Ordinal Regression Models</h1></div><div class="quarto-title-meta"><div><div class="quarto-title-meta-heading">Author</div><div class="quarto-title-meta-contents"><div class="quarto-title-authors"><div><a href="https://hbiostat.org">
 <p>Frank Harrell</p>
-</a></div></div></div></div><div><div class="quarto-title-meta-heading">Published</div><div class="quarto-title-meta-contents"><p class="date">April 17, 2022</p></div></div></div></header>
+</a></div></div></div></div><div><div class="quarto-title-meta-heading">Published</div><div class="quarto-title-meta-contents"><p class="date">April 18, 2022</p></div></div></div></header>
 
 <!-- To run: quarto render rpo.qmd -->
 <section id="background" class="level1 page-columns page-full" data-number="1">
@@ -2635,7 +2637,7 @@ vertical-align: -.125em;
 <table class="table">
 <thead>
 <tr class="header">
-<th style="text-align: left;"><strong>Topic </strong></th>
+<th style="text-align: left;"><strong>Topic</strong></th>
 <th style="text-align: left;"><strong>Section</strong></th>
 </tr>
 </thead>
@@ -2717,8 +2719,12 @@ vertical-align: -.125em;
 </blockquote>
 <div class="page-columns page-full"><p>Peterson and Harrell did not study operating characteristics of the likelihood ratio (LR) <span class="math inline">\(\chi^2\)</span> test for proportional odds, but in general LR tests have better performance than Wald and score tests<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. See <a href="https://fharrell.com/post/impactpo">this</a>, which emphasizes the importance of assessing the (minimal) impact of the PO assumption rather than testing it, for details</p><div class="no-row-height column-margin column-container"><li id="fn4" role="doc-endnote"><p><sup>4</sup>&nbsp;See <a href="https://conservancy.umn.edu/bitstream/handle/11299/166205/ThomasA_TheProportionalOddsModel.pdf?sequence=1">this paper</a> by Andrew Thomas who studied the likelihood ratio test for PO.</p></li></div></div>
 </section>
-<section id="blog-articles-on-fharrell.com" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Blog Articles on <a href="https://fharrell.com">fharrell.com</a></h1>
+<section id="relaxing-the-po-assumption" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Relaxing the PO Assumption</h1>
+<p><a href="https://www.jstor.org/stable/2347760">Peterson and Harrell (1990)</a> developed the partial PO model to relax the PO (equal slopes / parallelism) assumption for one or more predictors. See <strong>Software</strong> below for implementations.</p>
+</section>
+<section id="blog-articles-on-fharrell.com" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Blog Articles on <a href="https://fharrell.com">fharrell.com</a></h1>
 <ul>
 <li><a href="https://www.fharrell.com/post/po">Violation of proportional odds is not fatal</a></li>
 <li><a href="https://fharrell.com/post/wpo">If you like the Wilcoxon test you must like the proportional odds model</a></li>
@@ -2727,8 +2733,8 @@ vertical-align: -.125em;
 <li><a href="https://fharrell.com/post/powilcoxon">Equivalence of Wilcoxon test and proportional odds model</a></li>
 </ul>
 </section>
-<section id="other-resources" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Other Resources</h1>
+<section id="other-resources" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Other Resources</h1>
 <ul>
 <li>R <code>rmsb</code> package <a href="https://hbiostat.org/R/rmsb">Bayesian proportional odds model with random effects</a> and implementing the partial proportional odds model to allow pre-specified departures from the proportional odds assumption</li>
 <li>Nathan James’ <code>R</code> package for the <a href="https://github.com/ntjames/bayesCPM/tree/master/pkg">Bayesian proportional odds model</a></li>
@@ -2738,30 +2744,48 @@ vertical-align: -.125em;
 <li><a href="https://onlinelibrary.wiley.com/doi/10.1002/sim.9281">Risk prediction models for discrete ordinal outcomes: Calibration and the impact of the proportional odds assumption</a> by M Edlinger, M van Smeeden, H Alber, M Wanitschek, B Van Calster</li>
 </ul>
 </section>
-<section id="longitudinal-ordinal-models" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Longitudinal Ordinal Models</h1>
+<section id="longitudinal-ordinal-models" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Longitudinal Ordinal Models</h1>
 <ul>
 <li><a href="https://hbiostat.org/proj/covid19">Resources home page</a></li>
 <li><a href="https://hbiostat.org/bib">References</a> related to ordinal longitudinal and Markov models</li>
 <li><a href="http://hbiostat.org/papers/serialData/ordinal">Papers</a> about statistical modeling of longitudinal ordinal responses</li>
 </ul>
 </section>
-<section id="clinical-trial-design-resources" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> Clinical Trial Design Resources</h1>
+<section id="clinical-trial-design-resources" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Clinical Trial Design Resources</h1>
 <ul>
 <li><a href="https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/2786012">Paper</a> exemplifying game playing in choice of RCT endpoint and how things go seriously wrong with time to symptom resolution as an endpoint (authors had to ignore emergency department visits)</li>
 <li><a href="https://hbiostat.org/proj/covid19/statdesign.html#outcomes">Formulating outcomes in clinical trials</a></li>
 </ul>
 </section>
-<section id="contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Contrasting Proportional Odds Model Analysis with Dichotomized Outcome Analysis</h1>
+<section id="contrasting-proportional-odds-model-analysis-with-dichotomized-outcome-analysis" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Contrasting Proportional Odds Model Analysis with Dichotomized Outcome Analysis</h1>
 <ul>
 <li><a href="https://atlas.mindmup.com/vbiostat/po">PO Model vs.&nbsp;Binary Logistic Model Map</a></li>
 <li><a href="https://fharrell.com/post/impactpo">Power, precision, and arbitrariness problems</a> from <strong>not</strong> using an ordinal model</li>
 </ul>
 </section>
-<section id="general-references" class="level1" data-number="11">
-<h1 data-number="11"><span class="header-section-number">11</span> General References</h1>
+<section id="software" class="level1" data-number="12">
+<h1 data-number="12"><span class="header-section-number">12</span> Software</h1>
+<p><strong>R</strong></p>
+<ul>
+<li><a href="http://hbiostat.org/R/rms"><code>rms</code> package</a>
+<ul>
+<li><a href="https://www.rdocumentation.org/packages/rms/versions/6.2-0/topics/lrm"><code>lrm</code> function</a> for discrete Y or continuous Y having not more than a couple of hundred distinct levels, only implements the logit link</li>
+<li><a href="https://www.rdocumentation.org/packages/rms/versions/6.2-0/topics/orm"><code>orm</code> function</a> is intended for continuous Y and efficiently handles up to several thousand distinct values; multiple link functions are handled</li>
+</ul></li>
+<li><a href="https://www.stat.auckland.ac.nz/~yee/VGAM"><code>VGAM</code> package</a> for discrete Y implements a huge number of link functions and allows for general relaxation of proportional odds and related assumptions, allowing one to fit the partial proportional odds model</li>
+<li><a href="http://hbiostat.org/R/rmsb"><code>rmsb</code> package</a>
+<ul>
+<li><a href="https://search.r-project.org/CRAN/refmans/rmsb/html/blrm.html"><code>blrm</code> function</a> implements Bayesian proportional odds, partial PO, and constrained partial PO models with optional random intercepts for Y with up to perhaps 200 distinct values (execution time is linear in the number of distinct Y)</li>
+</ul></li>
+</ul>
+<p><strong>Other</strong></p>
+<p>All major statistical software packages have a proportional odds model. The partial PO model is probably only implemented in R, and only <code>SAS JMP</code> has an efficient implementation like <code>rms::orm</code> for continuous Y.</p>
+</section>
+<section id="general-references" class="level1" data-number="13">
+<h1 data-number="13"><span class="header-section-number">13</span> General References</h1>
 <ul>
 <li><a href="https://hbiostat.org/bib/ordinal.html" class="uri">https://hbiostat.org/bib/ordinal.html</a> which includes tutorials such as the one by Susan Scott et al.</li>
 </ul>
