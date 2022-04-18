@@ -68,6 +68,8 @@ Consider probabilities of outcomes for a male on active treatment.  The $\beta$ 
 | 2   | moderate or severe | -0.9    | 0.29 |
 | 3   | severe             | -1.9    | 0.13 |
 
+: {tbl-colwidths="[3,15,10,10]"}
+
 The probability that the pain level will be moderate is 0.29 - 0.13 = 0.16.  The probability of being pain free is 1 - 0.52 = 0.48.
 
 A model for continuous $Y$ would look the same, just have many more $\alpha$s.
@@ -90,6 +92,9 @@ For a gentle introduction see Section 7.6 in Biostatistics for Biomedical Resear
 | Proportional odds model             | 7.6 |
 | Power calculations tailored to the proportional odds model | 7.8.3 |
 | Bayesian logistic model                                    | 6.10.3 |
+
+: {tbl-colwidths="[20,10]"}
+
 
 # Arguments In Favor of Wider Use of the PO Model
 
@@ -135,7 +140,7 @@ Peterson and Harrell did not study operating characteristics of the likelihood r
 
 [Peterson and Harrell (1990)](https://www.jstor.org/stable/2347760) developed the partial PO model to relax the PO (equal slopes / parallelism) assumption for one or more predictors.  See **Software** below for implementations.
 
-# Blog Articles on [fharrell.com](https://fharrell.com)
+# Blog Articles on [Statistical Thinking](https://fharrell.com)
 
 * [Violation of proportional odds is not fatal](https://www.fharrell.com/post/po)
 * [If you like the Wilcoxon test you must like the proportional odds model](https://fharrell.com/post/wpo)
