@@ -23,6 +23,17 @@ comments:
 
 <!-- To run: quarto render rpo.qmd -->
 
+
+:::{.callout-tip collapse="true"}
+## Commenting
+To comment, highlight text, or write a question about this article, either go [here](https://discourse.datamethods.org/t/guidelines-for-covariate-adjustment-in-rcts) or do the following:
+
+* Get a free account on [hypothesis](https://hypothes.is)
+* Optionally install the `hypothesis` add-on on your browser
+* Highlight the relevant text and select "highlight" or "annotate"
+* Your highlights/annotations will remain in place even if the document is updated
+:::
+
 # Background
 
 Consider an ordinal outcome variable $Y$ and note that an interval-scaled $Y$ is also ordinal.  Such response variables can be analyzed with nonparametric tests and correlation coefficients and with semiparametric ordinal models.  Most semiparametric models in use involve modeling cumulative probabilities of $Y$.  Resources here deal primarily with the cumulative probability family of semiparametric models^[One exception is the continuation ratio ordinal logistic model that is covered in Chapters 13 and 14 of [Regression Modeling Strategies](https://hbiostat.org/rms).  That model is a discrete hazard-based proportional hazards model and applies primarily to a discrete dependent variable $Y$.].
