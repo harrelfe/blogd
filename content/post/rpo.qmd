@@ -14,7 +14,6 @@ format:
     toc: true
     toc-depth: 2
     toc-location: left
-    reference-location: margin
     number-sections: true
 
 comments:
@@ -23,12 +22,13 @@ comments:
 
 <!-- To run: quarto render rpo.qmd -->
 
-<a href="https://hbiostat.org/comment.html"
+[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
   target="popup"
 	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
      'width=450,height=600'); return false;">
 	Comments
-</a>
+</a>]{.aside}
+<br><br>
 
 # Background
 

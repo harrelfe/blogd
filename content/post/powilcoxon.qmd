@@ -25,10 +25,6 @@ format:
     cap-location: margin
     reference-location: margin
     number-sections: true
-  docx:
-    toc: false
-    number-sections: true
-    captions: true
 
 comments:
   hypothesis: true
@@ -40,9 +36,16 @@ execute:
 
 <!-- To run: quarto render powilcoxon.qmd -->
 
+[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
+  target="popup"
+	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
+     'width=450,height=600'); return false;">
+	Comments
+</a><br><br><br>See [this](https://fharrell.com/post/wpo) for details and a worked-out example.]{.aside}
+
 # Introduction
 
-The Wilcoxon-Mann-Whitney two-sample rank-sum test is a nonparametric test that is much used for comparing two groups on an ordinal or continuous response Y in a parallel group design.  Here is how the Wilcoxon statistic is computed and is related to other measures.^[See [this](https://fharrell.com/post/wpo) for details and a worked-out example.]
+The Wilcoxon-Mann-Whitney two-sample rank-sum test is a nonparametric test that is much used for comparing two groups on an ordinal or continuous response Y in a parallel group design.  Here is how the Wilcoxon statistic is computed and is related to other measures.
 
 * Rank all $n$ observations, using midranks for ties
 * The Wilcoxon statistic $W$ is the sum of the ranks for those observations belonging to the second group

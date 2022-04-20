@@ -2,7 +2,7 @@
 title: Equivalence of Wilcoxon Statistic and Proportional Odds Model
 author: Frank Harrell
 date: '2022-04-06'
-modified: '2022-04-14'
+modified: '2022-04-20'
 slug: powilcoxon
 tags:
   - 2022

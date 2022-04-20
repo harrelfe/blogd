@@ -2,7 +2,7 @@
 title: Assessing the Proportional Odds Assumption and Its Impact
 author: Frank Harrell
 date: '2022-03-09'
-modified: '2022-04-12'
+modified: '2022-04-20'
 slug: impactpo
 tags:
   - 2022

@@ -22,6 +22,8 @@ format:
     toc-location: left
     captions: true
     cap-location: margin
+    reference-location: margin
+    number-sections: true
 comments:
   hypothesis: true
 
@@ -45,6 +47,14 @@ kab <- knitr::kable
 <a href="https://atlas.mindmup.com/vbiostat/po"><img src="https://fharrell.com/img/pomap.png" width="100%" alt=""></a>
 
 <!-- [Original figure](https://atlas.mindmup.com/vbiostat/po) -->
+
+[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
+  target="popup"
+	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
+     'width=450,height=600'); return false;">
+	Comments
+</a>]{.aside}
+
 
 # Introduction
 
@@ -273,13 +283,13 @@ With n=50,000 extreme non-PO in the binary covariate hardly affected the estimat
 Now simulate 2000 trials with n=300 and study how the various models perform.
 
 ```{r dosim}
-simdone <- TRUE
 set.seed(7)
-if(simdone) simr <- readRDS('/tmp/simtx.rds') else {
+fi <- '~/data/sim/simtx.rds'
+if(file.exists(fi)) simr <- readRDS(fi) else {
   s  <- sim(-1, 300, 2000)
   s0 <- sim( 0, 300, 2000)  # also simulate under the null
   simr <- list(s=s, s0=s0)
-  saveRDS(simr, '/tmp/simtx.rds')
+  saveRDS(simr, fi)
 }
 cat('Convergence in', simr$s$nsim, 'simulations\n\n')
 kab(round(simr$s$summary, 4))

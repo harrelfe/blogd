@@ -1,7 +1,7 @@
 --- 
 title: Resources for Ordinal Regression Models
 author: Frank Harrell
-date: '2022-04-17'
+date: '2022-04-20'
 modified: ''
 slug: rpo
 tags:
