@@ -30,6 +30,10 @@ comments:
 </a>]{.aside}
 <br><br>
 
+<!--html_preserve-->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-112021636-1"></script>
+<!--/html_preserve-->
+
 # Background
 
 Consider an ordinal outcome variable $Y$ and note that an interval-scaled $Y$ is also ordinal.  Such response variables can be analyzed with nonparametric tests and correlation coefficients and with semiparametric ordinal models.  Most semiparametric models in use involve modeling cumulative probabilities of $Y$.  Resources here deal primarily with the cumulative probability family of semiparametric models^[One exception is the continuation ratio ordinal logistic model that is covered in Chapters 13 and 14 of [Regression Modeling Strategies](https://hbiostat.org/rms).  That model is a discrete hazard-based proportional hazards model and applies primarily to a discrete dependent variable Y.].
