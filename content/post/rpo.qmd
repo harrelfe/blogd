@@ -15,6 +15,7 @@ format:
     toc-depth: 2
     toc-location: left
     number-sections: true
+    include-in-header: /home/harrelfe/doc/html/ganalytics.html
 
 comments:
   hypothesis: true
