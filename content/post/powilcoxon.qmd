@@ -25,6 +25,7 @@ format:
     cap-location: margin
     reference-location: margin
     number-sections: true
+    include-in-header: /home/harrelfe/doc/html/ganalytics.html
 
 comments:
   hypothesis: true
@@ -35,21 +36,6 @@ execute:
 ---
 
 <!-- To run: quarto render powilcoxon.qmd -->
-
-<!--html_preserve-->
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-112021636-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-112021636-1');
-</script>
-<!--/html_preserve-->
-<!-- See https://stackoverflow.com/questions/41376989
-         https://support.google.com/analytics/answer/9304153 -->
-
 
 [[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
   target="popup"

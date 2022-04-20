@@ -31,19 +31,6 @@ comments:
 </a>]{.aside}
 <br><br>
 
-<!--html_preserve-->
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-112021636-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-112021636-1');
-</script>
-<!--/html_preserve-->
-<!-- See https://stackoverflow.com/questions/41376989
-         https://support.google.com/analytics/answer/9304153 -->
 
 # Background
 
