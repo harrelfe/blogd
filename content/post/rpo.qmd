@@ -36,7 +36,7 @@ comments:
 
 Consider an ordinal outcome variable $Y$ and note that an interval-scaled $Y$ is also ordinal.  Such response variables can be analyzed with nonparametric tests and correlation coefficients and with semiparametric ordinal models.  Most semiparametric models in use involve modeling cumulative probabilities of $Y$.  Resources here deal primarily with the cumulative probability family of semiparametric models^[One exception is the continuation ratio ordinal logistic model that is covered in Chapters 13 and 14 of [Regression Modeling Strategies](https://hbiostat.org/rms).  That model is a discrete hazard-based proportional hazards model and applies primarily to a discrete dependent variable Y.].
 
-Semiparametric models are regression models having an intercept for each distinct value of $Y$, less one.  The have the following properties:
+Semiparametric models are regression models having an intercept for each distinct value of $Y$, less one.  They have the following properties:
 
 * By encoding the entire empirical cumulative distribution of $Y$ in the intercepts, the model assumes nothing about the shape of the $Y$ distribution for any given covariate setting.  The distribution can be continuous, discontinuous, have arbitrary 'clumping at zero', or be bimodal.  For example, an ordinal model with a single binary covariate representing females (reference category) and males has intercepts that pertain to females and are easily translated by themselves into a cumulative probability distribution of $Y$ for females.
 * Because of the previous point, semiparametric models allow one to estimate effect ratios, exceedance probabilities $\Pr(Y\geq y|X)$, differences in exceedance probabilities (e.g., absolute risk reduction due to treatment as a function of $X$), quantiles of $Y|X$, and if $Y$ is interval-scaled, the mean of $Y|X$.
@@ -172,6 +172,7 @@ Peterson and Harrell did not study operating characteristics of the likelihood r
 * [Papers](http://hbiostat.org/papers/serialData/ordinal) about statistical modeling of longitudinal ordinal responses
 
 # Clinical Trial Design Resources
+* [Power and sample size calculation](https://hbiostat.org/doc/bbr.pdf), Section 7.8
 * [Paper](https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/2786012) exemplifying game playing in choice of RCT endpoint and how things go seriously wrong with time to symptom resolution as an endpoint (authors had to ignore emergency department visits)
 * [Formulating outcomes in clinical trials](https://hbiostat.org/proj/covid19/statdesign.html#outcomes)
 
@@ -189,6 +190,7 @@ Peterson and Harrell did not study operating characteristics of the likelihood r
 * [`VGAM` package](https://www.stat.auckland.ac.nz/~yee/VGAM) for discrete Y implements a huge number of link functions and allows for general relaxation of proportional odds and related assumptions, allowing one to fit the partial proportional odds model
 * [`rmsb` package](http://hbiostat.org/R/rmsb)
    + [`blrm` function](https://search.r-project.org/CRAN/refmans/rmsb/html/blrm.html) implements Bayesian proportional odds, partial PO, and constrained partial PO models with optional random intercepts for Y with up to perhaps 200 distinct values (execution time is linear in the number of distinct Y)
+* `Hmisc` package [`popower` and `posamsize`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/popower) functions for power and sample size calculations for unadjusted PO comparisons and the Wilcoxon test
 
 **Other**
 
