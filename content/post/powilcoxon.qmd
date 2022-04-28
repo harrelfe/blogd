@@ -26,6 +26,15 @@ format:
     reference-location: margin
     number-sections: true
     include-in-header: /home/harrelfe/doc/html/ganalytics.html
+  pdf:
+    pdf-engine: lualatex
+    toc: false
+    number-sections: true
+    number-depth: 2
+    top-level-division: section
+    reference-location: document
+    listings: false
+    header-includes: \usepackage{marginnote, here}
 
 comments:
   hypothesis: true
@@ -35,14 +44,16 @@ execute:
   message: false
 ---
 
-<!-- To run: quarto render powilcoxon.qmd -->
+<!-- To run: quarto render powilcoxon.qmd
+             quarto render powilcoxon.qmd --to pdf
+						   Edit .tex file to remove commas from session info
+							 Then run pdflatex powilcoxon                           -->
 
-[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
-  target="popup"
-	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
-     'width=450,height=600'); return false;">
-	Comments
-</a><br><br><br>See [this](https://fharrell.com/post/wpo) for details and a worked-out example.]{.aside}
+```{r include=FALSE}
+source('~/r/rmarkdown/qbookfun.r')
+```
+
+`r disccom('rms-ordinal-logistic-regression')`
 
 # Introduction
 
@@ -309,7 +320,7 @@ kor(npo, npo2)
 To derive the approximating equation for computing the concordance probability use robust regression to predict logit of concordance probability from the PO log(OR).  $c$ is curtailed to $[0.02, 0.98]$ before taking the logit to not allow infinite estimates.
 $\mathrm{logit}(c)$ is the chosen transformation because it transforms $c$ to be on an unrestricted scale, just as the log odds ratio is.  By good fortune (or some unknown theoretical argument) this happens to yield almost perfect linearity.
 
-::: {.column-margin}
+::: {`r mNote`}
 Quadratic and cubic polynomials were tried on the robust regression fit, with no improvement in $R^2$ or mean absolute prediction error.
 :::
 
@@ -344,7 +355,7 @@ The intercept is virtually zero and the regression coefficient of the log(OR) is
 * $\frac{c}{1 - c} = \mathrm{OR}^{0.6453}$
 * $c = \frac{\mathrm{OR}^{0.6453}}{1 + \mathrm{OR}^{0.6453}}$
 
-::: {.column-margin}
+::: {`r mNote`}
 Note that with *probit* ordinal regression there is an exact analytic result due to [Agresti and Kateri](https://www.onlinelibrary.wiley.com/doi/10.1111/biom.12565) that applies even under covariate adjustment: $\Phi^{-1}(c) = \frac{\beta}{\sqrt{2}} \approx 0.707\beta$ as compared to our $0.6453\beta$.  There is no known analytic result for the PO model.  As an interesting aside, $\frac{\frac{1}{\sqrt{2}}}{0.6453} \approx 1.096$ which is not close to 1.6, the [scaling constant that makes the logistic distribution most similar to the normal distribution](https://www.johndcook.com/blog/2010/05/18/normal-approximation-to-logistic).
 :::
 
@@ -359,9 +370,6 @@ ad <- abs(cstat - ac(beta))
 h  <- function(x) round(mean(x), 4)
 MAD <- ad
 s  <- summary(MAD ~ Ydiscrete + Type, fun=h)
-# Use
-# source('https://raw.githubusercontent.com/harrelfe/Hmisc/master/R/summary.formula.s')
-# until Hmisc 4.7-0 is available, to get markdown=TRUE
 print(s, markdown=TRUE)
 
 xl <- expression(OR ^ 0.65 / (1 + OR ^ 0.65))
@@ -370,7 +378,7 @@ ggfreqScatter(ac(beta), cstat, xlab=xl, ylab=yl) +
   geom_abline(intercept=0,slope=1,alpha=.1,size=.2)
 ```
 
-::: {.column-margin}
+::: {`r mNote`}
 The points that are more consistent with a curved relationship are mostly singletons or frequency 2-4.
 :::
 
@@ -424,7 +432,7 @@ knitr::kable(do.call(rbind, u))
 
 The discrepant cases are primarily from smaller unbalanced trials with many ties in Y and non-PO.  **Most importantly**, even in the most discrepant datasets there is complete agreement between the PO model and the Wilcoxon test on which group has the higher response tendency, since both approaches yield estimates on the same side of the null values $c=\frac{1}{2}, \beta=0$ in `r sum(agreeDirection)` out of `r length(beta)` trials.  The Wilcoxon statistic and the PO model estimate also agree completely in their judgments of equality of treatments.  Agreement between $c$ being with $10^{-5}$ of 0.5 and $\hat{\beta}$ being within $10^{-7}$ of 0.0 occurred in `r sum((abs(cstat - 0.5) < 1e-5) == (abs(beta) < 1e-7))` out of `r length(beta)` trials.
 
-::: {.column-margin}
+::: {`r mNote`}
 Note that under the null, PO must hold so no simulations are needed to compute $\alpha$.  The null hypothesis implies that the treatment is ineffective everywhere.
 :::
 
@@ -462,7 +470,7 @@ for(i in 1 : nt) {
 }
 ```
 
-::: {.column-margin}
+::: {`r mNote`}
 Here are details of the simulated trial that resulted in non-PO of 2.95.
 
 ```{r highestdetails}
@@ -480,5 +488,4 @@ The unadjusted proportional odds model's odds ratio estimate almost perfectly re
 * <https://www.fharrell.com/tag/ordinal>
 
 # Computing Environment
-
 `r markupSpecs$html$session()`

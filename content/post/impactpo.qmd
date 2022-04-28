@@ -25,6 +25,17 @@ format:
     reference-location: margin
     number-sections: true
     include-in-header: /home/harrelfe/doc/html/ganalytics.html
+  pdf:
+    pdf-engine: lualatex
+    toc: false
+    number-sections: true
+    number-depth: 2
+    top-level-division: section
+    reference-location: document
+    listings: false
+    header-includes:
+      \usepackage{marginnote, here, relsize, needspace, setspace}
+      \def\it{\emph}
 
 comments:
   hypothesis: true
@@ -34,13 +45,18 @@ execute:
   message: false
 ---
 
-<!-- To run: quarto render impactpo.qmd -->
+<!-- To run: quarto render impactpo.qmd
+             quarto render impactpo.qmd --to pdf
+							 Run lualatex impactpo (lua handles unicode)       -->
 
 
 ```{r setup, include=FALSE}
 require(rms)
 knitrSet(lang='quarto')
-options(prType='html')
+source('~/r/rmarkdown/qbookfun.r')
+options(prType=if(ishtml) 'html' else 'latex')
+options(omitlatexcom=TRUE)
+# keeps Pandoc from messing up generated LaTeX comments
 ggp <- ggplotlyr   # ggplotlyr is in Hmisc
 # Gets around a bug in tooltip construction with ggplotly
 pr  <- markupSpecs$markdown$pr
@@ -51,13 +67,8 @@ kab <- knitr::kable
 
 <!-- [Original figure](https://atlas.mindmup.com/vbiostat/po) -->
 
-[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
-  target="popup"
-	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
-     'width=450,height=600'); return false;">
-	Comments
-</a>]{.aside}
 
+`r disccom('rms-ordinal-logistic-regression')`
 
 # Introduction
 
@@ -73,7 +84,7 @@ The dataset, taken from a real observational study,  consists of a 7-level ordin
 getHdata(txpo)
 d <- txpo
 dd <- datadist(d); options(datadist='dd')
-html(describe(d))
+if(ishtml) html(describe(d)) else latex(describe(d), file='')
 with(d, pr(obj=table(trt, y)))
 ```
 
@@ -152,7 +163,7 @@ AIC is essentially a forecast of what is likely to happen were the accuracy of t
 
 # Efficiency of Analyses Using Cutpoints
 
-::: {.column-margin}
+::: {`r mNote`}
 Clearly, the dependence of the proportional odds model on the assumption of proportionality can be over-stressed.  Suppose that two different statisticians would cut the same three-point scale at different cut points. It is hard to see how anybody who could accept either dichotomy could object to the compromise answer produced by the proportional odds model. — [Stephen Senn](https://onlinelibrary.wiley.com/doi/abs/10.1002/sim.3603)
 :::
 
@@ -278,7 +289,8 @@ sim <- function(beta, n, nsim=100) {
 require(VGAM)
 alpha <- c(4.4, 2.6, 0.7, -0.2, -2, -2.4)
 set.seed(1)
-round(sim(beta=-1, 50000, 1)$summary, 4)
+si <- sim(beta=-1, 50000, 1)
+round(si$summary, 4)
 ```
 
 With n=50,000 extreme non-PO in the binary covariate hardly affected the estimated treatment and its standard error, and did not affect the ratio of the coefficient estimate to its standard error.  Non-PO in $X$ does effect the intercepts which has an implication in estimating absolute effects (unlike the treatment OR).  But by examining the intercepts when the covariate is omitted entirely one can see that the problems with the intercepts when PO is forced are no worse than just ignoring the covariate altogether (not shown here).
@@ -449,8 +461,9 @@ x <- c(rep(0, m), rep(1, m))
 nsim <- 500
 sds <- c(.0001, 0.1, 0.5, 0.75, 1, 1.5, 2, 4, 10, 50)
 lsd <- length(sds)
+gam <- if(ishtml) 'γ' else '$\\gamma$'
 R <- array(NA, c(nsim, lsd, 2),
-           dimnames=list(NULL, paste0('γ=', sds),
+           dimnames=list(NULL, paste0(gam, '=', sds),
                          c('Y>=1', 'Y=2')))
 set.seed(3)
 for(i in 1 : nsim) {

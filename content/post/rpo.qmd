@@ -6,6 +6,7 @@ author:
 date: last-modified
 format:
   html:
+    date: last-modified
     self-contained: true
     anchor-sections: true
     mainfont: Source Sans Pro
@@ -16,6 +17,16 @@ format:
     toc-location: left
     number-sections: true
     include-in-header: /home/harrelfe/doc/html/ganalytics.html
+  pdf:
+    date: 2022-04-27
+    pdf-engine: lualatex
+    toc: false
+    number-sections: true
+    number-depth: 2
+    top-level-division: section
+    reference-location: document
+    listings: true
+    header-includes: \usepackage{marginnote}
 
 comments:
   hypothesis: true
@@ -23,14 +34,11 @@ comments:
 
 <!-- To run: quarto render rpo.qmd -->
 
-[[![](https://hbiostat.org/img/discourse.png)](https://discourse.datamethods.org/t/rms-ordinal-logistic-regression)<br><a href="https://hbiostat.org/comment.html"
-  target="popup"
-	onclick="window.open('https://hbiostat.org/comment.html', 'popup',
-     'width=450,height=600'); return false;">
-	Comments
-</a>]{.aside}
-<br><br>
+```{r include=FALSE}
+source('~/r/rmarkdown/qbookfun.r')
+```
 
+`r disccom`
 
 # Background
 
