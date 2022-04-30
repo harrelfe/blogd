@@ -38,7 +38,7 @@ comments:
 source('~/r/rmarkdown/qbookfun.r')
 ```
 
-`r disccom`
+`r disccom('rms-ordinal-logistic-regression')`
 
 # Background
 
@@ -56,7 +56,7 @@ Semiparametric models are regression models having an intercept for each distinc
 * Since only the rank order of $Y$ is used, the models are robust to outliers in $Y$ (but not in $X$).
 * The models work equally well for discrete as for continuous $Y$.  One can have more parameters in the model than the number of observations due to the large number of intercepts when $Y$ is continuous and has few ties.  Since these intercepts are forced to be in order (in the cumulative probability model family we are dealing with), the effective number of parameters estimated is much smaller.  Note that the only efficient full likelihood software implementation at present (besides SAS JMP) for continuous $Y$ in large datasets is the `orm` function in the R `rms` package, which can efficiently handle more than 6000 intercepts (one less than the number of distinct $Y$ values).
 * Ordinal models allow one to analyze a continuous response variable that is overriden by clinical events.  For example, in analyzing renal function measured by serum creatinine one could override the creatinine measurement with any arbitrary number higher than the highest observed creatinine when a patient requires dialysis.  This clumping at the rightmost value of the distribution presents no problems to an ordinal model.
-* When one uses ordinary regression to analyze a response that is ordinal but not interval scaled, [bad things happen](https://www.sciencedirect.com/science/article/abs/pii/S0022103117307746?via%3Dihub).
+* When one uses ordinary regression to analyze a response that is ordinal but not interval scaled, [bad things happen](https://discourse.datamethods.org/t/preprint-analysis-of-likert-type-data-using-metric-methods).
 
 The most popular semiparametric models are the Cox PH model and the PO ordinal logistic model.  Cox developed a partial likelihood method so that the intercepts could be estimated separately and only the regression coefficients need to be optimized.  Other semiparametric models use a full likelihood approach that estimates intercepts simultaneously with regression coefficients.
 
