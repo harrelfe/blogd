@@ -1,0 +1,480 @@
+---
+title: R Workflow
+author:
+  - name: Frank Harrell
+    url: https://hbiostat.org
+date: last-modified
+format:
+  html:
+    self-contained: true
+    anchor-sections: true
+    code-tools: true
+    code-fold: false
+    fig-width: 8
+    fig-height: 4
+    code-block-bg: "#f1f3f5"
+    code-block-border-left: "#31BAE9"
+    mainfont: Source Sans Pro
+    theme: journal
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    captions: true
+    cap-location: margin
+    table-captions: true
+    tbl-cap-location: margin
+    reference-location: margin
+    include-in-header: /home/harrelfe/doc/html/ganalytics.html
+
+comments:
+  hypothesis: true
+
+execute:
+  warning: false
+  message: false
+---
+
+<!-- To compile: quarto render rflow.qmd  -->
+
+```{r include=FALSE}
+source('~/r/rmarkdown/qbookfun.r')
+```
+
+[`r hypcomment`]{.aside}
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering the creation of annotated analysis files and running descriptive statistics on them with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Finally, examples of caching results and doing parallel processing are presented.
+
+# File Directory Structure
+
+I have a directory for each major project, and put everything in that
+directory (including data files) except for graphics files for
+figures, which are placed in their own subdirectory underneath the
+project folder.[With `Quarto` I specify that `html` files are to be self-contained, so there are no separate graphics files.]{.aside}  The directory name for the project includes key
+identifying information, and files within that directory do not
+contain project information in their names, nor do they contain dates,
+unless I want to freeze an old version of an analysis script.
+
+For multi-analyst projects or ones in which you want to capture the entire code history, having the project on `github` is worthwhile.
+
+# Analysis File Creation
+
+I typically create a compact analysis file in a separate R script
+called `create.r` and have it produce compressed R binary `data.frame`
+or `data.table` `.rds` files using `saveRDS(name, 'name.rds', compress='xz')`.  Then I have an analysis script named for example `a.qmd` (for [Quarto](https://quarto.org) reports) or `a.Rmd` (for RMarkdown reports) that starts with `d <- readRDS('name.rds')`.  [Templates for analysis reports are [here](http://hbiostat.org/rr/index.html#template), and a comprehensive report example may be found [here](https://hbiostat.org/R/Hmisc/markov).]{.aside}
+
+When variables need to be recoded, have labels added or changed, or
+have units of 
+measurement added[Variable labels and units of measurement are used in special ways in my R packages.  This will show up in the `describe` and `contents` function outputs below and in axis labels for graphics.]{.aside}, I specify those using the `Hmisc` package [`upData`
+function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).  Here is an example:
+
+```
+# Function to recode from atypical coding for yes/no in raw data
+yn <- function(x) factor(x, 0:1, c('yes', 'no'))
+d <-
+  upData(d,
+         rename = c(gender='sex', any.event='anyEvent'),
+         posSE    = yn(posSE),
+         newMI    = yn(newMI),
+         newPTCA  = yn(newPTCA),
+         newCABG  = yn(newCABG),
+         death    = yn(death),
+         hxofHT   = yn(hxofHT),
+         hxofDM   = yn(hxofDM),
+         hxofCig  = factor(hxofCig, c(0, 0.5, 1),
+                           c('heavy', 'moderate', 'non-smoker')), 
+         hxofMI   = yn(hxofMI),
+         hxofPTCA = yn(hxofPTCA),
+         hxofCABG = yn(hxofCABG),
+         chestpain= yn(chestpain),
+         anyEvent = yn(anyEvent),
+         drop=Cs(event.no,phat,mics,deltaEF,  # Cs in Hmisc; auto quotes
+           newpkmphr,gdpkmphr,gdmaxmphr,gddpeakdp,gdmaxdp,
+           hardness),
+         labels=c(
+           bhr    ='Basal heart rate',
+           basebp ='Basal blood pressure',
+           basedp ='Basal Double Product bhr*basebp',
+           age    ='Age',
+           pkhr   ='Peak heart rate',
+           sbp    ='Systolic blood pressure',
+           dp     ='Double product pkhr*sbp',
+           dose   ='Dose of dobutamine given',
+           maxhr  ='Maximum heart rate',
+           pctMphr='Percent maximum predicted heart rate achieved',
+           mbp    ='Maximum blood pressure',
+           dpmaxdo='Double product on max dobutamine dose',
+           dobdose='Dobutamine dose at max double product',
+           baseEF ='Baseline cardiac ejection fraction',
+           dobEF  ='Ejection fraction on dobutamine', 
+           chestpain='Chest pain', 
+           ecg     ='Baseline electrocardiogram diagnosis',
+           restwma ='Resting wall motion abnormality on echocardiogram', 
+           posSE   ='Positive stress echocardiogram',
+           newMI   ='New myocardial infarction',
+           newPTCA ='Recent angioplasty',
+           newCABG ='Recent bypass surgery', 
+           hxofHT  ='History of hypertension', 
+           hxofDM  ='History of diabetes',
+           hxofMI  ='History of myocardial infarction',
+           hxofCig ='History of smoking',
+           hxofPTCA='History of angioplasty',
+           hxofCABG='History of coronary artery bypass surgery',
+           anyEvent='Death, newMI, newPTCA, or newCABG'),
+         units=c(age='years', bhr='bpm', basebp='mmHg', basedp='bpm*mmHg',
+           pkhr='mmHg', sbp='mmHg', dp='bpm*mmHg', maxhr='bpm',
+           mbp='mmHg', dpmaxdo='bpm*mmHg', baseEF='%', dobEF='%',
+           pctMphr='%', dose='mg', dobdose='mg')
+         )
+
+saveRDS(d, 'stressEcho.rds', compress='xz')
+
+# Note that we could have automatically recoded all 0:1 variables
+# if they were all to be treated identically:
+
+for(x in names(d)) 
+  if(all(d[[x]] %in% c(0,1))) d[[x]] <- yn(d[[x]])
+```
+
+If reading data exported from `REDCap` that are placed into the
+project directory I run the following to get rid of duplicate
+(`factor` and non-`factor` versions of variables `REDCap` produces)
+variables and automatically convert dates to `Date` variables:
+
+```
+require(Hmisc)
+getRs('importREDCap.r', put='source')  # source() code to define function
+mydata <- importREDCap()  # by default operates on last downloaded export
+saveRDS(mydata, 'mydata.rds', compress='xz')
+```
+
+When file names are not given to `importREDCap` the function looks for
+the latest created `.csv` file and `.R` file with same prefix and uses those.
+See [this](http://hbiostat.org/bbr/md/r.html) for more information.
+
+## Data Dictionary
+
+The `Hmisc` package `contents` function will provide a concise data dictionary.    Here is an example using the permanent version[The permanent version of `stressEcho` coded binary variables as 0/1 instead of N/Y.]{.aside} of the dataset created above, which can be accessed with the `Hmisc` `getHdata` function.  The top of the `contents` output has the number of levels for `factor` variables hyperlinked.  Click on the number to go directly to the list of levels for that variable.
+
+```{r ddict,results='asis'}
+require(Hmisc)
+getHdata(stressEcho)
+d <- stressEcho
+html(contents(d), levelType='table')
+```
+
+# Descriptive Statistics
+
+The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.]{.aside}.
+
+[`Gmd` stands for Gini's mean difference---the mean absolute difference over all possible pairs of different observations.  It is a very interpretable measure of dispersion that is more robust than the standard deviation.]{.aside}
+```{r desc,results='asis'}
+w <- describe(d)
+html(w)
+```
+
+There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
+
+```{r pdesc}
+p <- plot(w)
+p$Categorical
+p$Continuous
+```
+
+By specifying `grType` option you can instead get `plotly` graphics that use hover text to show more information, especially when hovering over the leftmost dot or tick mark for a variable.
+
+```{r pldesc}
+options(grType='plotly')
+p <- plot(w)
+p$Categorical
+p$Continuous
+```
+
+See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
+
+::: {.column-page}
+```{r summaryM,results='asis'}
+require(data.table)
+setDT(d)   # turn d into a data table
+w <- d
+w[, hxofMI := factor(hxofMI, 0 : 1, c('No history of MI', 'History of MI'))]
+vars <- setdiff(names(d), 'hxofMI')
+form <- as.formula(paste(paste(vars, collapse='+'), '~ hxofMI'))
+print(form)
+s <- summaryM(form, data=d, test=TRUE)
+html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE)
+plot(s, which='categorical', vars=1 : 4)   # plot first 4 categorical variables
+plot(s, which='continuous',  vars=1 : 4)   # plot first 4 continuous variables
+```
+:::
+
+Semi-interactive stratified spike histograms are also useful descriptive plots.  These plots also contain a superset of the quantiles used in box plots, and the legend is clickable, allowing any of the statistical summaries to be turned off.
+
+```{r spikeh}
+d[, histboxp(x=maxhr, group=ecg, bins=200)]
+```
+
+# Data Manipulation and Aggregation
+
+The [`data.table`](https://hbiostat.org/R/data.table) package provides a concise, consistent syntax for managing simple and complex data manipulation tasks, and it is extremely efficient for large datasets.  One of the best organized tutorials is [this](https://riptutorial.com/data-table), and a master cheatsheet for `data.table` is [here](https://rdrr.io/cran/data.table/man/data.table.html) from which the general syntax below is taken, where `DT` represents a data table.
+
+```
+   DT[ i,  j,  by ] # + extra arguments
+        |   |   |
+        |   |    -------> grouped by what?
+        |    -------> what to do?
+         ---> on which rows?
+```
+
+Data tables are also data frames so work on any method handling data frames.  But data tables do not contain `rownames`.
+
+Several `data.table` examples follow.  I like to hold the current dataset in `d` to save typing.  To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically (like the `Hmisc` function `Cs`).
+
+```{r quote}
+.q <- function(...) as.character(sys.call())[-1]
+.q(a,b,c)
+```
+
+## Analyzing Selected Variables and Subsets
+```{r dtsimple,results='asis'}
+d[, html(describe(age))]
+d[, html(describe(~ age + gender))]
+d[gender == 'female', html(describe(age))]   # analyze age for females
+html(describe(d[, .(age, gender)], 'Age and Gender Stats'))
+```
+
+```{r dtsimple2}
+# Separate analysis by female, male.  Use keyby instead of by to sort the usual way.
+d[, print(describe(age, descript=gender)), by=gender]
+
+# Compute mean and median age by gender
+d[, .(Mean=mean(age), Median=median(age)), by=gender]
+# To create a new subset
+w <- d[gender == 'female' & age < 70, ]
+```
+
+## Adding or Changing Variables
+
+With `data.table` you can create a new data table with added variables, or you can add or redefine variables in a data table in place.  The latter has major speed and memory efficiency implications when processing massive data tables.  Here `d` refers to a different data table from the one used above.
+
+```
+# Rename a variable
+setnames(d, c('gender', 'height'), c('sex', 'ht'))
+# Easier:
+setnames(d, .q(gender, height), .q(sex, ht))
+
+# Add two new variables, storing result in a new data table
+z <- d[, .(bmi=wt / ht ^ 2, bsa=0.016667 * sqrt(wt * ht))]
+
+# Add one new variable in place
+d[, bmi := wt / ht ^ 2]
+
+# Add two new variables in place
+d[, `:=`(bmi = wt / ht ^ 2, bas=0.016667 * sqrt(wt * ht))]
+d[, .q(bmi, bsa) := .(wt / ht ^ 2, 0.016667 * sqrt(wt * ht))]
+
+# Add label & optional units (better to use upData which works on data tables)
+adlab <- function(x, lab, un='') {
+  label(x) <- lab
+  if(un != '') units(x) <- un
+  x
+}
+d[, maxhr := adlab(maxhr, 'Maximum Heart Rate', '/m')]
+
+# Delete a variable (or use upData)
+d[, bsa := NULL]
+
+# Delete two variables
+d[, `:=`(bsa=NULL, bmi=NULL)]
+d[, .q(bsa, bmi) := NULL]
+```
+
+# Computing Summary Statistics
+
+Many applications can use the automatically created `data.table` object `.SD` which stands for the data table for the current group being processed.  If `.SDcols` were not specified, all variables would be attempted to be analyzed.  Specify a vector of variable names as `.SDcols` to restrict the analysis.  If there were no `by` variable(s), `.SD` stands for the whole data table.
+
+```{r ss}
+# Compute the number of distinct values for all variables
+nd <- function(x) length(unique(x))
+d[, sapply(.SD, nd)]
+# Same but only for variables whose names contain hx and either D or M
+d[, sapply(.SD, nd), .SDcols=patterns('hx', 'D|M')]
+
+# Compute means on all numeric variables
+mn <- function(x) mean(x, na.rm=TRUE)
+d[, lapply(.SD, mn), .SDcols=is.numeric]
+# Compute means on all numeric non-binary variables
+nnb <- function(x) is.numeric(x) && length(unique(x)) > 2
+d[, lapply(.SD, mn), .SDcols=nnb]
+
+# Print frequency tables of all categorical variables with > 2 levels
+cmult <- function(x) ! is.numeric(x) && length(unique(x)) > 2
+tab <- function(x) {
+  z <- table(x, useNA='ifany')
+  paste(paste0(names(z), ': ', z), collapse=', ')
+}
+d[, lapply(.SD, tab), .SDcols=cmult]
+tab <- function(x) as.data.table(table(x, useNA='ifany'))
+d[, lapply(.SD, tab), .SDcols=cmult]
+
+# Compute a 1-valued statistic on multiple variables, by cross-classification
+# of two variables.  Do this on a subset.  .SDcols=a:b uses variables in order
+# Use keyby instead of by to order output the usually way
+d[age < 70, lapply(.SD, mean), keyby=.(gender, newMI), .SDcols=pkhr:dp]
+
+# Compute multiple statistics on one variable
+# Note: .N is a special variable: count of obs for current group
+d[, .(Max=max(bhr), Min=min(bhr), Mean=mean(bhr), N=.N), by=.(gender, newMI)]
+# Same result another way
+g <- function(x) list(Max=max(x), Min=min(x), Mean=mean(x), N=length(x))
+d[, g(bhr), by=.(gender, newMI)]  # if g returned a vector instead, use as.list(g(bhr))
+
+d[, as.list(quantile(bhr)), by=gender]
+
+# Compute multiple statistics on multiple variables
+d[, lapply(.SD, quantile), by=gender, .SDcols=.q(bhr, pkhr, sbp)]
+# To have more control over labeling and to have one row per sex:
+g <- function(x) {
+  s <- sapply(x, quantile, na.rm=TRUE)  # compute quantiles for all variables -> matrix
+  h <- as.list(s)  # vectorizes first
+  # Cross row names (percentile names) with column (variable) names
+  # paste(b, a) puts variable name in front of percentile
+  names(h) <- outer(rownames(s), colnames(s), function(a, b) paste(b, a))
+  h
+}
+d[, g(.SD), by=gender, .SDcols=.q(bhr, pkhr, sbp)]
+# Restrict to variables bhr - basedp in order columns created in data table
+d[, g(.SD), by=gender, .SDcols=bhr : basedp]
+# Can put ! in front of a sequence of variables to do the opposite
+
+# To add duplicated means to raw data use e.g.
+# d[, Mean := mean(x), by=sex]
+```
+
+# Merging Data
+
+Consider a baseline dataset `b` and a longitudinal dataset `L`, with subject ID of `id`.
+
+```{r two}
+b <- data.table(id=1:4, age=c(21, 28, 32, 23))
+L <- data.table(id  = c(2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 5),
+                day = c(1, 2, 3, 1, 2, 3, 4, 1, 2, 1, 2, 3),
+                y    =  1 : 12)
+b
+L
+# Merge b and L to look up baseline age and associate it with all follow-ups
+b[L, on=.(id)]   # Keeps all ids in L
+L[b, on=.(id)]   # Keeps all ids in b
+L[b, on=.(id), nomatch=NULL]  # Keeps only ids in both b and L
+```
+
+You can also use the `merge` function for merging data tables.  This calls `merge.data.table`.  To merge any number of datasets at once and obtain a printed report of how the merge went, use the `Hmisc` `Merge` function.
+
+For very large data tables, giving the data tables _keys_ will speed execution, e.g.:
+
+```
+setkey(d, id)
+setkey(d, state, city)
+```
+
+Join/merge can be used for data lookups:
+
+```{r lookup}
+s <- data.table(st=.q(AL, AK, AZ, CA, OK), y=5:1)
+stateAbbrevs <- data.table(state=state.abb, State=state.name)
+s[stateAbbrevs, , on=.(st=state), nomatch=NULL]
+```
+
+# Reshaping Data
+
+To reshape data from long to wide format, take the `L` data table above as an example.
+
+```{r l2w}
+w <- dcast(L, id ~ day, value.var='y')
+w
+# Now reverse the procedure
+m <- melt(w, id.vars='id', variable.name='day', value.name='y')
+m
+setkey(m, id, day)   # sorts
+m[! is.na(y)]
+```
+
+# Analysis
+
+## Formatting
+
+For analysis the sky is the limit.  I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the special formatting.  Here is an example.
+
+```{r lrm,results='asis'}
+require(rms)
+options(prType='html')  # needed to use special formatting (can use prType='latex')
+set.seed(1)
+n <- 1000
+w <- data.table(x=runif(n), x2=rnorm(n), y=sample(0:1, n, replace=TRUE))
+dd <- datadist(w); options(datadist='dd')  # rms needs for summaries and plotting
+f <- lrm(y ~ x + rcs(x2, 4), data=w)
+f
+anova(f)
+```
+
+## Caching
+
+The workhorse behind `Rmarkdown` and `Quarto` is [knitr](https://www.r-project.org/nosvn/pandoc/knitr.html), which processes the code chunks and properly mingles code and tabular and graphical output.  `knitr` has a built-in caching mechanism to make it so that code is not needlessly executed when the code inputs have not changed. This easy-to-use process does have two disadvantages: the dependencies are not transparent, and the stored cache files may be quite large.  I like to take control of caching.  To that end, the [runifChanged](https://github.com/harrelfe/rscripts/blob/master/hashCheck.r) function was written.  Here is an example of its use.  First a function with no arguments must be composed.  This is the (usually slow) function that will be conditionally run if any of a group of listed objects has changed since the last time it was run.  This function when needed to be run produces an object that is stored in binary form in a user-specified file (the default file name is the name of the current R code chunk with `.rds` appended).
+
+```{r runifch}
+# Read the source code for the hashCheck and runifChanged functions from
+# https://github.com/harrelfe/rscripts/blob/master/hashCheck.r
+getRs('hashCheck.r', put='source')
+g <- function() {
+  # Fit a logistic regression model and bootstrap it 500 times, saving
+  # the matrix of bootstrapped coefficients
+  f <- lrm(y ~ x1 + x2, x=TRUE, y=TRUE, data=dat)
+  bootcov(f, B=500)
+}
+set.seed(3)
+n   <- 2000
+dat <- data.table(x1=runif(n), x2=runif(n),
+                  y=sample(0:1, n, replace=TRUE))
+# runifChanged will write runifch.rds if needed (chunk name.rds)
+# Will run if dat or source code for lrm or bootcov change
+b <- runifChanged(g, dat, lrm, bootcov)
+dim(b$boot.Coef)
+head(b$boot.Coef)
+```
+
+## Parallel Computing
+
+The `runParallel` function makes it easy to use available multiprocessor cores to speed up parallel computations especially for simulations.  By default it runs the number of available cores, less one.  `runParallel` makes the `parallel` package easier to use and does recombinations over per-core batches.  The user writes a function that does the work on one core, and the same function is run on all cores.  This function has set arguments and must return a named list.  A base random number `seed` is given, and the seed is set to this plus `i` for core number `i`.  The total number of repetitions is given, and this most balanced possible number of repetitions is run on each core to sum to the total desired number of iterations.  `runifChanged` is again used, to avoid running the simulations if no inputs have changed.
+
+```{r rflowpar}
+# Load runParallel function from github
+getRs('runParallel.r', put='source')
+
+# Function to do simulations on one core
+run1 <- function(reps, showprogress, core) {
+  cof <- matrix(NA, nrow=reps, ncol=3,
+                dimnames=list(NULL, c('a', 'b1', 'b2')))
+  for(i in 1 : reps) {
+    y <- sample(0:1, n, replace=TRUE)
+    f <- lrm(y ~ X)
+    cof[i, ] <- coef(f)
+  }
+  list(coef=cof)
+}
+# Debug one core run, with only 3 iterations
+n    <- 300
+seed <- 3
+set.seed(seed)
+X    <- cbind(x1=runif(n), x2=runif(n))  # condition on covariates
+run1(3)
+
+nsim <- 5000
+g <- function() runParallel(run1, reps=nsim, seed=seed)
+Coefs <- runifChanged(g, X, run1, nsim, seed)
+dim(Coefs)
+apply(Coefs, 2, mean)
+```
+
+# Computing Environment
+
+The following output is created by the command `markupSpecs$html$session()`, where `markupSpecs` is defined in the `Hmisc` package.
+
+`r markupSpecs$html$session()`
