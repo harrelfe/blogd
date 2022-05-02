@@ -165,11 +165,13 @@ html(contents(d), levelType='table')
 
 The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.]{.aside}.
 
+::: {.column-page}
 [`Gmd` stands for Gini's mean difference---the mean absolute difference over all possible pairs of different observations.  It is a very interpretable measure of dispersion that is more robust than the standard deviation.]{.aside}
 ```{r desc,results='asis'}
 w <- describe(d)
-html(w)
+html(w, scroll=TRUE, rows=50)
 ```
+:::
 
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
 
@@ -339,14 +341,14 @@ colnames(Z)[seq(2, ncol(Z), by=2)] <- 'Freq'
 knitr::kable(Z, align=Align)
 ```
 
-A better approach is to let the `kables` function put together a series of separate `markdown` tables of different sizes.
+A better approach is to let the `kables` function put together a series of separate `markdown` tables of different sizes.  By using the "updating `Z` in the global environment" side effect we are able to let `data.table` output any type of objects of non-conformable dimensions over variables (such as frequency tabulations).
 
 ```{r tabalt}
 tab <- function(x) {
   z <- table(x, useNA='ifany')
   i <- length(Z)
-  w <- cbind(names(z), z); rownames(w) <- NULL
-  colnames(w) <- c(vnames[i+1], 'Freq')
+  w <- matrix(cbind(names(z), z), ncol=2,
+              dimnames=list(NULL, c(vnames[i+1], 'Freq')))
   Z[[i+1]] <<- knitr::kable(w, align=c(if(is.numeric(x)) 'r' else 'l', 'r'))
   length(z)
 }
@@ -355,6 +357,22 @@ Z      <- list()
 vnames <- names(d[, .SD, .SDcols=discr])
 w      <- d[, lapply(.SD, tab), .SDcols=discr]
 knitr::kables(Z)
+```
+
+Use a similar side-effect approach to get separate `html` `describe` output by `gender`.
+
+```{r bydesc,results='asis'}
+g <- function(x, by) {
+  Z[[length(Z) + 1]] <<- describe(x, descript=paste('age for', by))
+  by
+}
+Z <- list()
+by <- d[, g(age, gender), by=gender]
+# Make Z look like describe() output for multiple variables
+class(Z) <- 'describe'
+attr(Z, 'dimensions') <- c(nrow(d), nrow(by))
+attr(Z, 'descript') <- 'Age by Gender'
+html(Z)
 ```
 
 ```{r morestats}
