@@ -314,22 +314,48 @@ tab <- function(x) {
 d[, lapply(.SD, tab), .SDcols=cmult]
 ```
 
-Use a different function that uses `html` line breaks.  Tabulate all variables having between 3 and 10 distinct values.  Output a `markdown` format table.[`results='asis'` was added to the header of this code chunk.]{.aside}
-```{r diffreq,results='asis'}
+Tabulate all variables having between 3 and 10 distinct values and create a side effect when `data.table` is running that makes the summarization function `tab` store all values and frequencies in a growing list `Z` so that `kable` can render a `markdown` table after we pad columns to the maximum length of all columns (maximum number of distinct values). 
+
+```{r diffreq}
+# Using <<- makes data.table have a side effect of augmenting Z and
+# Align in the global environment
 tab <- function(x) {
-  # html to make frequencies be right justified
-  hfill <- function(u) paste0("<span style='float: right; text-align: right;'>", u, "</span>")
   z <- table(x, useNA='ifany')
-  paste(paste0(names(z), hfill(z)), collapse='<br>')
+  i <- length(Z)
+  Z[[i+1]] <<- names(z)
+  Z[[i+2]] <<- as.vector(z)
+  Align <<- c(Align, if(is.numeric(x)) 'r' else 'l', 'r')
+  length(z)
 }
 discr <- function(x) { i <- length(unique(x)); i > 2 & i < 11 }
-w <- d[, lapply(.SD, tab), .SDcols=discr]
-cat(paste(' ', names(w), collapse=' |'), '\n',
-    paste(rep('--', length(w)), collapse='|'), '\n',
-    paste(w, collapse='|'), '\n',
-    ': {tbl-colwidths="[8,9,20,20]"}\n', sep='')
+Z    <- list(); Align <- character(0)
+w    <- d[, lapply(.SD, tab), .SDcols=discr]
+maxl <- max(w)
+# Pad shorter vectors with blanks
+Z <- lapply(Z, function(x) c(x, rep('', maxl - length(x))))
+Z <- do.call('cbind', Z)  # combine all into columns of a matrix
+colnames(Z) <- rep(names(w), each=2)
+colnames(Z)[seq(2, ncol(Z), by=2)] <- 'Freq'
+knitr::kable(Z, align=Align)
 ```
 
+A better approach is to let the `kables` function put together a series of separate `markdown` tables of different sizes.
+
+```{r tabalt}
+tab <- function(x) {
+  z <- table(x, useNA='ifany')
+  i <- length(Z)
+  w <- cbind(names(z), z); rownames(w) <- NULL
+  colnames(w) <- c(vnames[i+1], 'Freq')
+  Z[[i+1]] <<- knitr::kable(w, align=c(if(is.numeric(x)) 'r' else 'l', 'r'))
+  length(z)
+}
+discr <- function(x) { i <- length(unique(x)); i > 2 & i < 11 }
+Z      <- list()
+vnames <- names(d[, .SD, .SDcols=discr])
+w      <- d[, lapply(.SD, tab), .SDcols=discr]
+knitr::kables(Z)
+```
 
 ```{r morestats}
 # Compute a 1-valued statistic on multiple variables, by cross-classification
