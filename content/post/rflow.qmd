@@ -317,14 +317,17 @@ d[, lapply(.SD, tab), .SDcols=cmult]
 Use a different function that uses `html` line breaks.  Tabulate all variables having between 3 and 10 distinct values.  Output a `markdown` format table.[`results='asis'` was added to the header of this code chunk.]{.aside}
 ```{r diffreq,results='asis'}
 tab <- function(x) {
+  # html to make frequencies be right justified
+  hfill <- function(u) paste0("<span style='float: right; text-align: right;'>", u, "</span>")
   z <- table(x, useNA='ifany')
-  paste(paste0(format(names(z)), '  ', format(z)), collapse='<br>')
+  paste(paste0(names(z), hfill(z)), collapse='<br>')
 }
 discr <- function(x) { i <- length(unique(x)); i > 2 & i < 11 }
 w <- d[, lapply(.SD, tab), .SDcols=discr]
 cat(paste(' ', names(w), collapse=' |'), '\n',
     paste(rep('--', length(w)), collapse='|'), '\n',
-    paste(w, collapse='|'), '\n', sep='')
+    paste(w, collapse='|'), '\n',
+    ': {tbl-colwidths="[8,9,20,20]"}\n', sep='')
 ```
 
 
