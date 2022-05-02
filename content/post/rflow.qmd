@@ -312,12 +312,26 @@ tab <- function(x) {
   paste(paste0(names(z), ': ', z), collapse=', ')
 }
 d[, lapply(.SD, tab), .SDcols=cmult]
-tab <- function(x) as.data.table(table(x, useNA='ifany'))
-d[, lapply(.SD, tab), .SDcols=cmult]
+```
 
+Use a different function that uses `html` line breaks.  Tabulate all variables having between 3 and 10 distinct values.  Output a `markdown` format table.[`results='asis'` was added to the header of this code chunk.]{.aside}
+```{r diffreq,results='asis'}
+tab <- function(x) {
+  z <- table(x, useNA='ifany')
+  paste(paste0(format(names(z)), '  ', format(z)), collapse='<br>')
+}
+discr <- function(x) { i <- length(unique(x)); i > 2 & i < 11 }
+w <- d[, lapply(.SD, tab), .SDcols=discr]
+cat(paste(' ', names(w), collapse=' |'), '\n',
+    paste(rep('--', length(w)), collapse='|'), '\n',
+    paste(w, collapse='|'), '\n', sep='')
+```
+
+
+```{r morestats}
 # Compute a 1-valued statistic on multiple variables, by cross-classification
 # of two variables.  Do this on a subset.  .SDcols=a:b uses variables in order
-# Use keyby instead of by to order output the usually way
+# Use keyby instead of by to order output the usual way
 d[age < 70, lapply(.SD, mean), keyby=.(gender, newMI), .SDcols=pkhr:dp]
 
 # Compute multiple statistics on one variable
@@ -331,6 +345,13 @@ d[, as.list(quantile(bhr)), by=gender]
 
 # Compute multiple statistics on multiple variables
 d[, lapply(.SD, quantile), by=gender, .SDcols=.q(bhr, pkhr, sbp)]
+# Similar but put percentile number in front of statistic value
+# Do only quartiles
+g <- function(x) {
+  z <- quantile(x, (1:3)/4, na.rm=TRUE)
+  paste(format(names(z)), format(round(z)))
+}
+d[, lapply(.SD, g), by=gender, .SDcols=.q(bhr, pkhr, sbp)]
 # To have more control over labeling and to have one row per sex:
 g <- function(x) {
   s <- sapply(x, quantile, na.rm=TRUE)  # compute quantiles for all variables -> matrix
