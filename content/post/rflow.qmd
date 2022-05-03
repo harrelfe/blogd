@@ -10,6 +10,7 @@ format:
     anchor-sections: true
     code-tools: true
     code-fold: false
+    code-link: false
     fig-width: 8
     fig-height: 4
     code-block-bg: "#f1f3f5"
@@ -171,6 +172,7 @@ The `Hmisc` `describe` function is my main tool for getting initial descriptive 
 w <- describe(d)
 html(w, scroll=TRUE, rows=50)
 ```
+
 :::
 
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
@@ -422,10 +424,10 @@ d[, g(.SD), by=gender, .SDcols=bhr : basedp]
 Consider a baseline dataset `b` and a longitudinal dataset `L`, with subject ID of `id`. [For more information see [this](https://hbiostat.org/R/data.table), [this](https://rdrr.io/cran/data.table/man/data.table.html), [this](https://medium.com/analytics-vidhya/r-data-table-joins-48f00b46ce29), [this](https://stackoverflow.com/questions/15170741) and [this](https://stackoverflow.com/questions/13493124).  To merge any number of datasets at once and obtain a printed report of how the merge went, use the `Hmisc` `Merge` function.]{.aside}
 
 ```{r two}
-b <- data.table(id=1:4, age=c(21, 28, 32, 23))
+b <- data.table(id=1:4, age=c(21, 28, 32, 23), key='id')
 L <- data.table(id  = c(2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 5),
                 day = c(1, 2, 3, 1, 2, 3, 4, 1, 2, 1, 2, 3),
-                y    =  1 : 12)
+                y    =  1 : 12, key='id')
 b
 L
 # Merge b and L to look up baseline age and associate it with all follow-ups
@@ -433,8 +435,6 @@ b[L, on=.(id)]   # Keeps all ids in L (left inner join)
 L[b, on=.(id)]   # Keeps all ids in b (right inner join)
 L[b, on=.(id), nomatch=NULL]  # Keeps only ids in both b and L (right outer join)
 uid <- unique(c(b[, id], L[, id]))
-setkey(b, id)
-setkey(L, id)
 L[b[.(uid), on=.(id)]]         # Keeps ids in either b or c (full outer join)
 merge(b, L, by='id', all=TRUE) # also full outer join; calls merge.data.table
 ```
