@@ -155,12 +155,19 @@ See [this](http://hbiostat.org/bbr/md/r.html) for more information.
 
 The `Hmisc` package `contents` function will provide a concise data dictionary.    Here is an example using the permanent version[The permanent version of `stressEcho` coded binary variables as 0/1 instead of N/Y.]{.aside} of the dataset created above, which can be accessed with the `Hmisc` `getHdata` function.  The top of the `contents` output has the number of levels for `factor` variables hyperlinked.  Click on the number to go directly to the list of levels for that variable.
 
-```{r ddict,results='asis'}
+```{r getdat}
 require(Hmisc)
 getHdata(stressEcho)
 d <- stressEcho
+```
+
+::: {.callout-note collapse="true"}
+# Data Dictionary
+
+```{r ddict2,results='asis'}
 html(contents(d), levelType='table')
 ```
+:::
 
 # Descriptive Statistics
 
