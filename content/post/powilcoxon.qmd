@@ -34,7 +34,9 @@ format:
     top-level-division: section
     reference-location: document
     listings: false
-    header-includes: \usepackage{marginnote, here}
+    header-includes:
+      \usepackage{marginnote, here}
+      \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
 
 comments:
   hypothesis: true
