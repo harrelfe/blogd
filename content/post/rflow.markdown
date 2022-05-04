@@ -2,7 +2,7 @@
 title: R Workflow
 author: Frank Harrell
 date: '2022-05-02'
-modified: ''
+modified: '2022-05-04'
 slug: rflow
 tags:
   - 2022

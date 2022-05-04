@@ -187,18 +187,40 @@ There is also a `plot` method for `describe` output.  It produces two graphics o
 
 ```{r pdesc}
 p <- plot(w)
+```
+
+::: {.panel-tabset}
+## Categorical Variables
+```{r pdesccat}
 p$Categorical
+```
+
+## Continuous Variables
+```{r pdesccon}
 p$Continuous
 ```
+
+:::
 
 By specifying `grType` option you can instead get `plotly` graphics that use hover text to show more information, especially when hovering over the leftmost dot or tick mark for a variable.
 
-```{r pldesc}
+```{r pldesc,results='asis'}
 options(grType='plotly')
 p <- plot(w)
+```
+
+::: {.panel-tabset .column-page}
+## Categorical Variables
+```{r}
 p$Categorical
+```
+
+## Continuous Variables
+```{r}
 p$Continuous
 ```
+
+:::
 
 See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
 
@@ -213,8 +235,9 @@ form <- as.formula(paste(paste(vars, collapse='+'), '~ hxofMI'))
 print(form)
 s <- summaryM(form, data=d, test=TRUE)
 html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE)
-plot(s, which='categorical', vars=1 : 4)   # plot first 4 categorical variables
-plot(s, which='continuous',  vars=1 : 4)   # plot first 4 continuous variables
+# Plot first 4 categorical and continuous variables
+plot(s, which='categorical', vars=1 : 4, height=600, width=1000)
+plot(s, which='continuous',  vars=1 : 4)
 ```
 :::
 
@@ -242,7 +265,7 @@ Several `data.table` examples follow.  I like to hold the current dataset in `d`
 
 ```{r quote}
 .q <- function(...) as.character(sys.call())[-1]
-.q(a,b,c)
+.q(a, b, c, 'this and that')
 ```
 
 ## Analyzing Selected Variables and Subsets
