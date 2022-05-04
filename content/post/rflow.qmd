@@ -224,7 +224,6 @@ p$Continuous
 
 See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
 
-::: {.column-page}
 ```{r summaryM,results='asis'}
 require(data.table)
 setDT(d)   # turn d into a data table
@@ -234,11 +233,25 @@ vars <- setdiff(names(d), 'hxofMI')
 form <- as.formula(paste(paste(vars, collapse='+'), '~ hxofMI'))
 print(form)
 s <- summaryM(form, data=d, test=TRUE)
+```
+
+::: {.panel-tabset .column-page}
+## Table 1
+```{r summaryM1}
 html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE)
+```
+
+## Categorical Variable Plot
+```{r summaryM2}
 # Plot first 4 categorical and continuous variables
 plot(s, which='categorical', vars=1 : 4, height=600, width=1000)
+```
+
+## Continuous Variable Plot
+```{r summaryM3}
 plot(s, which='continuous',  vars=1 : 4)
 ```
+
 :::
 
 Semi-interactive stratified spike histograms are also useful descriptive plots.  These plots also contain a superset of the quantiles used in box plots, and the legend is clickable, allowing any of the statistical summaries to be turned off.
