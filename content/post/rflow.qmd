@@ -305,9 +305,11 @@ With `data.table` you can create a new data table with added variables, or you c
 
 ```
 # Rename a variable
-setnames(d, c('gender', 'height'), c('sex', 'ht'))
+setnames(d, c('gender', 'height'),
+            c(  'sex',      'ht'))
 # Easier:
-setnames(d, .q(gender, height), .q(sex, ht))
+setnames(d, .q(gender, height),
+            .q(   sex,     ht))
 
 # Add two new variables, storing result in a new data table
 z <- d[, .(bmi=wt / ht ^ 2, bsa=0.016667 * sqrt(wt * ht))]
