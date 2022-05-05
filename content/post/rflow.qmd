@@ -151,6 +151,10 @@ When file names are not given to `importREDCap` the function looks for
 the latest created `.csv` file and `.R` file with same prefix and uses those.
 See [this](http://hbiostat.org/bbr/md/r.html) for more information.
 
+## Variable Naming
+
+I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age varible `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below). [`Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.]{.aside}
+
 ## Data Dictionary
 
 The `Hmisc` package `contents` function will provide a concise data dictionary.    Here is an example using the permanent version[The permanent version of `stressEcho` coded binary variables as 0/1 instead of N/Y.]{.aside} of the dataset created above, which can be accessed with the `Hmisc` `getHdata` function.  The top of the `contents` output has the number of levels for `factor` variables hyperlinked.  Click on the number to go directly to the list of levels for that variable.
@@ -168,6 +172,14 @@ d <- stressEcho
 html(contents(d), levelType='table')
 ```
 :::
+
+You can write the text output of `contents` into a text file in your current working directory, and click on that file in the `RStudio` `Files` window to create a new tab in the editor panel where you can view the data dictionary at any time.  This is especially helpful if you need a reminder of variable definitions that are stored in the variable labels.  Here is an example where the formatted data dictionary is saved.  [Users having the `xless` system command installed can pop up a `contents` window at any time by typing `xless(contents(d))` in the console.]{.aside}
+
+
+```{r}
+capture.output(contents(d), file='contents.txt')
+```
+
 
 # Descriptive Statistics
 
@@ -374,6 +386,13 @@ states <- c(AL='Alabama', AK='Alaska', AZ='Arizona', ...)
 # or do a merge for table lookup (see later)
 d[, State := states[state])
 # states are unique, state can have duplicates and all are recoded
+
+# Recode from integers 1, 2, ..., to character strings
+labs <- .q(elephant, giraffe, dog, cat)
+d[, x := labs[x]]
+
+# Recode from character strings to integers
+d[, x := match(x, labs)]
 ```
 
 # Computing Summary Statistics
