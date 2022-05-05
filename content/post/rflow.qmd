@@ -186,7 +186,7 @@ html(w)
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
 
 ```{r pdesc}
-p <- plot(w)
+p <- plot(w, bvspace=2.5)
 ```
 
 ::: {.panel-tabset}
@@ -206,7 +206,7 @@ By specifying `grType` option you can instead get `plotly` graphics that use hov
 
 ```{r pldesc,results='asis'}
 options(grType='plotly')
-p <- plot(w)
+p <- plot(w, bvspace=2.5)
 ```
 
 ::: {.panel-tabset .column-page}

@@ -158,13 +158,14 @@ Peterson and Harrell did not study operating characteristics of the likelihood r
 [Peterson and Harrell (1990)](https://www.jstor.org/stable/2347760) developed the partial PO model to relax the PO (equal slopes / parallelism) assumption for one or more predictors.  See **Software** below for implementations.
 
 # Blog Articles on [Statistical Thinking](https://fharrell.com)
+<a class="anchor" id="articles"></a>
 
 * [Violation of proportional odds is not fatal](https://www.fharrell.com/post/po)
 * [If you like the Wilcoxon test you must like the proportional odds model](https://fharrell.com/post/wpo)
 * [Assessing the proportional odds assumption and its impact](https://fharrell.com/post/impactpo)
 * [Information gain from using ordinal instead of binary outcomes](https://fharrell.com/post/ordinal-info.html)
 * [Equivalence of Wilcoxon test and proportional odds model](https://fharrell.com/post/powilcoxon)
-
+* [PDF versions of some of the articles](https://hbiostat.org/ordinal)
 
 # Other Resources
 * R `rmsb` package [Bayesian proportional odds model with random effects](https://hbiostat.org/R/rmsb) and implementing the partial proportional odds model to allow pre-specified departures from the proportional odds assumption
