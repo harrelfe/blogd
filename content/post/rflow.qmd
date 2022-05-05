@@ -337,6 +337,39 @@ d[, `:=`(bsa=NULL, bmi=NULL)]
 d[, .q(bsa, bmi) := NULL]
 ```
 
+## Recoding Variables
+
+```
+# Group levels a1, a2 as a & b1,b2,b3 as b
+d[, x := factor(x, .q(a1,a2,b1,b2,b3), .q(a,a,b,b,b))]
+# Regroup an existing factor variable
+levels(d$x) <- list(a=.q(a1,a2), b=.q(b1,b2,b3))
+# Or manipulate character strings
+d[, x := substring(x, 1, 1)]   # replace x with first character of levels
+# or
+levels(d$x) <- substring(levels(d$x), 1, 1)
+
+# Recode a numeric variable with values 0, 1, 2, 3, 4 to 0, 1, 1, 1, 2
+d[, x := 1 * (x %in% 1:3) + 2 * (x == 4)]
+
+# Recode a series of conditions to a factor variable whose value is taken
+# from the last condition that is TRUE using Hmisc::score.binary
+d[, x := score.binary(x1 == 'symptomatic', x2 %in% c('stroke', 'MI'), death)]
+# Same but code with numeric points  (death is a TRUE/FALSE variable)
+d[, x := score.binary(x1 == 'symptomatic', x2 %in% c('stroke', 'MI'), death,
+                      points=c(1,2,10))]
+
+# Recode from one set of character strings to another using named vector
+# A named vector can be subscripted with character strings as well as integers
+states <- c(AL='Alabama', AK='Alaska', AZ='Arizona', ...)
+# Could also do:
+#  states <- .q(Alabama, Alaska, Arizona, ..., 'New Mexico', ...)
+#  names(states) <- .q(AL, AK, AZ, ...)
+# or do a merge for table lookup (see below)
+d[, State := states[state])
+# states are unique, state can have duplicates and all are recoded
+```
+
 # Computing Summary Statistics
 
 Many applications can use the automatically created `data.table` object `.SD` which stands for the data table for the current group being processed.  If `.SDcols` were not specified, all variables would be attempted to be analyzed.  Specify a vector of variable names as `.SDcols` to restrict the analysis.  If there were no `by` variable(s), `.SD` stands for the whole data table.
