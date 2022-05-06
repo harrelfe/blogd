@@ -256,7 +256,7 @@ p <- plot(w, bvspace=2.5)
 maketabs(p, wide=TRUE)
 ```
 
-See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
+See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).  [The `initblank` option to the `maketabs` function creates the initially opened tab, which has no content, thereby leaving it to the user to click one of the other tabs before output is shown.]{.aside}
 
 ```{r summaryM,results='asis'}
 require(data.table)
@@ -270,6 +270,7 @@ s <- summaryM(form, data=d, test=TRUE)
 w <- list('Table 1'                   = html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE),
           'Categorical Variable Plot' = plot(s, which='categorical', vars=1 : 4, height=600, width=1000),
           'Continuous Variable Plot'  = plot(s, which='continuous',  vars=1 : 4))
+# initblank=TRUE: Put an empty tab first so that nothing initially displays
 maketabs(w, wide=TRUE, initblank=TRUE)
 ```
 
@@ -339,6 +340,14 @@ d[, bmi := wt / ht ^ 2]
 # Add two new variables in place
 d[, `:=`(bmi = wt / ht ^ 2, bas=0.016667 * sqrt(wt * ht))]
 d[, .q(bmi, bsa) := .(wt / ht ^ 2, 0.016667 * sqrt(wt * ht))]
+
+# Compute something requiring a different formula for different types
+# of observations
+d[, htAdj := ifelse(sex == 'male', ht, ht * 1.07)]
+d[, htAdj := ht * ifelse(sex == 'male', 1, 1.07)]
+d[, htAdj := (sex == 'male') * ht + (sex == 'female') * ht * 1.07]
+d[sex == 'male',   htAdj := ht]
+d[sex == 'female', htAdj := ht * 1.07]
 
 # Add label & optional units (better to use upData which works on data tables)
 adlab <- function(x, lab, un='') {
@@ -595,6 +604,24 @@ u
 w <- rbind(L, u, fill=TRUE)
 setkey(w, id, day)  # sort and index
 w
+```
+
+Find the first time at which y >= 3 and at which y >= 7
+
+```{r firstt}
+L[, .(first3 = min(day[y >= 3]),
+      first7 = min(day[y >= 7])), by=id]
+```
+
+Same but instead of resulting in an infinite value if no observations for a subject meet the condition, make the result `NA`.
+
+```{r firstna}
+mn <- function(x) if(length(x)) min(x) else as.double(NA)
+# as.double needed because day is stored as double precision
+# (type contents(L) to see this) and data.table requires
+# consistent storage types
+L[, .(first3 = mn(day[y >= 3]),
+      first7 = mn(day[y >= 7])), by=id]
 ```
 
 # Analysis
