@@ -67,7 +67,7 @@ have units of
 measurement added[Variable labels and units of measurement are used in special ways in my R packages.  This will show up in the `describe` and `contents` function outputs below and in axis labels for graphics.]{.aside}, I specify those using the `Hmisc` package [`upData`
 function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).  Here is an example:
 
-```
+```{r eval=FALSE}
 # Function to recode from atypical coding for yes/no in raw data
 yn <- function(x) factor(x, 0:1, c('yes', 'no'))
 d <-
@@ -173,13 +173,21 @@ html(contents(d), levelType='table')
 ```
 :::
 
-You can write the text output of `contents` into a text file in your current working directory, and click on that file in the `RStudio` `Files` window to create a new tab in the editor panel where you can view the data dictionary at any time.  This is especially helpful if you need a reminder of variable definitions that are stored in the variable labels.  Here is an example where the formatted data dictionary is saved.  [Users having the `xless` system command installed can pop up a `contents` window at any time by typing `xless(contents(d))` in the console.]{.aside}
+You can write the text output of `contents` into a text file in your current working directory, and click on that file in the `RStudio` `Files` window to create a new tab in the editor panel where you can view the data dictionary at any time.  This is especially helpful if you need a reminder of variable definitions that are stored in the variable labels.  Here is an example where the formatted data dictionary is saved.  [Users having the `xless` system command installed can pop up a `contents` window at any time by typing `xless(contents(d))` in the console. `xless` is in `Hmisc`.]{.aside}
 
 
-```{r}
+```{r,eval=FALSE}
 capture.output(contents(d), file='contents.txt')
 ```
 
+Better still, put the html version of the data dictionary into a small browser window to which you can refer at any point in analysis coding.
+
+```{r eval=FALSE}
+cat(html(contents(d)), file='contents.html')
+browseURL('contents.html', browser='vivaldi -new-window')
+```
+
+In some cases it is best to have a browser window open to the full descriptive statistics for a data table/frame (see below; the `describe` function also shows labels, units, and levels).  [For either approach it would be easy to have multiple tabs open, one tab for each of a series of data tables.]{.aside}
 
 # Descriptive Statistics
 
@@ -194,6 +202,12 @@ w <- describe(d)
 html(w)
 ```
 :::
+
+```{r eval=FALSE}
+# To create a separate browser window:
+cat(html(w), file='desc.html')
+browseURL('desc.html', browser='firefox -new-window')
+```
 
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
 
@@ -214,25 +228,33 @@ p$Continuous
 
 :::
 
+To make creation of tabs in `Quarto` easier, here is a function that loops through the elements of a named list and outputs each element into a separate `Quarto` tab.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked.  [This function is in `Github` and can be defined using the `Hmisc` `getRs` function, i.e., `getRs('maketabs.r', put='source')`.]{.aside}
+
+```{r maketabs,results='asis'}
+maketabs <- function(x, labels=names(x), wide=FALSE, initblank=FALSE) {
+  yaml <- paste0('.panel-tabset', if(wide) ' .column-page')
+  k <- c('', '::: {', yaml, '}', '')
+  if(initblank) k <- c(k, '', '##   ', '')
+  .objmaketabs. <<- x
+  for(i in 1 : length(x)) {
+    cname <- paste0('c', round(100000 * runif(1)))
+    k <- c(k, '', paste('##', labels[i]), '',
+           paste0('```{r ', cname, ',results="asis",echo=FALSE}'),
+           paste0('.objmaketabs.[[', i, ']]'), '```', '')
+  }
+  k <- c(k, ':::', '')
+  cat(knitr::knit(text=knitr::knit_expand(text=k), quiet=TRUE))
+}
+maketabs(p)
+```
+
 By specifying `grType` option you can instead get `plotly` graphics that use hover text to show more information, especially when hovering over the leftmost dot or tick mark for a variable.
 
 ```{r pldesc,results='asis'}
 options(grType='plotly')
 p <- plot(w, bvspace=2.5)
+maketabs(p, wide=TRUE)
 ```
-
-::: {.panel-tabset .column-page}
-## Categorical Variables
-```{r}
-p$Categorical
-```
-
-## Continuous Variables
-```{r}
-p$Continuous
-```
-
-:::
 
 See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
 
@@ -245,26 +267,11 @@ vars <- setdiff(names(d), 'hxofMI')
 form <- as.formula(paste(paste(vars, collapse='+'), '~ hxofMI'))
 print(form)
 s <- summaryM(form, data=d, test=TRUE)
+w <- list('Table 1'                   = html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE),
+          'Categorical Variable Plot' = plot(s, which='categorical', vars=1 : 4, height=600, width=1000),
+          'Continuous Variable Plot'  = plot(s, which='continuous',  vars=1 : 4))
+maketabs(w, wide=TRUE, initblank=TRUE)
 ```
-
-::: {.panel-tabset .column-page}
-## Table 1
-```{r summaryM1}
-html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE)
-```
-
-## Categorical Variable Plot
-```{r summaryM2}
-# Plot first 4 categorical and continuous variables
-plot(s, which='categorical', vars=1 : 4, height=600, width=1000)
-```
-
-## Continuous Variable Plot
-```{r summaryM3}
-plot(s, which='continuous',  vars=1 : 4)
-```
-
-:::
 
 Semi-interactive stratified spike histograms are also useful descriptive plots.  These plots also contain a superset of the quantiles used in box plots, and the legend is clickable, allowing any of the statistical summaries to be turned off.
 
@@ -315,7 +322,7 @@ w <- d[gender == 'female' & age < 70, ]
 
 With `data.table` you can create a new data table with added variables, or you can add or redefine variables in a data table in place.  The latter has major speed and memory efficiency implications when processing massive data tables.  Here `d` refers to a different data table from the one used above.
 
-```
+```{r eval=FALSE}
 # Rename a variable
 setnames(d, c('gender', 'height'),
             c(  'sex',      'ht'))
@@ -570,6 +577,24 @@ m <- melt(w, id.vars='id', variable.name='day', value.name='y')
 m
 setkey(m, id, day)   # sorts
 m[! is.na(y)]
+```
+
+# Other Manipulations of Longitudinal Data
+
+For the longitudinal data table `L` carry forward to 4 days the subject's last observation on `y` if it was assessed earlier than day 4.
+
+```{r}
+w <- copy(L)   # fresh start with no propagation of changes back to L
+# Compute each day's within-subject record number and last record number
+# Feed this directly into a data.table operation to save last records 
+# when the last is on a day < 4
+u <- w[, .q(seq, maxseq) := .(1 : .N, .N), by=id][seq == maxseq & day < 4,]
+# Extra observations to fill out to day 4
+u <- u[, .(day = (day + 1) : 4, y = y), by=id]
+u
+w <- rbind(L, u, fill=TRUE)
+setkey(w, id, day)  # sort and index
+w
 ```
 
 # Analysis
