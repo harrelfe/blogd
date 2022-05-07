@@ -187,7 +187,7 @@ cat(html(contents(d)), file='contents.html')
 browseURL('contents.html', browser='vivaldi -new-window')
 ```
 
-`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.]{.aside}
+`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.  If you are running outside `RStudio`, your default browser will be launched instead.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.]{.aside}
 
 ```{r eval=FALSE}
 getRs('htmlView.r', put='source')
@@ -216,7 +216,7 @@ cat(html(w), file='desc.html')
 browseURL('desc.html', browser='firefox -new-window')
 ```
 
-Better, if using `RStudio`:
+Better, whether using `RStudio` or not:
 
 ```{r eval=FALSE}
 htmlView(w, contents(d))  # or htmlView(describe(d1), describe(d2), ...)
