@@ -67,7 +67,7 @@ have units of
 measurement added[Variable labels and units of measurement are used in special ways in my R packages.  This will show up in the `describe` and `contents` function outputs below and in axis labels for graphics.]{.aside}, I specify those using the `Hmisc` package [`upData`
 function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).
 
-To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically. `.q` is like the `Hmisc` function `Cs` but also allows elements to be named.
+To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically. `.q` is like the `Hmisc` function `Cs` but also allows elements to be named.  It will be in `Hmisc` 4.7-1.
 
 ```{r quote}
 .q <- function(...) {
@@ -354,6 +354,14 @@ setnames(d, c('gender', 'height'),
 # Easier:
 setnames(d, .q(gender, height),
             .q(   sex,     ht))
+
+# Or
+ren <- .q(gender=sex, height=ht)
+setnames(d, names(ren), ren)
+
+# Or
+rename <- function(x, n) setnames(x, names(n), n)
+rename(d, .q(gender=sex, height=ht))
 
 # Add two new variables, storing result in a new data table
 z <- d[, .(bmi=wt / ht ^ 2, bsa=0.016667 * sqrt(wt * ht))]
