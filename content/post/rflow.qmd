@@ -152,7 +152,7 @@ for(x in names(d))
   if(all(d[[x]] %in% c(0,1))) d[[x]] <- yn(d[[x]])
 ```
 
-::: {.callout-note .column-page collapse="true"}
+::: {.callout-note collapse="true"}
 ## For REDCap Users
 
 If reading data exported from `REDCap` that are placed into the
@@ -368,7 +368,36 @@ setnames(d, names(ren), ren)
 rename <- function(x, n) setnames(x, names(n), n)
 rename(d, .q(gender=sex, height=ht))
 
-# Add two new variables, storing result in a new data table
+# For all variables having baseline_ at the start of their names, remove it
+n <- names(d)
+setnames(d, n, sub('^baseline_', '', n))   # ^ = at start; use $ for at end
+
+# For all variables having baseline_ at the start of their names, remove it
+# and add Baseline to start of variable label
+n    <- names(d)
+n    <- n[grepl('^baseline_', n)]
+ren  <- sub('^baseline_', '', n); names(ren) <- n
+# Fetch vector of labels for variables whose names start with baseline_
+labs <- sapply(d, label)[n]   # label() result is "" if no label
+labs <- paste('Baseline', labs)
+d    <- updata(d, rename=ren, labels=labs)
+
+# Change all names to lower case
+n <- names(d)
+setnames(d, n, tolower(n))
+
+# Abbreviate names of all variables longer than 10 characters
+# abbreviate() will ensure that all names are unique
+n <- names(d)
+setnames(d, n, abbreviate(n, minlength=10))
+
+# For any variables having [...] or (...) in their labels, assume these
+# are units of measurement and move them from the label to the units
+# attribute
+d <- upData(d, moveUnits=TRUE)
+
+# Add two new variables, storing
+result in a new data table
 z <- d[, .(bmi=wt / ht ^ 2, bsa=0.016667 * sqrt(wt * ht))]
 
 # Add one new variable in place
@@ -410,6 +439,8 @@ d[, x := factor(x, .q(a1,a2,b1,b2,b3),
                    .q( a, a, b, b, b))]
 # Regroup an existing factor variable
 levels(d$x) <- list(a=.q(a1,a2), b=.q(b1,b2,b3))
+# or
+d <- upData(d, levels=list(x=list(a=.q(a1,a2), b=.q(b1,b2,b3))))
 # Or manipulate character strings
 d[, x := substring(x, 1, 1)]   # replace x with first character of levels
 # or
