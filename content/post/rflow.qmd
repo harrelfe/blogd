@@ -65,14 +65,31 @@ or `data.table` `.rds` files using `saveRDS(name, 'name.rds', compress='xz')`.  
 When variables need to be recoded, have labels added or changed, or
 have units of 
 measurement added[Variable labels and units of measurement are used in special ways in my R packages.  This will show up in the `describe` and `contents` function outputs below and in axis labels for graphics.]{.aside}, I specify those using the `Hmisc` package [`upData`
-function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).  Here is an example:
+function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).
+
+To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically. [`.q` is like the `Hmisc` function `Cs` but also allows elements to be named.]{.aside}
+
+```{r quote}
+.q <- function(...) {
+  s <- sys.call()[-1]
+  w <- as.character(s)
+  n <- names(s)
+  if(length(n)) names(w) <- n
+  w
+}
+
+.q(a, b, c, 'this and that')
+.q(dog=a, giraffe=b, cat=c)
+```
+
+Here is an `upData` example:
 
 ```{r eval=FALSE}
 # Function to recode from atypical coding for yes/no in raw data
 yn <- function(x) factor(x, 0:1, c('yes', 'no'))
 d <-
   upData(d,
-         rename = c(gender='sex', any.event='anyEvent'),
+         rename = .q(gender=sex, any.event=anyEvent),
          posSE    = yn(posSE),
          newMI    = yn(newMI),
          newPTCA  = yn(newPTCA),
@@ -120,10 +137,10 @@ d <-
            hxofPTCA='History of angioplasty',
            hxofCABG='History of coronary artery bypass surgery',
            anyEvent='Death, newMI, newPTCA, or newCABG'),
-         units=c(age='years', bhr='bpm', basebp='mmHg', basedp='bpm*mmHg',
-           pkhr='mmHg', sbp='mmHg', dp='bpm*mmHg', maxhr='bpm',
-           mbp='mmHg', dpmaxdo='bpm*mmHg', baseEF='%', dobEF='%',
-           pctMphr='%', dose='mg', dobdose='mg')
+         units=.q(age=years, bhr=bpm, basebp=mmHg, basedp='bpm*mmHg',
+           pkhr=mmHg, sbp=mmHg, dp='bpm*mmHg', maxhr=bpm,
+           mbp=mmHg, dpmaxdo='bpm*mmHg', baseEF='%', dobEF='%',
+           pctMphr='%', dose=mg, dobdose=mg)
          )
 
 saveRDS(d, 'stressEcho.rds', compress='xz')
@@ -307,13 +324,7 @@ The [`data.table`](https://hbiostat.org/R/data.table) package provides a concise
 
 Data tables are also data frames so work on any method handling data frames.  But data tables do not contain `rownames`.
 
-Several `data.table` examples follow.  I like to hold the current dataset in `d` to save typing.  To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically (like the `Hmisc` function `Cs`).
-
-```{r quote}
-.q <- function(...) as.character(sys.call())[-1]
-.q(a, b, c, 'this and that')
-```
-
+Several `data.table` examples follow.  I like to hold the current dataset in `d` to save typing.  
 ## Analyzing Selected Variables and Subsets
 ```{r dtsimple,results='asis'}
 d[, html(describe(age))]
@@ -398,11 +409,11 @@ d[, x := 1 * (x %in% 1:3) + 2 * (x == 4)]
 # from the last condition that is TRUE using Hmisc::score.binary
 # Result is a factor variable unless you add retfactor=FALSE
 d[, x := score.binary(x1 == 'symptomatic',
-                      x2 %in% c('stroke', 'MI'),
+                      x2 %in% .q(stroke, MI),
                       death)]
 # Same but code with numeric points
 d[, x := score.binary(x1 == 'symptomatic',
-                      x2 %in% c('stroke', 'MI'),
+                      x2 %in% .q(stroke, MI),
                       death,  # TRUE/FALSE or 1/0 variable
                       points=c(1,2,10))]
 
@@ -410,8 +421,7 @@ d[, x := score.binary(x1 == 'symptomatic',
 # A named vector can be subscripted with character strings as well as integers
 states <- c(AL='Alabama', AK='Alaska', AZ='Arizona', ...)
 # Could also do:
-#  states <- .q(Alabama, Alaska, Arizona, ..., 'New Mexico', ...)
-#  names(states) <- .q(AL, AK, AZ, ...)
+#  states <- .q(AL=Alabama, AK=Alaska, AZ=Arizona, ..., NM='New Mexico', ...) 
 # or do a merge for table lookup (see later)
 d[, State := states[state])
 # states are unique, state can have duplicates and all are recoded
@@ -708,7 +718,7 @@ getRs('runParallel.r', put='source')
 # Function to do simulations on one core
 run1 <- function(reps, showprogress, core) {
   cof <- matrix(NA, nrow=reps, ncol=3,
-                dimnames=list(NULL, c('a', 'b1', 'b2')))
+                dimnames=list(NULL, .q(a, b1, b2)))
   for(i in 1 : reps) {
     y <- sample(0:1, n, replace=TRUE)
     f <- lrm(y ~ X)
