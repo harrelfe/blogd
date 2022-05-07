@@ -180,14 +180,21 @@ You can write the text output of `contents` into a text file in your current wor
 capture.output(contents(d), file='contents.txt')
 ```
 
-Better still, put the html version of the data dictionary into a small browser window to which you can refer at any point in analysis coding.
+Or put the html version of the data dictionary into a small browser window to which you can refer at any point in analysis coding.
 
 ```{r eval=FALSE}
 cat(html(contents(d)), file='contents.html')
 browseURL('contents.html', browser='vivaldi -new-window')
 ```
 
-In some cases it is best to have a browser window open to the full descriptive statistics for a data table/frame (see below; the `describe` function also shows labels, units, and levels).  [For either approach it would be easy to have multiple tabs open, one tab for each of a series of data tables.]{.aside}
+`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.]{.aside}
+
+```{r eval=FALSE}
+getRs('htmlView.r', put='source')
+htmlView(contents(d))
+```
+
+In some cases it is best to have a browser window open to the full descriptive statistics for a data table/frame (see below; the `describe` function also shows labels, units, and levels).  [For either approach it would be easy to have multiple tabs open, one tab for each of a series of data tables, or use `htmlView`.]{.aside}
 
 # Descriptive Statistics
 
@@ -207,6 +214,12 @@ html(w)
 # To create a separate browser window:
 cat(html(w), file='desc.html')
 browseURL('desc.html', browser='firefox -new-window')
+```
+
+Better, if using `RStudio`:
+
+```{r eval=FALSE}
+htmlView(w, contents(d))  # or htmlView(describe(d1), describe(d2), ...)
 ```
 
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
@@ -282,7 +295,7 @@ d[, histboxp(x=maxhr, group=ecg, bins=200)]
 
 # Data Manipulation and Aggregation
 
-The [`data.table`](https://hbiostat.org/R/data.table) package provides a concise, consistent syntax for managing simple and complex data manipulation tasks, and it is extremely efficient for large datasets.  One of the best organized tutorials is [this](https://riptutorial.com/data-table), and a master cheatsheet for `data.table` is [here](https://rdrr.io/cran/data.table/man/data.table.html) from which the general syntax below is taken, where `DT` represents a data table.
+The [`data.table`](https://hbiostat.org/R/data.table) package provides a concise, consistent syntax for managing simple and complex data manipulation tasks, and it is extremely efficient for large datasets.  One of the best organized tutorials is [this](https://riptutorial.com/data-table), and a cheatsheet for data transformation is [here](https://raw.githubusercontent.com/rstudio/cheatsheets/master/datatable.pdf).  A master cheatsheet for `data.table` is [here](https://rdrr.io/cran/data.table/man/data.table.html) from which the general syntax below is taken, where `DT` represents a data table.
 
 ```
    DT[ i,  j,  by ] # + extra arguments
@@ -367,7 +380,7 @@ d[, .q(bsa, bmi) := NULL]
 
 ## Recoding Variables
 
-```
+```{r, eval=FALSE}
 # Group levels a1, a2 as a & b1,b2,b3 as b
 d[, x := factor(x, .q(a1,a2,b1,b2,b3),
                    .q( a, a, b, b, b))]
@@ -594,6 +607,10 @@ For the longitudinal data table `L` carry forward to 4 days the subject's last o
 
 ```{r}
 w <- copy(L)   # fresh start with no propagation of changes back to L
+# Only needed if will be using := to compute variables in-place and
+# you don't want the new variables also added to L
+# This is related to data.table doing things by reference instead of 
+# making copies.  w <- L does not create new memory for w.
 # Compute each day's within-subject record number and last record number
 # Feed this directly into a data.table operation to save last records 
 # when the last is on a day < 4
@@ -622,6 +639,19 @@ mn <- function(x) if(length(x)) min(x) else as.double(NA)
 # consistent storage types
 L[, .(first3 = mn(day[y >= 3]),
       first7 = mn(day[y >= 7])), by=id]
+```
+
+Add a new variable `z` and compute the first day at which `z` is above 0.5 for two days in a row for the subject.  Note that the logic below looks for consecutive days _for which records exist for a subject_.  To also require the days to be one day apart add the clause `day == shift(day) + 1` after `shift(z) > 0.5`.
+
+```{r}
+set.seed(1)
+L[, z := round(runif(.N), 3)]
+L
+mn <- function(x)
+  if(! length(x) || all(is.na(x))) as.double(NA) else min(x, na.rm=TRUE)
+L[, consecutive := z > 0.5 & shift(z) > 0.5, by=id][, 
+    firstday    := mn(day[consecutive]),     by=id]
+L
 ```
 
 # Analysis
