@@ -67,7 +67,7 @@ have units of
 measurement added[Variable labels and units of measurement are used in special ways in my R packages.  This will show up in the `describe` and `contents` function outputs below and in axis labels for graphics.]{.aside}, I specify those using the `Hmisc` package [`upData`
 function](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/upData).
 
-To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically. [`.q` is like the `Hmisc` function `Cs` but also allows elements to be named.]{.aside}
+To facilitate some operations requiring variable names to be quoted, define a function `.q` to quote them automatically. `.q` is like the `Hmisc` function `Cs` but also allows elements to be named.
 
 ```{r quote}
 .q <- function(...) {
