@@ -104,39 +104,39 @@ d <-
          hxofCABG = yn(hxofCABG),
          chestpain= yn(chestpain),
          anyEvent = yn(anyEvent),
-         drop=Cs(event.no,phat,mics,deltaEF,  # Cs in Hmisc; auto quotes
-           newpkmphr,gdpkmphr,gdmaxmphr,gddpeakdp,gdmaxdp,
-           hardness),
+         drop=.q(event.no, phat, mics, deltaEF,
+                 newpkmphr, gdpkmphr, gdmaxmphr, gddpeakdp, gdmaxdp,
+                 hardness),
          labels=c(
-           bhr    ='Basal heart rate',
-           basebp ='Basal blood pressure',
-           basedp ='Basal Double Product bhr*basebp',
-           age    ='Age',
-           pkhr   ='Peak heart rate',
-           sbp    ='Systolic blood pressure',
-           dp     ='Double product pkhr*sbp',
-           dose   ='Dose of dobutamine given',
-           maxhr  ='Maximum heart rate',
-           pctMphr='Percent maximum predicted heart rate achieved',
-           mbp    ='Maximum blood pressure',
-           dpmaxdo='Double product on max dobutamine dose',
-           dobdose='Dobutamine dose at max double product',
-           baseEF ='Baseline cardiac ejection fraction',
-           dobEF  ='Ejection fraction on dobutamine', 
-           chestpain='Chest pain', 
-           ecg     ='Baseline electrocardiogram diagnosis',
-           restwma ='Resting wall motion abnormality on echocardiogram', 
-           posSE   ='Positive stress echocardiogram',
-           newMI   ='New myocardial infarction',
-           newPTCA ='Recent angioplasty',
-           newCABG ='Recent bypass surgery', 
-           hxofHT  ='History of hypertension', 
-           hxofDM  ='History of diabetes',
-           hxofMI  ='History of myocardial infarction',
-           hxofCig ='History of smoking',
-           hxofPTCA='History of angioplasty',
-           hxofCABG='History of coronary artery bypass surgery',
-           anyEvent='Death, newMI, newPTCA, or newCABG'),
+           bhr       = 'Basal heart rate',
+           basebp    = 'Basal blood pressure',
+           basedp    = 'Basal Double Product bhr*basebp',
+           age       = 'Age',
+           pkhr      = 'Peak heart rate',
+           sbp       = 'Systolic blood pressure',
+           dp        = 'Double product pkhr*sbp',
+           dose      = 'Dose of dobutamine given',
+           maxhr     = 'Maximum heart rate',
+           pctMphr   = 'Percent maximum predicted heart rate achieved',
+           mbp       = 'Maximum blood pressure',
+           dpmaxdo   = 'Double product on max dobutamine dose',
+           dobdose   = 'Dobutamine dose at max double product',
+           baseEF    = 'Baseline cardiac ejection fraction',
+           dobEF     = 'Ejection fraction on dobutamine', 
+           chestpain = 'Chest pain', 
+           ecg       = 'Baseline electrocardiogram diagnosis',
+           restwma   = 'Resting wall motion abnormality on echocardiogram', 
+           posSE     = 'Positive stress echocardiogram',
+           newMI     = 'New myocardial infarction',
+           newPTCA   = 'Recent angioplasty',
+           newCABG   = 'Recent bypass surgery', 
+           hxofHT    = 'History of hypertension', 
+           hxofDM    = 'History of diabetes',
+           hxofMI    = 'History of myocardial infarction',
+           hxofCig   = 'History of smoking',
+           hxofPTCA  = 'History of angioplasty',
+           hxofCABG  = 'History of coronary artery bypass surgery',
+           anyEvent  = 'Death, newMI, newPTCA, or newCABG'),
          units=.q(age=years, bhr=bpm, basebp=mmHg, basedp='bpm*mmHg',
            pkhr=mmHg, sbp=mmHg, dp='bpm*mmHg', maxhr=bpm,
            mbp=mmHg, dpmaxdo='bpm*mmHg', baseEF='%', dobEF='%',
@@ -151,6 +151,9 @@ saveRDS(d, 'stressEcho.rds', compress='xz')
 for(x in names(d)) 
   if(all(d[[x]] %in% c(0,1))) d[[x]] <- yn(d[[x]])
 ```
+
+::: {.callout-note .column-page collapse="true"}
+## For REDCap Users
 
 If reading data exported from `REDCap` that are placed into the
 project directory I run the following to get rid of duplicate
@@ -167,6 +170,8 @@ saveRDS(mydata, 'mydata.rds', compress='xz')
 When file names are not given to `importREDCap` the function looks for
 the latest created `.csv` file and `.R` file with same prefix and uses those.
 See [this](http://hbiostat.org/bbr/md/r.html) for more information.
+
+:::
 
 ## Variable Naming
 
