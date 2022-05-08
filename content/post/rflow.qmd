@@ -173,6 +173,57 @@ See [this](http://hbiostat.org/bbr/md/r.html) for more information.
 
 :::
 
+## Reading Many Files
+
+One of the most important principles to following in programming data analyses is to not do the same thing more than once.  Repetitive code wastes time and is harder to maintain.  One example of avoiding repetition is in reading a large number of files in R.  If the files are stored in one directory and have a consistent file naming scheme (or you want to import every `.csv` file in the directory), one can avoid naming the individual files.  The results may be stored in an R `list` that has named elements, and there are many processing tasks that can be automated by looping over this list.
+
+In the following example assume that all the data files are `.csv` files in the current working directory, and they all have names of the form `xz*.csv`.  Let's read all of them and put each file into a data frame named by the characters in front of `.csv`.  These data frames are stuffed into a `list` named `X`.  The `Hmisc` `csv.get` function is used to read the files, automatically translating dates to `Date` variables, and because `lowernames=TRUE` is specified, variable names are translated to lower case.  There is an option to fetch variable labels from a certain row of each `.csv` file but we are not using that.
+
+```{r eval=FALSE}
+files <- list.files(pattern='xz.*.csv')  # vector of qualifying file names
+# Get base part of *.csv
+dnames <- sub('.csv', '', files)
+X <- list()
+i <- 0
+for(f in files) {
+  cat('Reading file', f, '\n')
+  i <- i + 1
+  d <- csv.get(f, lowernames=TRUE)
+  # To convert to data.table do setDT(d) here
+  X[[dnames[i]]] <- d
+}
+saveRDS(X, 'X.rds', compress='xz')  # Efficiently store all datasets together
+```
+
+To process one of the datasets one can do things like `summary(X[[3]])` or `summary(X$baseline)` where the third dataset stored was named `baseline` because it was imported from `baseline.csv`.
+
+Now there are many possibilities for processing all the datasets at once such as the following.
+
+```{r processmany,eval=FALSE}
+k   <- length(X)          # number of datasets
+nam <- lapply(X, names)   # list with k elements, each is a vector of names
+# Get the union of all variable names used in any dataset
+sort(unique(unlist(nam))) # all the variables appearing in any dataset
+# Get variable names contained in all datasets
+common <- names(X[[1]])
+for(i in 2 : k) {
+  common <- intersect(common, names(X[[i]]))
+  if(! length(common)) break  # intersection already empty
+}
+sort(common)
+# Print number of variables across datasets
+sapply(X, length)  # or ncol
+# Print number of observations per dataset
+sapply(X, nrow)
+# For datasets having a subject ID variable named id compute
+# the number of unique ids
+uid <- function(d) if('id' %in% names(d)) length(unique(d$id)) else NA
+sapply(X, uid)
+# To repeatedly analyze one of the datasets, extract it to a single data frame
+d <- X$baseline
+describe(d)
+```
+
 ## Variable Naming
 
 I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age varible `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below). [`Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.]{.aside}
@@ -741,8 +792,8 @@ nconsec <- function(x) x * sequence(rle(x)$lengths)
 # Example:
 x <- c(0,0,1,1,0,1,1,0,1,1,1,1)
 nconsec(x)
-# To require that the time gap between measurements must be <= 2 time units
-# use the following example
+# To require that the time gap between measurements must be <= 2 time
+# units use the following example
 t <- c(1:9, 11, 14, 15)
 rbind(t=t, x=x)
 nconsec(x & t <= shift(t) + 2)
