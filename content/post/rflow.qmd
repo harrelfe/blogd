@@ -11,8 +11,8 @@ format:
     code-tools: true
     code-fold: false
     code-link: false
-    fig-width: 8
-    fig-height: 4
+    fig-width: 6
+    fig-height: 4.5
     code-block-bg: "#f1f3f5"
     code-block-border-left: "#31BAE9"
     mainfont: Source Sans Pro
@@ -579,6 +579,10 @@ d[, g(bhr), by=.(gender, newMI)]  # if g returned a vector instead, use as.list(
 
 d[, as.list(quantile(bhr)), by=gender]
 
+# Compute mean bhr by quintiles of age using Hmisc::cut2
+# Bad statistical practice; use scatterplot + smoother instead
+d[, .(Mean=mean(bhr)), keyby=.(fifth=cut2(age, g=5))]
+
 # Compute multiple statistics on multiple variables
 d[, lapply(.SD, quantile), by=gender, .SDcols=.q(bhr, pkhr, sbp)]
 # Similar but put percentile number in front of statistic value
@@ -707,6 +711,58 @@ L[, consecutive := z > 0.5 & shift(z) > 0.5, by=id][,
     firstday    := mn(day[consecutive]),     by=id]
 L
 ```
+
+# Graphics
+
+I make heavy use of [ggplot2](https://ggplot2.tidyverse.org), [plotly](https://plotly.com/r) and [R base graphics](https://bookdown.org/rdpeng/exdata/the-base-plotting-system-1.html).  `plotly` is used for interactive graphics, and the [R plotly](https://cran.r-project.org/web/packages/plotly/index.html) package provides an amazing function `ggplotly` to convert a static `ggplot2` graphics object to an interactive `plotly` one.  If the user goes to the trouble of adding labels for graphics entities (usually points, lines, curves, rectangles, and circles) those labels can become hover text in `plotly` without disturbing anything in static graphics.[There is a bug in `ggplotly` in which extra text appears in front of labels, but the result of `ggplotly` can be run through `Hmisc::ggplotlyr` to remove this.]{.aside}  As shown [here](https://hbiostat.org/R/simMarkov/sim.html) you can sense whether an `html` or `pdf` report is being produced, and for `html` all `ggplot2` objects can be automatically transformed to `plotly`.
+
+Many types of graphs can be created with base graphics, e.g. `hist(age, nclass=50)` or `Ecdf(age)` but using `ggplot2` for even simple graphics makes it easy to add handle multiple groups on one graph or to create multiple panels for strata using faceting.  `ggplot2` has excellent default font sizes and axis labeling that works for most sizes of plots.
+
+Here is a protypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.
+
+```{r ggplot2ex}
+# Naming the label txt will make ggplotlyr work
+d[, txt := paste0('dose:', dose)]
+g <-
+  ggplot(d, aes(x=age, y=bhr, color=gender, label=txt)) +
+         geom_point() + geom_smooth() +
+         guides(color=guide_legend(title='')) +
+         theme(legend.position='bottom') +  # not respected by ggplotly
+         labs(caption='Scatterplot of age by basal heart rate stratified by sex') +
+         xlab('Age in Years') + ylab('Basal Heart Rate')
+# Could use xlab(label(d$age)) or
+# lab <- function(v) {v <- as.character(substitute(v)); label(d[, ..v])}
+# xlab(lab(age))  (note: ..v in data.table looks up variable named in string value v)
+# Or:
+# labs <- sapply(d, label)
+# xlab(labs['age']) + ylab(labs['bhr'])
+ggplotlyr(g)   # dose is in hover text for each point
+```
+
+For large datasets the `Hmisc` package has a function `ggfreqScatter` that makes it easy to see overlapping points by color coding the frequency of points in each small bin.  That way scatterplots scale to very large datasets.  Here is an example:[`html=TRUE` was needed because otherwise axis labels are formatted using R's `plotmath` and `plotly` doesn't like that.]{.aside}
+
+```{r ggfreq}
+set.seed(1)
+x <- round(rnorm(2000), 1)
+y <- 2 * (x > 1.5) + round(rnorm(2000), 1)
+z <- sample(c('a', 'b'), 2000, replace=TRUE)
+label(x) <- 'X Variable'   # could use xlab() &
+label(y) <- 'Y Variable'   # ylab() in ggfreqScatter()
+g <- ggfreqScatter(x, y, by=z, html=TRUE)
+# If variables were inside a data table use
+# g <- d[, ggfreqScatter(x, y, by=z, html=TRUE)]
+g
+```
+
+Now convert the graphic to `plotly`.
+
+```{r ggfreqp}
+ggplotlyr(g)
+```
+
+When you hover the mouse over a point, its frequency pops up.
+
+Many functions in the `Hmisc` and `rms` packages produce `plotly` graphics directly.  One of the most unique functions is [dotchartpl](https://www.rdocumentation.org/packages/Hmisc/versions/4.6-0/topics/dotchartpl).
 
 # Analysis
 
