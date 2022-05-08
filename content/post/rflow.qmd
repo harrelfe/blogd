@@ -296,6 +296,7 @@ See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` function
 ```{r summaryM,results='asis'}
 require(data.table)
 setDT(d)   # turn d into a data table
+# tables() with no arguments will give a concise summary of all active data tables
 w <- d
 w[, hxofMI := factor(hxofMI, 0 : 1, c('No history of MI', 'History of MI'))]
 vars <- setdiff(names(d), 'hxofMI')
@@ -329,7 +330,23 @@ The [`data.table`](https://hbiostat.org/R/data.table) package provides a concise
 
 Data tables are also data frames so work on any method handling data frames.  But data tables do not contain `rownames`.
 
-Several `data.table` examples follow.  I like to hold the current dataset in `d` to save typing.  
+Several `data.table` examples follow.  I like to hold the current dataset in `d` to save typing.  Some basic operations on data tables are:
+
+```{r eval=FALSE}
+d[2]                  # print 2nd row
+d[2:4]                # print rows 2,3,4
+d[y > 2 & z > 3]      # rows satisfying conditions
+d[, age]              # retrieve one variable
+d[d, .(age, gender)]  # make a new table with two variables
+i <- 2; d[, ..i]      # get column 2
+v <- 'age'; d[, ..v]  # get variable named by contents of v
+d[.N]                 # last row
+d[, .N, keyby=age]    # number of rows for each age, sorted
+d[1:10, bhr:pkhr]     # first 10 rows, variables bhr - pkhr
+d[1:10, !(bhr:pkhr)]  # all but those variables
+d[, 2:4]              # get columns 2-4
+```
+
 ## Analyzing Selected Variables and Subsets
 ```{r dtsimple,results='asis'}
 d[, html(describe(age))]
