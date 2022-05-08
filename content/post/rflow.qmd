@@ -714,17 +714,15 @@ L
 
 # Graphics
 
-I make heavy use of [ggplot2](https://ggplot2.tidyverse.org), [plotly](https://plotly.com/r) and [R base graphics](https://bookdown.org/rdpeng/exdata/the-base-plotting-system-1.html).  `plotly` is used for interactive graphics, and the [R plotly](https://cran.r-project.org/web/packages/plotly/index.html) package provides an amazing function `ggplotly` to convert a static `ggplot2` graphics object to an interactive `plotly` one.  If the user goes to the trouble of adding labels for graphics entities (usually points, lines, curves, rectangles, and circles) those labels can become hover text in `plotly` without disturbing anything in static graphics.[There is a bug in `ggplotly` in which extra text appears in front of labels, but the result of `ggplotly` can be run through `Hmisc::ggplotlyr` to remove this.]{.aside}  As shown [here](https://hbiostat.org/R/simMarkov/sim.html) you can sense whether an `html` or `pdf` report is being produced, and for `html` all `ggplot2` objects can be automatically transformed to `plotly`.
+I make heavy use of [ggplot2](https://ggplot2.tidyverse.org), [plotly](https://plotly.com/r) and [R base graphics](https://bookdown.org/rdpeng/exdata/the-base-plotting-system-1.html).  `plotly` is used for interactive graphics, and the [R plotly](https://cran.r-project.org/web/packages/plotly/index.html) package provides an amazing function `ggplotly` to convert a static `ggplot2` graphics object to an interactive `plotly` one.  If the user goes to the trouble of adding labels for graphics entities (usually points, lines, curves, rectangles, and circles) those labels can become hover text in `plotly` without disturbing anything in static graphics.[With `ggplotly` extra text appears in front of labels, but the result of `ggplotly` can be run through `Hmisc::ggplotlyr` to remove this as shown in the example.]{.aside}  As shown [here](https://hbiostat.org/R/simMarkov/sim.html) you can sense whether an `html` or `pdf` report is being produced, and for `html` all `ggplot2` objects can be automatically transformed to `plotly`.
 
 Many types of graphs can be created with base graphics, e.g. `hist(age, nclass=50)` or `Ecdf(age)` but using `ggplot2` for even simple graphics makes it easy to add handle multiple groups on one graph or to create multiple panels for strata using faceting.  `ggplot2` has excellent default font sizes and axis labeling that works for most sizes of plots.
 
 Here is a protypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.
 
 ```{r ggplot2ex}
-# Naming the label txt will make ggplotlyr work
-d[, txt := paste0('dose:', dose)]
 g <-
-  ggplot(d, aes(x=age, y=bhr, color=gender, label=txt)) +
+  ggplot(d, aes(x=age, y=bhr, color=gender, label=paste0('dose:', dose))) +
          geom_point() + geom_smooth() +
          guides(color=guide_legend(title='')) +
          theme(legend.position='bottom') +  # not respected by ggplotly
@@ -736,7 +734,8 @@ g <-
 # Or:
 # labs <- sapply(d, label)
 # xlab(labs['age']) + ylab(labs['bhr'])
-ggplotlyr(g)   # dose is in hover text for each point
+ggplotlyr(g, remove='.*): ')  # removes paste0("dose:", dose): 
+# dose is in hover text for each point
 ```
 
 For large datasets the `Hmisc` package has a function `ggfreqScatter` that makes it easy to see overlapping points by color coding the frequency of points in each small bin.  That way scatterplots scale to very large datasets.  Here is an example:[`html=TRUE` was needed because otherwise axis labels are formatted using R's `plotmath` and `plotly` doesn't like that.]{.aside}
