@@ -731,7 +731,7 @@ u[, consecutive := z > 0.5 & shift(z) > 0.5, by=id][,
 u
 ```
 
-In general, using methods that involve counters makes logic more clear, and it is easier to extend the condition to any number of consecutive times.  Create a function that computes the number of consecutive `TRUE` values or ones such that whenever the sequence is interrupted by `FALSE` or 0 the counting starts over.
+In general, using methods that involve counters makes logic more clear, easier to incrementally debug, and easier to extend the condition to any number of consecutive times.  Create a function that computes the number of consecutive `TRUE` values or ones such that whenever the sequence is interrupted by `FALSE` or 0 the counting starts over.
 As before we compute the first `day` at which two consecutive `z` values exceed 0.5. [`nconsec` is modified from code found [here](https://stackoverflow.com/questions/19998836).]{.aside}
 
 
@@ -741,6 +741,11 @@ nconsec <- function(x) x * sequence(rle(x)$lengths)
 # Example:
 x <- c(0,0,1,1,0,1,1,0,1,1,1,1)
 nconsec(x)
+# To require that the time gap between measurements must be <= 2 time units
+# use the following example
+t <- c(1:9, 11, 14, 15)
+rbind(t=t, x=x)
+nconsec(x & t <= shift(t) + 2)
 
 u <- copy(w)
 # nconsec(z > 0.5) = number of consecutive days (counting current
