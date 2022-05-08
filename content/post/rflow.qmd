@@ -337,7 +337,7 @@ d[2]                  # print 2nd row
 d[2:4]                # print rows 2,3,4
 d[y > 2 & z > 3]      # rows satisfying conditions
 d[, age]              # retrieve one variable
-d[d, .(age, gender)]  # make a new table with two variables
+d[, .(age, gender)]   # make a new table with two variables
 i <- 2; d[, ..i]      # get column 2
 v <- 'age'; d[, ..v]  # get variable named by contents of v
 d[.N]                 # last row
@@ -698,7 +698,7 @@ setkey(w, id, day)  # sort and index
 w
 ```
 
-Find the first time at which y >= 3 and at which y >= 7
+Find the first time at which y >= 3 and at which y >= 7.  [`day[y >= 3]` is read as "the value of `day` when `y >= 3`".  It is a standard subscripting operation in R for two parallel vectors `day` and `y`.  Taking the minimum value of `day` satisfying the condition gives us the first qualifying day.]{.aside}
 
 ```{r firstt}
 L[, .(first3 = min(day[y >= 3]),
@@ -720,13 +720,33 @@ Add a new variable `z` and compute the first day at which `z` is above 0.5 for t
 
 ```{r}
 set.seed(1)
-L[, z := round(runif(.N), 3)]
-L
+w <- copy(L)
+w[, z := round(runif(.N), 3)]
+u <- copy(w)
+u
 mn <- function(x)
   if(! length(x) || all(is.na(x))) as.double(NA) else min(x, na.rm=TRUE)
-L[, consecutive := z > 0.5 & shift(z) > 0.5, by=id][, 
+u[, consecutive := z > 0.5 & shift(z) > 0.5, by=id][, 
     firstday    := mn(day[consecutive]),     by=id]
-L
+u
+```
+
+In general, using methods that involve counters makes logic more clear, and it is easier to extend the condition to any number of consecutive times.  Create a function that computes the number of consecutive `TRUE` values or ones such that whenever the sequence is interrupted by `FALSE` or 0 the counting starts over.
+As before we compute the first `day` at which two consecutive `z` values exceed 0.5. [`nconsec` is modified from code found [here](https://stackoverflow.com/questions/19998836).]{.aside}
+
+
+```{r nconsec}
+nconsec <- function(x) x * sequence(rle(x)$lengths)
+# rle in base R: run length encoding
+# Example:
+x <- c(0,0,1,1,0,1,1,0,1,1,1,1)
+nconsec(x)
+
+u <- copy(w)
+# nconsec(z > 0.5) = number of consecutive days (counting current
+# day) for which the subject had z > 0.5
+u[, firstday := mn(day[nconsec(z > 0.5) == 2]), by=id] 
+u
 ```
 
 # Graphics
