@@ -211,10 +211,13 @@ for(i in 2 : k) {
   if(! length(common)) break  # intersection already empty
 }
 sort(common)
-# Print number of variables across datasets
-sapply(X, length)  # or ncol
+# Compute number of variables across datasets
+nvar <- sapply(X, length)  # or ncol
 # Print number of observations per dataset
 sapply(X, nrow)
+# For each variable name count the number of datasets cantaining it
+w <- data.table(dsname=rep(names(X), nvar), vname=unlist(nam))
+w[, .N, keyby=vname]
 # For datasets having a subject ID variable named id compute
 # the number of unique ids
 uid <- function(d) if('id' %in% names(d)) length(unique(d$id)) else NA
