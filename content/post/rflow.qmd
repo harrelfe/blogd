@@ -963,7 +963,7 @@ When simulating performance of various quantities under various conditions, crea
 
 ## Data Table Approach
 
-The `expand.grid` function is useful for generating all combinations of simulation conditions.  Suppose we wanted to simulate statistical properties of the maximum sample correlation coefficient from a matrix of all pairwise correlations from truly uncorrelated variables.  We do this while varying the sample size `n`, the number of variables `p`, and the `type` of correlation (Pearson's or Spearman's, denoted by `r` and `rho`). With `expand.grid` we don't need a lot of nested `for` loops.  Run 500 simulations for each condition.
+The `expand.grid` function is useful for generating all combinations of simulation conditions.  Suppose we wanted to simulate statistical properties of the maximum absolute value of the sample correlation coefficient from a matrix of all pairwise correlations from truly uncorrelated variables.  We do this while varying the sample size `n`, the number of variables `p`, and the `type` of correlation (Pearson's or Spearman's, denoted by `r` and `rho`). With `expand.grid` we don't need a lot of nested `for` loops.  Run 500 simulations for each condition.
 
 ```{r simd}
 nsim <- 500
@@ -978,11 +978,11 @@ for(i in 1 : nrow(R)) {  # took 4s
   p <- w$p
   X <- matrix(rnorm(n * p), ncol=p)
   cors    <- cor(X)
-  maxr    <- max(cors[row(cors) < col(cors)]) # use upper triangle
+  maxr    <- max(abs(cors[row(cors) < col(cors)])) # use upper triangle
   cors    <- cor(X, method='spearman')
-  maxrho  <- max(cors[row(cors) < col(cors)])
+  maxrho  <- max(abs(cors[row(cors) < col(cors)]))
   set(R, i, 'maxr',   maxr)    # set is in data.table & is very fast
-  set(R, i, 'maxrho', maxrho)
+  set(R, i, 'maxrho', maxrho)  # set will create the variable if needed
 }
 ```
 
@@ -997,11 +997,12 @@ u <- melt(w, id.vars=c('n', 'p'), variable.name='type', value.name='r')
 u[, type := substring(type, 4)]   # remove "max"
 ps <- c(2, 5, 10, 20)
 u[, p := factor(p, ps, paste0('p:', ps))]
-g <- ggplot(u, aes(x=n, y=r, col=type)) + geom_jitter(height=0, width=1) +
+g <- ggplot(u, aes(x=n, y=r, col=type)) + geom_jitter(height=0, width=2) +
+      ylim(0, 1) +
       facet_wrap(~ p) +
       guides(color=guide_legend(title='')) +
       ylab('Mean Maximum Correlation Coefficient')
-ggplotlyr(g)    # or plot::ggplotly(g) or just g for static graph
+plotly::ggplotly(g)
 ```
 
 ## Array Approach
@@ -1026,7 +1027,7 @@ for(i in 1 : nsim) {   # took 1s
       X <- matrix(rnorm(n * p), ncol=p)
       for(type in c('r', 'rho')) {
         cors <- cor(X, method=switch(r = 'pearson', rho = 'spearman'))
-        maxr <- max(cors[row(cors) < col(cors)])
+        maxr <- max(abs(cors[row(cors) < col(cors)]))
         R[i, as.character(n), as.character(p), type] <- maxr
       }
     }
