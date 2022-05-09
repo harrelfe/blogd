@@ -218,6 +218,9 @@ sapply(X, nrow)
 # For each variable name count the number of datasets cantaining it
 w <- data.table(dsname=rep(names(X), nvar), vname=unlist(nam))
 w[, .N, keyby=vname]
+# For each variable create a comma-separated list of datasets
+# containing it
+w[, .(datasets=paste(sort(dsname), collapse=', ')), keyby=vname]
 # For datasets having a subject ID variable named id compute
 # the number of unique ids
 uid <- function(d) if('id' %in% names(d)) length(unique(d$id)) else NA
@@ -943,6 +946,103 @@ g <- function() runParallel(run1, reps=nsim, seed=seed)
 Coefs <- runifChanged(g, X, run1, nsim, seed)
 dim(Coefs)
 apply(Coefs, 2, mean)
+```
+
+# Simulation
+
+Some of the best ways to validate an analysis are
+
+* If using any model/feature selection methods use the bootstrap to check whether the selection process is volatile, e.g., your sample size isn't large enough too support making hard-and-fast selections of predictors/features
+* Use Monte Carlo simulation to check if the correct model or correct predictors are usually selected
+* Simulate a large dataset under a known model and known parameter values and make sure the estimation process you use can recover the true parameter values
+* Simulate the statistical performance of a method under a variety of conditions
+
+Unlike static papers in the literature, simulation can study the performance of a method under conditions that mimic your situation.
+
+When simulating performance of various quantities under various conditions, creating a large number of variables makes the code long and tedious.  It is better to to use data frames/tables or arrays to hold everything together.  Data frames and arrays also lead to efficient graphics code for summarization.
+
+## Data Table Approach
+
+The `expand.grid` function is useful for generating all combinations of simulation conditions.  Suppose we wanted to simulate statistical properties of the maximum sample correlation coefficient from a matrix of all pairwise correlations from truly uncorrelated variables.  We do this while varying the sample size `n`, the number of variables `p`, and the `type` of correlation (Pearson's or Spearman's, denoted by `r` and `rho`). With `expand.grid` we don't need a lot of nested `for` loops.  Run 500 simulations for each condition.
+
+```{r simd}
+nsim <- 500
+R <- expand.grid(n=c(10, 20, 50, 100),
+                 p=c(2, 5, 10, 20),
+                 sim=1 : nsim)
+setDT(R)
+set.seed(1)
+for(i in 1 : nrow(R)) {  # took 4s
+  w <- R[i, ]
+  n <- w$n
+  p <- w$p
+  X <- matrix(rnorm(n * p), ncol=p)
+  cors    <- cor(X)
+  maxr    <- max(cors[row(cors) < col(cors)]) # use upper triangle
+  cors    <- cor(X, method='spearman')
+  maxrho  <- max(cors[row(cors) < col(cors)])
+  set(R, i, 'maxr',   maxr)    # set is in data.table & is very fast
+  set(R, i, 'maxrho', maxrho)
+}
+```
+
+The simulations could have been cached or parallelized as discussed above.
+
+Compute the mean (over simulations) maximum correlation (over variables) and plot the results.
+
+```{r simdpp}
+w <- R[, .(maxr = mean(maxr), maxrho=mean(maxrho)), by=.(n, p)]
+# Make data table taller and thinner to put r, rho as different observations
+u <- melt(w, id.vars=c('n', 'p'), variable.name='type', value.name='r')
+u[, type := substring(type, 4)]   # remove "max"
+ps <- c(2, 5, 10, 20)
+u[, p := factor(p, ps, paste0('p:', ps))]
+g <- ggplot(u, aes(x=n, y=r, col=type)) + geom_jitter(height=0, width=1) +
+      facet_wrap(~ p) +
+      guides(color=guide_legend(title='')) +
+      ylab('Mean Maximum Correlation Coefficient')
+ggplotlyr(g)    # or plot::ggplotly(g) or just g for static graph
+```
+
+## Array Approach
+
+For large problems, storing results in R `array`s is more efficient and doesn't require duplication of values of `n` and `p` over simulations.  Once the `array` is created it can be converted into a data table for graphing.
+
+```{r sima}
+nsim <- 500
+ns   <- c(10, 20, 50, 100)
+ps   <- c(2, 5, 10, 20)
+R <- array(NA, dim=c(nsim, length(ns), length(ps), 2),
+               dimnames=list(NULL,
+                             n    = as.character(ns),
+                             p    = as.character(ps),
+                             type = c('r', 'rho')))
+dim(R)
+dimnames(R)
+set.seed(1)
+for(i in 1 : nsim) {   # took 1s
+  for(n in ns) {
+    for(p in ps) {
+      X <- matrix(rnorm(n * p), ncol=p)
+      for(type in c('r', 'rho')) {
+        cors <- cor(X, method=switch(r = 'pearson', rho = 'spearman'))
+        maxr <- max(cors[row(cors) < col(cors)])
+        R[i, as.character(n), as.character(p), type] <- maxr
+      }
+    }
+  }
+}
+# Compute mean (over simulations) maximum correlation for each condition
+m <- apply(R, 2:4, mean)   # preserve dimensions 2,3,4 summarize over 1
+# Convert the 3-dimensional array to a tall and thin data table
+# Generalizations of row() and col() used for 2-dimensional matrices
+# comes in handy: slice.index
+dn <- dimnames(m)
+u <- data.table(r    = as.vector(m),
+                n    = as.numeric(dn[[1]])[as.vector(slice.index(m, 1))],
+                p    = as.numeric(dn[[2]])[as.vector(slice.index(m, 2))],
+                type = dn[[3]][as.vector(slice.index(m, 3))])
+# Plot u using same ggplot code as above
 ```
 
 # Computing Environment
