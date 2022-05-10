@@ -108,7 +108,7 @@ The last line of code can be read as "values of `x` such that `y > 7`".
 
 ## Functions
 
-Even new R users can benefit from writing functions to reduce repetive coding.  A function has _arguments_ and these can have default values for when the argument is not specified by the user when the function is called.  Here are some examples.  One line functions do not need to have their bodies enclosed in `{}`.
+Even new R users can benefit from writing functions to reduce repetitive coding.  A function has _arguments_ and these can have default values for when the argument is not specified by the user when the function is called.  Here are some examples.  One line functions do not need to have their bodies enclosed in `{}`.
 
 ```{r runex}
 cuberoot <- function(x) x ^ (1/3)
@@ -241,8 +241,15 @@ for(x in names(d))
   if(all(d[[x]] %in% c(0,1))) d[[x]] <- yn(d[[x]])
 ```
 
-::: {.callout-note collapse="true"}
-## For REDCap Users
+::: {.panel-tabset}
+
+## 
+
+## CSV
+
+The built-in function in R for reading `.csv` files is [`read.csv`](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/read.table).  The `Hmisc` package has a function [`csv.get`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/csv.get) which calls `read.csv` but offers some enhancements in variable naming, date handling, and reading variable labels from a specified row number.  The [`fread`](https://www.rdocumentation.org/packages/data.table/versions/1.14.2/topics/fread) function in the `data.table` package is blazing fast for reading large files and offers a number of options.
+
+## REDCap
 
 If reading data exported from `REDCap` that are placed into the
 project directory I run the following to get rid of duplicate
@@ -260,9 +267,22 @@ When file names are not given to `importREDCap` the function looks for
 the latest created `.csv` file and `.R` file with same prefix and uses those.
 See [this](http://hbiostat.org/bbr/md/r.html) for more information.
 
-:::
+## SAS, Stata, SPSS
 
-## Reading Many Files
+SAS, Stata, and SPSS binary files are converted to R `data.frame`s using the R [haven package](https://haven.tidyverse.org).  Here's an example:
+
+```{r haven, eval=FALSE}
+require(haven)   # after you've installed the package
+d <- read_sas('mydata.sas7bdat')
+d <- read_xpt('mydata.xpt')        # SAS transport files
+d <- read_dta('mydata.dta')        # Stata
+d <- read_sav('mydata.sav')        # SPSS
+d <- read_por('mydata.por')        # Older SPSS files
+```
+
+These import functions carry variable labels into the data frame and convert dates and times appropriately.  Character vectors are not converted to factors.
+
+## Multiple Files
 
 One of the most important principles to following in programming data analyses is to not do the same thing more than once.  Repetitive code wastes time and is harder to maintain.  One example of avoiding repetition is in reading a large number of files in R.  If the files are stored in one directory and have a consistent file naming scheme (or you want to import every `.csv` file in the directory), one can avoid naming the individual files.  The results may be stored in an R `list` that has named elements, and there are many processing tasks that can be automated by looping over this list.
 
@@ -278,6 +298,7 @@ for(f in files) {
   cat('Reading file', f, '\n')
   i <- i + 1
   d <- csv.get(f, lowernames=TRUE)
+  # To read SAS, Stata, SPSS binary files use a haven function instead
   # To convert to data.table do setDT(d) here
   X[[dnames[i]]] <- d
 }
@@ -304,7 +325,7 @@ sort(common)
 nvar <- sapply(X, length)  # or ncol
 # Print number of observations per dataset
 sapply(X, nrow)
-# For each variable name count the number of datasets cantaining it
+# For each variable name count the number of datasets containing it
 w <- data.table(dsname=rep(names(X), nvar), vname=unlist(nam))
 w[, .N, keyby=vname]
 # For each variable create a comma-separated list of datasets
@@ -319,9 +340,15 @@ d <- X$baseline
 describe(d)
 ```
 
+## Post Import
+
+The `Hmisc` package `cleanup.import` function improves imported data storage in a number of ways including converting double precision variables to `integer` when originally `double` but not containing fractional values (this halves the storage requirement).  `Hmisc::upData` is the go-to function for annotating data frames/tables, renaming variables, and dropping variables.  `Hmisc::dataframeReduced` removes problematic variables, e.g., those with a high fraction of missing values or that are binary with very small prevalence.
+
+:::
+
 ## Variable Naming
 
-I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age varible `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below). [`Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.]{.aside}
+I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age variable `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below). [`Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.]{.aside}
 
 ## Data Dictionary
 
@@ -911,7 +938,7 @@ I make heavy use of [ggplot2](https://ggplot2.tidyverse.org), [plotly](https://p
 
 Many types of graphs can be created with base graphics, e.g. `hist(age, nclass=50)` or `Ecdf(age)` but using `ggplot2` for even simple graphics makes it easy to add handle multiple groups on one graph or to create multiple panels for strata using faceting.  `ggplot2` has excellent default font sizes and axis labeling that works for most sizes of plots.
 
-Here is a protypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.  Options are given to the `Hmisc` `label` function so that it will retrieve the variable `label` and `units` (if present) and format them for axis labels or tables.
+Here is a prototypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.  Options are given to the `Hmisc` `label` function so that it will retrieve the variable `label` and `units` (if present) and format them for axis labels or tables.
 
 ```{r ggplot2ex}
 # Create a vector of formatted labels for all variables in data
