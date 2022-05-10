@@ -44,6 +44,95 @@ source('~/r/rmarkdown/qbookfun.r')
 [`r hypcomment`]{.aside}
 This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering the creation of annotated analysis files and running descriptive statistics on them with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Finally, examples of caching results and doing parallel processing are presented.
 
+::: {.callout-note collapse="true"}
+# R Basics
+## Assignment Operator
+
+You assign an R object to a value using the assignment operator `<-` or the equal sign.  `<-` is read as "gets".
+
+```{r eval=FALSE}
+x <- y
+d <- read.csv('mydata.csv')
+x = y
+```
+
+## Object Types
+
+Everything in R is an object.  Some primitive types of objects in R are below.
+
+| Type | Meaning |
+|------|---------|
+| integer | whole numbers |
+| logical | values of `TRUE` or `FALSE` |
+| double  | floating point non-whole numbers |
+| character | character strings |
+| function| code defining a function |
+
+In the table below, objects of different shapes are described.
+`rows` and `cols` refers to vectors of integers or logicals, or if the elements of the object are named, character strings.
+
+| Type | Example |Values Retrieved By|
+|------|---------|--------------------|
+| scalar |  `x <- 3` | `x` |
+| vector | `y <- c(1, 2, 5)` | `y[2]` (2), `y[2:3]` (2, 5), `y[-1]` (2, 5), `y[c(TRUE,FALSE,TRUE)]` (1) |
+| named vector | `y <- c(a=1, b=2, d=5)` | `y[2]` (2), `y['b']` (2), `y[c('a','b')]` (1, 2) |
+| matrix | `y <- cbind(1:3, 4:5)` | `y[rows,cols]`, `y[rows,]` (all cols), `y[,cols]` (all rows) |
+| list | `x <- list(a='cat', b=c(1,3,7))` | `x$a` ('cat'), `x[[1]]` ('cat'), `x[['a']]` ('cat') |
+
+`list` objects are arbitrary trees and can have elements nested to any level.  You can have lists of lists or lists of data frames/tables.
+
+Vectors can be of many different types when a `class` is added to them.  Two of the most common are `Date`s and `factor`s.  Character strings are handled very efficiently in R so there is not always a need to store categorical variables as `factor`s.  But there is one reason: to order levels, i.e., distinct variable values, so that tabular and graphical output will list values in a more logical order than alphabetic.  A factor variable has a `levels` _attribute_ added to it to accomplish this.  An example is `x <- factor(x, 1:3, c('cat', 'dog', 'fox'))` where the second argument `1:3` is the vector of possible numeric values `x` currently takes on (in order) and the three character strings are the corresponding `levels`.  Internally `factors` are coded as integers, but they print as character strings.
+
+Rectangular data objects, i.e., when the number of rows is the same for every column (variable), can be represented by matrices, `data.frame`s, and `data.table`s.  In a matrix, every value is of the same type.  A `data.frame` or a `data.table` is an R `list` that can have mixtures of numeric, character, factor, dates, and other object types.  A `data.table` is also a `data.frame` but the converse isn't true.  `data.table`s are handled by the R `data.table` package and don't have row names but can be indexed, are much faster to process, and have a host of methods implemented for aggregation and other operations.  `data.frame`s are handled by base R.
+
+## Subscripting
+
+Examples of subscripting are given above. 
+Subscripting via placement of `[]` after an object name is used for subsetting, and occasionally for using some elements more than once:
+
+```{r subsc}
+x <- c('cat', 'dog', 'fox')
+x[2:3]
+x[c(1, 1, 3, 3, 2)]
+```
+
+Subscripting a variable or a data frame/table by a vector of `TRUE/FALSE` values is a very powerful feature of R.  This is used to obtain elements satisfying one or more conditions:
+
+```{r subcond}
+x <- c(1, 2, 3, 2, 1, 4, 7)
+y <- c(1, 8, 2, 3, 8, 9, 2)
+x[y > 7]
+```
+
+The last line of code can be read as "values of `x` such that `y > 7`".
+
+## Functions
+
+Even new R users can benefit from writing functions to reduce repetive coding.  A function has _arguments_ and these can have default values for when the argument is not specified by the user when the function is called.  Here are some examples.  One line functions do not need to have their bodies enclosed in `{}`.
+
+```{r runex}
+cuberoot <- function(x) x ^ (1/3)
+cuberoot(8)
+g <- function(x, power=2) {
+  u <- abs(x - 0.5)
+  u / (1. + u ^ power)
+}
+g(3, power=2)
+g(3)
+# Function to make mean() drop missing values without our telling it
+mn <- function(x) mean(x, na.rm=TRUE)
+# Function to be used throughout the report to round fractional values 
+# by a default amount (here round to 0.001)
+rnd <- function(x) round(x, 3)
+# edit the 3 the change rounding anywhere in the report
+# The following simple function saves coding when you need to recode multiple
+# variables from 0/1 to no/yes.
+yn <- function(x) factor(x, 0:1, c('no', 'yes'))
+```
+
+:::
+
+
 # File Directory Structure
 
 I have a directory for each major project, and put everything in that
@@ -983,6 +1072,8 @@ for(i in 1 : nrow(R)) {  # took 4s
   maxrho  <- max(abs(cors[row(cors) < col(cors)]))
   set(R, i, 'maxr',   maxr)    # set is in data.table & is very fast
   set(R, i, 'maxrho', maxrho)  # set will create the variable if needed
+  # If not using data.table use this slower approach:
+  # R[i, 'maxr'] <- maxr   etc.
 }
 ```
 
@@ -1026,7 +1117,11 @@ for(i in 1 : nsim) {   # took 1s
     for(p in ps) {
       X <- matrix(rnorm(n * p), ncol=p)
       for(type in c('r', 'rho')) {
-        cors <- cor(X, method=switch(r = 'pearson', rho = 'spearman'))
+        cors <- cor(X, method=switch(type, r = 'pearson', rho = 'spearman'))
+        # or           method=c(r='pearson', rho='spearman')[type]
+        # or           method=.q(r=pearson, rho=spearman)[type]
+        # or           method=if(type == 'r') 'pearson' else 'spearman'
+        # or           method=ifelse(type == 'r', 'pearson', 'spearman')
         maxr <- max(abs(cors[row(cors) < col(cors)]))
         R[i, as.character(n), as.character(p), type] <- maxr
       }
