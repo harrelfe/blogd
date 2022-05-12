@@ -79,6 +79,8 @@ In the table below, objects of different shapes are described.
 | matrix | `y <- cbind(1:3, 4:5)` | `y[rows,cols]`, `y[rows,]` (all cols), `y[,cols]` (all rows) |
 | list | `x <- list(a='cat', b=c(1,3,7))` | `x$a` ('cat'), `x[[1]]` ('cat'), `x[['a']]` ('cat') |
 
+Named vectors provide an extremely quick table lookup and recoding capability.
+
 `list` objects are arbitrary trees and can have elements nested to any level.  You can have lists of lists or lists of data frames/tables.
 
 Vectors can be of many different types when a `class` is added to them.  Two of the most common are `Date`s and `factor`s.  Character strings are handled very efficiently in R so there is not always a need to store categorical variables as `factor`s.  But there is one reason: to order levels, i.e., distinct variable values, so that tabular and graphical output will list values in a more logical order than alphabetic.  A factor variable has a `levels` _attribute_ added to it to accomplish this.  An example is `x <- factor(x, 1:3, c('cat', 'dog', 'fox'))` where the second argument `1:3` is the vector of possible numeric values `x` currently takes on (in order) and the three character strings are the corresponding `levels`.  Internally `factors` are coded as integers, but they print as character strings.
@@ -105,6 +107,43 @@ x[y > 7]
 ```
 
 The last line of code can be read as "values of `x` such that `y > 7`".
+
+## Branching and If/Then
+
+### Decisions Base on One Scalar Value
+
+Common approaches to this problem are `if` and `switch`.
+
+```{r ifs,eval=FALSE}
+type <- 'semiparametric'
+f <- switch(parametric     = ols(y ~ x),
+            semiparametric = orm(y ~ x),
+            nonparametric  = rcorr(x, y, type='spearman'),
+            { z <- y / x
+              c(median=median(z), gmean=exp(mean(log(z))) } )
+# The last 2 lines are executed for any type other than the 3 listed
+f <- if(type == 'parametric')    ols(y ~ x)
+  else
+    if(type == 'semiparametric') orm(y ~ x)
+  else
+    if(type == 'nonparametric')  rcorr(x, y, type='spearman')
+  else {
+    z <- y / z
+    c(median=median(z), gmean=exp(mean(log(z)))
+  }
+```
+
+What is inside `if( )` must be a single scalar element that is evaluated to whether it's `TRUE` or `FALSE`.
+
+### Series of Separate Decisions Over a Vector of Values
+
+The `ifelse` function is most often used for this.  Here's an example.
+
+```{r ifelse}
+x <- c('cat', 'dog', 'giraffe', 'elephant')
+type <- ifelse(x %in% c('cat', 'dog'), 'domestic', 'wild')
+type
+```
 
 ## Functions
 
@@ -391,6 +430,17 @@ htmlView(contents(d))
 
 In some cases it is best to have a browser window open to the full descriptive statistics for a data table/frame (see below; the `describe` function also shows labels, units, and levels).  [For either approach it would be easy to have multiple tabs open, one tab for each of a series of data tables, or use `htmlView`.]{.aside}
 
+To be able to have multiple windows open to see information about datasets it is advantageous to open an external browser window.  The `htmlViewx` function defined when you read `htmlView.r` will by default open a Vivaldi browser window with the first output put in a new window and all subsequent objects displayed as tabs within that same window.  This behavior can be controlled with the `tab` argument, and you can use a different browser by issuing for example `options(vbrowser='firefox')`.[In Windows you may have to specify a full path and `firefox.exe`.  The tab names will not be correct until `Hmisc` 4.7-1 appears.]{.aside}  As an example suppose that two datasets were read from the `hbiostat.org/data` data repository, and the data dictionary and descriptive statistics for both datasets were to be converted to `html` and placed in an external browser window for the duration of the R session.
+
+```{r vbrowse,eval=FALSE}
+getHdata(support)
+getHdata(support2)
+htmlViewx(contents(support ), describe(support ),
+          contents(support2), describe(support2))
+```
+
+A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
+
 # Descriptive Statistics
 
 The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary.  Clicking on `Glossary` on the right will pop up a browser window with a more in-depth glossary of terms used in `Hmisc` package output.  It links to `hbiostat.org/R/glossary.html` which you can link  from your reports that use `Hmisc`.[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.<br><a href="https://hbiostat.org/comment.html" target="popup" onclick="window.open('https://hbiostat.org/R/glossary.html#describe', 'popup', 'width=450,height=600'); return false;"><small>Glossary</small></a>]{.aside}.
@@ -666,6 +716,36 @@ d[, x := labs[x]]
 
 # Recode from character strings to integers
 d[, x := match(x, labs)]
+```
+
+As an example of more complex hierarchical recoding let's define codes in a nested `list`.
+
+```{r hrecode}
+a <- list(plant =
+            list(vegetable = .q(spinach, lettuce, potato),
+                 fruit     = .q(apple, orange, banana, pear)), 
+          animal =
+            list(domestic  = .q(dog, cat, horse),
+                 wild      = .q(giraffe, elephant, lion, tiger)) )
+a
+a <- unlist(a)
+a
+# Pick names of unlist'ed elements apart to define kingdom and type
+n <- sub('[0-9]*$', '', names(a))  # remove sequence numbers from ends of names
+# Names are of the form kingdom.type; split at .
+s       <- strsplit(n, '.', fixed=TRUE) 
+kingdom <- sapply(s, function(x) x[1])
+type    <- sapply(s, function(x) x[2])
+names(kingdom) <- names(type) <- a
+w <- data.table(kingdom, type, item=a, key=c('kingdom', 'item'))
+w
+# Example table lookups
+cat(kingdom['dog'], ':', type['dog'], '\n')
+kingdom[.q(dog, cat, spinach)]
+type   [.q(dog, cat, giraffe, spinach)]
+# But what if there is a plant named the same as an animal?
+# Then look up on two keys
+w[.('animal', 'lion'), type]
 ```
 
 # Computing Summary Statistics
