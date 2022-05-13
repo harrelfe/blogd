@@ -137,12 +137,14 @@ What is inside `if( )` must be a single scalar element that is evaluated to whet
 
 ### Series of Separate Decisions Over a Vector of Values
 
-The `ifelse` function is most often used for this.  Here's an example.
+The `ifelse` or `data.table::fifelse` functions are most often used for this, but `data.table::fcase` is a little better.  Here's an example.
 
 ```{r ifelse}
 x <- c('cat', 'dog', 'giraffe', 'elephant')
 type <- ifelse(x %in% c('cat', 'dog'), 'domestic', 'wild')
 type
+require(data.table)
+fcase(x %in% c('cat', 'dog'), 'domestic', default='wild')
 ```
 
 ## Functions
@@ -465,6 +467,7 @@ Better, whether using `RStudio` or not:
 
 ```{r eval=FALSE}
 htmlView(w, contents(d))  # or htmlView(describe(d1), describe(d2), ...)
+# Use htmlViewx to use an external browser window (see above)
 ```
 
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
@@ -649,11 +652,14 @@ d[, .q(bmi, bsa) := .(wt / ht ^ 2, 0.016667 * sqrt(wt * ht))]
 
 # Compute something requiring a different formula for different types
 # of observations
-d[, htAdj := ifelse(sex == 'male', ht, ht * 1.07)]
+d[, htAdj := ifelse(sex == 'male', ht, ht * 1.07)]  # better" use fifelse in data.table
 d[, htAdj := ht * ifelse(sex == 'male', 1, 1.07)]
 d[, htAdj := (sex == 'male') * ht + (sex == 'female') * ht * 1.07]
 d[sex == 'male',   htAdj := ht]
 d[sex == 'female', htAdj := ht * 1.07]
+d[, htAdj := fcase(sex == 'male',   ht,          # fcase is in dta.table
+                   sex == 'female', ht * 1.07)]
+d[, htAdj := fcase(sex = 'female', ht * 1.07, default = ht)]
 
 # Add label & optional units (better to use upData which works on data tables)
 adlab <- function(x, lab, un='') {
@@ -688,6 +694,10 @@ levels(d$x) <- substring(levels(d$x), 1, 1)
 
 # Recode a numeric variable with values 0, 1, 2, 3, 4 to 0, 1, 1, 1, 2
 d[, x := 1 * (x %in% 1:3) + 2 * (x == 4)]
+d[, x := fcase(x %in% 1:3, 1,          # fcase is in data.table
+               x == 4,     2)]
+d[, x := fcase(x %between% c(1,3), 1,
+               x    ==       4,    2)]  # %between% is in data.table
 
 # Recode a series of conditions to a factor variable whose value is taken
 # from the last condition that is TRUE using Hmisc::score.binary
@@ -707,8 +717,9 @@ states <- c(AL='Alabama', AK='Alaska', AZ='Arizona', ...)
 # Could also do:
 #  states <- .q(AL=Alabama, AK=Alaska, AZ=Arizona, ..., NM='New Mexico', ...) 
 # or do a merge for table lookup (see later)
-d[, State := states[state])
+d[, State := states[state]]
 # states are unique, state can have duplicates and all are recoded
+d[, State := fcase(state == 'AL', 'Alabama',  state='AK', 'Alaska', ...)]
 
 # Recode from integers 1, 2, ..., to character strings
 labs <- .q(elephant, giraffe, dog, cat)
@@ -716,6 +727,10 @@ d[, x := labs[x]]
 
 # Recode from character strings to integers
 d[, x := match(x, labs)]
+d[, x := fcase(x == 'elephant', 1, 
+               x == 'giraffe',  2,
+               x == 'dog',      3,
+               x == 'cat',      4)]
 ```
 
 As an example of more complex hierarchical recoding let's define codes in a nested `list`.
@@ -736,6 +751,10 @@ n <- sub('[0-9]*$', '', names(a))  # remove sequence numbers from ends of names
 s       <- strsplit(n, '.', fixed=TRUE) 
 kingdom <- sapply(s, function(x) x[1])
 type    <- sapply(s, function(x) x[2])
+# or:   (note \\. is escaped . meaning not to use as wild card)
+#        .* = wild card: any number of characters
+# kingdom <- sub('\\..*', '', n)  # in xxx.yyy remove .yyy
+# type    <- sub('.*\\.', '', n)  # in xxx.yyy remove xxx.
 names(kingdom) <- names(type) <- a
 w <- data.table(kingdom, type, item=a, key=c('kingdom', 'item'))
 w
@@ -789,6 +808,7 @@ tab <- function(x) {
   length(z)
 }
 discr <- function(x) { i <- length(unique(x)); i > 2 & i < 11 }
+#                                       or i %between% c(2,11)
 Z    <- list(); Align <- character(0)
 w    <- d[, lapply(.SD, tab), .SDcols=discr]
 maxl <- max(w)
@@ -878,6 +898,26 @@ d[, g(.SD), by=gender, .SDcols=bhr : basedp]
 
 # To add duplicated means to raw data use e.g.
 # d[, Mean := mean(x), by=sex]
+```
+
+## Summary Statistics With Marginal Summaries
+
+The `cube` function in the `data.table` package will compute all possible marginal statistics.  When there is only one `by` variable, the overall statistical is computed in addition to compute stratified values.  When a dimension is being marginalized over, the value of the `by` variable for that dimension will be `NA`.
+
+```{r cube}
+mn  <- function(x) as.double(mean(x, na.rm=TRUE))
+# as.double ensures consistency of numeric type across groups
+Nna <- function(x) sum(! is.na(x))
+cube(d, .(Meanbhr = mn(bhr), N = Nna(bhr)), by='gender', id=TRUE)
+cube(d, .(Meanbhr = mn(bhr), N = Nna(bhr)), by=.q(gender, hxofMI), id=TRUE)
+# id=TRUE creates output variable grouping to detail level of marginalization
+# It is a binary representation, e.g. if by has 3 variables and a row
+# is marginalizing over the first and third variables,
+# grouping=binary 101 = 5
+# Use groupingsets() to control the marginalizations
+# Example: marginalize only one variable at a time
+groupingsets(d, .(Meanbhr = mn(bhr), N=Nna(bhr)), by=.q(gender, hxofMI),
+             sets=list('gender', 'hxofMI'), id=TRUE)
 ```
 
 # Merging Data
@@ -1225,6 +1265,8 @@ for(i in 1 : nsim) {   # took 1s
       X <- matrix(rnorm(n * p), ncol=p)
       for(type in c('r', 'rho')) {
         cors <- cor(X, method=switch(type, r = 'pearson', rho = 'spearman'))
+        # or           method=fcase(type == 'r', 'pearson', type == 'rho', 'spearman')
+        # or           method=fcase(type == 'r', 'pearson', default='spearman')
         # or           method=c(r='pearson', rho='spearman')[type]
         # or           method=.q(r=pearson, rho=spearman)[type]
         # or           method=if(type == 'r') 'pearson' else 'spearman'
@@ -1245,6 +1287,16 @@ u <- data.table(r    = as.vector(m),
                 n    = as.numeric(dn[[1]])[as.vector(slice.index(m, 1))],
                 p    = as.numeric(dn[[2]])[as.vector(slice.index(m, 2))],
                 type = dn[[3]][as.vector(slice.index(m, 3))])
+# If doing this a lot you may want to write a dimension expander function
+slice <- function(a, i) {
+  dn <- all.is.numeric(dimnames(a)[[i]], 'vector')   # all.is.numeric in Hmisc
+  dn[as.vector(slice.index(a, i))]
+}
+u <- data.table(r    = as.vector(m),
+                n    = slice(m, 1),
+                p    = slice(m, 2),
+                type = slice(m, 3))
+  
 # Plot u using same ggplot code as above
 ```
 
