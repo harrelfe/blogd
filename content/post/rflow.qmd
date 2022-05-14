@@ -173,6 +173,86 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 :::
 
+# Report Formatting
+
+A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.
+
+This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive backticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.]{.aside}
+
+::: {.column-margin}
+
+An example of something that will not render correctly:
+
+```{r eval=FALSE}
+html(describe(d))
+table(sex, country)
+# use pr(obj=table(sex, country))
+# to fix
+```
+
+:::
+
+```{r,results='asis'}
+require(Hmisc)
+pr <- markupSpecs$markdown$pr
+x <- (1:5)/7
+pr('x:', x)
+pr(obj=x)
+pr(inline=round(x,3))
+```
+
+Instead of working to keep certain outputs verbatim you can use `knitr::kable()` to convert verbatim output to markdown.
+
+## Multi-Output Format Reports
+
+To allow one report to be used to render multiple output formats, especially html and pdf, it is helpful to be able to sense which output format is currently in play, and to use different functions or options to render output explicitly for the current format.  Here is how to create variables that can be referenced simply in code throughout the report, and to invoke the `plotly` graphics package if output is in html to allow interactivity.  A small function `ggp` is defined so that if you run any `ggplot2` output through it, the result will be automatically converted to `plotly` using the `ggplotly` function, otherwise it is left at standard static `ggplot2` output if html is not the output target.
+
+```{r senseformat}
+outfmt <- if(knitr::is_html_output ()) 'html'  else 'pdf'
+markup <- if(knitr::is_latex_output()) 'latex' else 'html'
+if(outfmt == 'html') require(plotly)
+ggp <- if(outfmt != 'html')
+  function(ggobject, ...) ggobject else ggplotlyr
+# See below for more about ggplotlyr (a front end for ggplotly that can
+# correct a formatting issue with hover text)
+```
+
+::: {.callout-note collapse="true"}
+## Special Considerations For $\LaTeX$/PDF
+
+The `Hmisc`, `rms`, and `rmsb` packages have a good deal of support for creating $\LaTeX$ output in addition to html.  They require some special $\LaTeX$ packages to be accessed.  In addition, if using any of `Quarto`'s nice features for making marginal notes, there is another $\LaTeX$ package to attach.  Below you'll find what needs to be added to the `yaml` prologue at the top of your script if using `Quarto`.  You have to modify `pdf-engine` to suit your needs.  I use `luatex` because it handles special unicode characters.
+
+```
+format:
+  html:
+    self-contained: true
+    . . .
+  pdf:
+    pdf-engine: lualatex
+    toc: false
+    number-sections: true
+    number-depth: 2
+    top-level-division: section
+    reference-location: document
+    listings: false
+    header-includes:
+      \usepackage{marginnote, here, relsize, needspace, setspace}
+      \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+```
+
+The `href` redefinition above turns URLs into footnotes if running $\LaTeX$.
+
+There is one output element provided by `Quarto` that will not render correctly to $\LaTeX$: a marginal note using the markup `.column-margin`.  To automatically use an alternate in-body format, define a function that can be used for both typesetting formats.
+
+```{r eval=FALSE}
+mNote <- if(outfmt == 'html') '.column-margin'
+  else
+    '.callout-note appearance="minimal"'
+```
+
+Then use <tt>r mNote</tt> enclosed in backticks in place of the `.column-margin` callout for generality.
+
+:::
 
 # File Directory Structure
 
