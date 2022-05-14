@@ -286,6 +286,26 @@ for(x in names(d))
 
 ## 
 
+## External Metadata
+
+Sometimes metadata comes from a separate source.  Suppose you imported a data frame `d` but have also imported a data frame `m` containing metadata: the same variable names in `d` (variable `name`) plus fields `label`, `units`, and `comment`.  Dataset `m` can contain variables not currently being used.  To add the labels and units into `d` use the following example.
+
+```{r eval=FALSE}
+n <- names(d)
+i <- n %nin% m$name
+if(any(i)) cat('The following variables have no metadata:',
+               paste(n[i], collapse=', '), '\n')
+vcomment        <- m$comment
+names(vcomment) <- m$name
+m               <- subset(m, name %in% n)
+labs            <- m$label
+un              <- m$units
+names(labs)     <- names(un) <- m$name
+d <- upData(d, labels=labs, units=un)
+```
+
+To look up the `comment` for a variable at any time use e.g. `vcomment['height']`.  All comments were saved in vector `vcomment` in case the metadata dictionary `m` defined variables that are not in `d` but were to be imported later in the script.  Comments for multiple variables can be looked up using e.g. `vcomment[.q(height, weight, age)]`.
+
 ## CSV
 
 The built-in function in R for reading `.csv` files is [`read.csv`](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/read.table).  The `Hmisc` package has a function [`csv.get`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/csv.get) which calls `read.csv` but offers some enhancements in variable naming, date handling, and reading variable labels from a specified row number.  The [`fread`](https://www.rdocumentation.org/packages/data.table/versions/1.14.2/topics/fread) function in the `data.table` package is blazing fast for reading large files and offers a number of options.
@@ -712,8 +732,8 @@ d[, x := score.binary(x1 == 'symptomatic',
                       points=c(1,2,10))]
 # Or just reverse the conditions and use fcase which stops at the first
 # condition met
-d[, x := fcase(death,                  'death',
-               x2 %in% .q(stroke, MI), 'stroke/MI',
+d[, x := fcase(death,                  'death',        # takes precedence
+               x2 %in% .q(stroke, MI), 'stroke/MI',    # takes next precendence
                x1 == 'symptomatic',    'symptomatic',
                default =               'none')]
 
