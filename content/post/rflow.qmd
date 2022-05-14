@@ -710,6 +710,12 @@ d[, x := score.binary(x1 == 'symptomatic',
                       x2 %in% .q(stroke, MI),
                       death,  # TRUE/FALSE or 1/0 variable
                       points=c(1,2,10))]
+# Or just reverse the conditions and use fcase which stops at the first
+# condition met
+d[, x := fcase(death,                  'death',
+               x2 %in% .q(stroke, MI), 'stroke/MI',
+               x1 == 'symptomatic',    'symptomatic',
+               default =               'none')]
 
 # Recode from one set of character strings to another using named vector
 # A named vector can be subscripted with character strings as well as integers
@@ -1050,6 +1056,93 @@ u[, firstday := mn(day[nconsec(z > 0.5) == 2]), by=id]
 #             such that                    |
 #  it's the 2nd consecutive day with z > 0.5
 u
+```
+
+## Overlap Joins
+
+The `foverlaps` function in `data.table` provides an amazingly fast way to do complex overlap joins.  Our first example is modified from an example in the help file for `foverlaps`.  An annotation column is added to describe what happened.
+
+```{r overlap}
+d1 <- data.table(w     =.q(a, a, b, b, b),
+                 start = c( 5, 10, 1, 25, 50),
+                 end   = c(11, 20, 4, 52, 60))
+d2 <- data.table(w     =.q(a, a, b),
+                 start = c(1, 15,  1),
+                 end   = c(4, 18, 55),
+                 name  = .q(dog, cat, giraffe),
+                 key   = .q(w, start, end))
+f <- foverlaps(d1, d2, type="any")
+ann <- c('no a overlap with d1 5-11 & d2 interval',
+         'a 10-20 overlaps with a 16-18',
+         'b 1-4 overlaps with b 1-55',
+         'b 25-62 overlaps with b 1-55',
+         'b 50-60 overlaps with b 1-55')
+f[, annotation := ann]
+f
+# Don't include record for non-match
+foverlaps(d1, d2, type='any', nomatch=NULL)
+# Require the d1 interval to be within the d2 interval
+foverlaps(d1, d2, type="within")
+# Require the intervals to have the same starting point
+foverlaps(d1, d2, type="start")
+```
+
+Now consider an xample where there is an "events" dataset `e` with 0 or more rows per
+subject containing start (`s`) and end (`e`) times and a measurement `x`
+representing a daily dose of something given to the subject from `s` to `e`.
+The base dataset `b` has one record per subject with times `c` and `d`.  Compute the total dose of drug received between `c` and `d` for the
+subject.  This is done by finding all records in `e` for the subject
+such that the interval `[c,d]` has any overlap with the interval `[s,e]`.
+For each match compute the number of days in the interval `[s,e]` that are
+also in `[c,d]`.  This is given by `min(e,d) + 1 - max(c,s)`.  Multiply this
+duration by `x` to get the total dose given in `[c,d]`.  For multiple records
+with intervals touching `[c,d]` add these products.
+
+```{r totaldose}
+base   <- data.table(id    = .q(a,b,c), low=10, hi=20)
+events <- data.table(id    = .q(a,b,b,b,k),
+                     start = c( 8,  7, 12, 19, 99),
+                     end   = c( 9,  8, 14, 88, 99),
+                     dose  = c(13, 17, 19, 23, 29))
+setkey(base,   id, low,   hi)
+setkey(events, id, start, end)
+w <- foverlaps(base, events,
+               by.x = .q(id, low,   hi),
+               by.y = .q(id, start, end ),
+               type = 'any', mult='all', nomatch=NA)
+
+w[, elapsed := pmin(end, hi) + 1 - pmax(start, low)]
+w[, .(total.dose = sum(dose * elapsed, na.rm=TRUE)), by=id]
+```
+
+Similar things are can be done with _non-equi merges_.  For those you can require exact subject matches but allow inexact matches on other variables.  The following example is modified from [here](https://www.scitilab.com/post_data/non_equi_joins/2020_11_17_non_equi_merge). A `medication` dataset holds the start and end dates for a patient being on a treatment, and a second dataset `visit` has one record per subject ID per doctor visit.  For each visit look up the drug in effect if there was one.
+
+```{r noneq}
+medication <-
+  data.table(ID         = c( 1, 1, 2, 3, 3),
+             medication = .q(a, b, a, a, b),
+             start      = as.Date(c("2003-03-25","2006-04-27","2008-12-05",
+                                    "2004-01-03","2005-09-18")),
+             stop       = as.Date(c("2006-04-02","2012-02-03","2011-05-03",
+                                    "2005-06-30","2010-07-12")),
+             key        = 'ID')
+medication
+set.seed(123)
+visit <- data.table(
+  ID   = rep(1:3, 4),
+  date = sample(seq(as.Date('2003-01-01'), as.Date('2013-01-01'), 1), 12),
+  sbp  = round(rnorm(12, 120, 15)),
+  key  = c('ID', 'date'))
+visit
+# Variables named in inequalities need to have variables in
+# medication listed virst
+m <- medication[visit, on = .(ID, start <= date, stop > date)]
+m
+# start and stop dates are replaced with actual date of visit
+# drop one of them and rename the other
+m[, stop := NULL]
+setnames(m, 'start', 'date')
+m
 ```
 
 # Graphics
