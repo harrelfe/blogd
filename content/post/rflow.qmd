@@ -177,7 +177,7 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.[Report formatting is very much enhanced by using variable attributes such as labels and units of measurement that are not considered in base R.  Methods for better annotating output using labels and units are given below.]{.aside}
 
-This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive backticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.]{.aside}
+This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.]{.aside}
 
 ::: {.column-margin}
 
@@ -250,7 +250,7 @@ mNote <- if(ishtml) '.column-margin'
                     '.callout-note appearance="minimal"'
 ```
 
-Then use <tt>r mNote</tt> enclosed in backticks in place of the `.column-margin` callout for generality.
+Then use <tt>r mNote</tt> enclosed in back ticks in place of the `.column-margin` callout for generality.
 
 :::
 
@@ -389,7 +389,7 @@ for(x in names(d))
 
 ## External Metadata
 
-Sometimes metadata comes from a separate source.  Suppose you imported a data frame `d` but have also imported a data frame `m` containing metadata: the same variable names in `d` (variable `name`) plus fields `label`, `units`, and `comment`.  Dataset `m` can contain variables not currently being used.  To add the labels and units into `d` use the following example.
+Sometimes metadata comes from a separate source.  Suppose you imported a data frame `d` but have also imported a data frame `m` containing metadata: the same variable names in `d` (variable `name`) plus fields `label`, `units`, and `comment`.  Dataset `m` can contain variables not currently being used.  To add the labels and units into `d` and to store comments separately, use the following example.
 
 ```{r eval=FALSE}
 n <- names(d)
@@ -420,7 +420,9 @@ vcom <- function(...)
 
 ## CSV
 
-The built-in function in R for reading `.csv` files is [`read.csv`](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/read.table).  The `Hmisc` package has a function [`csv.get`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/csv.get) which calls `read.csv` but offers some enhancements in variable naming, date handling, and reading variable labels from a specified row number.  The [`fread`](https://www.rdocumentation.org/packages/data.table/versions/1.14.2/topics/fread) function in the `data.table` package is blazing fast for reading large files and offers a number of options.
+The built-in function in R for reading `.csv` files is [`read.csv`](https://www.rdocumentation.org/packages/utils/versions/3.6.2/topics/read.table).  The `Hmisc` package has a function [`csv.get`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/csv.get) which calls `read.csv` but offers some enhancements in variable naming, date handling, and reading variable labels from a specified row number.  Illegal characters in variable names are changed to periods, and by default underscores are also changed to periods.  If any variable names are changed and the `labels` argument is not given, original variable names are stored in the variable `label` attributes.
+
+The [`fread`](https://www.rdocumentation.org/packages/data.table/versions/1.14.2/topics/fread) function in the `data.table` package is blazing fast for reading large files and offers a number of options.  `csv.get` uses it if `data.table` is installed on the system.
 
 ## REDCap
 
@@ -845,7 +847,7 @@ d[, x := score.binary(x1 == 'symptomatic',
 # Or just reverse the conditions and use fcase which stops at the first
 # condition met
 d[, x := fcase(death,                  'death',        # takes precedence
-               x2 %in% .q(stroke, MI), 'stroke/MI',    # takes next precendence
+               x2 %in% .q(stroke, MI), 'stroke/MI',    # takes next precedence
                x1 == 'symptomatic',    'symptomatic',
                default =               'none')]
 
@@ -1040,7 +1042,7 @@ d[, g(.SD), by=gender, .SDcols=bhr : basedp]
 
 ## Summary Statistics With Marginal Summaries
 
-The `cube` function in the `data.table` package will compute all possible marginal statistics.  When there is only one `by` variable, the overall statistical is computed in addition to compute stratified values.  When a dimension is being marginalized over, the value of the `by` variable for that dimension will be `NA`.
+The `cube` function in the `data.table` package will compute all possible marginal statistics.  When there is only one `by` variable, the overall statistic is computed in addition to compute stratified values.  When a dimension is being marginalized over, the value of the `by` variable for that dimension will be `NA`.
 
 ```{r cube}
 mn  <- function(x) as.double(mean(x, na.rm=TRUE))
@@ -1219,7 +1221,7 @@ foverlaps(d1, d2, type="within")
 foverlaps(d1, d2, type="start")
 ```
 
-Now consider an xample where there is an "events" dataset `e` with 0 or more rows per
+Now consider an example where there is an "events" dataset `e` with 0 or more rows per
 subject containing start (`s`) and end (`e`) times and a measurement `x`
 representing a daily dose of something given to the subject from `s` to `e`.
 The base dataset `b` has one record per subject with times `c` and `d`.  Compute the total dose of drug received between `c` and `d` for the
@@ -1267,7 +1269,7 @@ visit <- data.table(
   key  = c('ID', 'date'))
 visit
 # Variables named in inequalities need to have variables in
-# medication listed virst
+# medication listed first
 m <- medication[visit, on = .(ID, start <= date, stop > date)]
 m
 # start and stop dates are replaced with actual date of visit
