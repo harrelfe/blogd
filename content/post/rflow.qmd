@@ -175,7 +175,7 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 # Report Formatting
 
-A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.
+A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.[Report formatting is very much enhanced by using variable attributes such as labels and units of measurement that are not considered in base R.  Methods for better annotating output using labels and units are given below.]{.aside}
 
 This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive backticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.]{.aside}
 
@@ -205,14 +205,14 @@ Instead of working to keep certain outputs verbatim you can use `knitr::kable()`
 
 ## Multi-Output Format Reports
 
-To allow one report to be used to render multiple output formats, especially html and pdf, it is helpful to be able to sense which output format is currently in play, and to use different functions or options to render output explicitly for the current format.  Here is how to create variables that can be referenced simply in code throughout the report, and to invoke the `plotly` graphics package if output is in html to allow interactivity.  A small function `ggp` is defined so that if you run any `ggplot2` output through it, the result will be automatically converted to `plotly` using the `ggplotly` function, otherwise it is left at standard static `ggplot2` output if html is not the output target.
+To allow one report to be used to render multiple output formats, especially html and pdf, it is helpful to be able to sense which output format is currently in play, and to use different functions or options to render output explicitly for the current format.  Here is how to create variables that can be referenced simply in code throughout the report, and to invoke the `plotly` graphics package if output is in html to allow interactivity.  A small function `ggp` is defined so that if you run any `ggplot2` output through it, the result will be automatically converted to `plotly` using the `ggplotly` function, otherwise it is left at standard static `ggplot2` output if html is not the output target.[See [this](https://hbiostat.org/ordinal) for examples of articles rendered in both html and PDF]{.aside}
 
 ```{r senseformat}
 outfmt <- if(knitr::is_html_output ()) 'html'  else 'pdf'
 markup <- if(knitr::is_latex_output()) 'latex' else 'html'
-if(outfmt == 'html') require(plotly)
-ggp <- if(outfmt != 'html')
-  function(ggobject, ...) ggobject else ggplotlyr
+ishtml <- outfmt == 'html'
+if(ishtml) require(plotly)
+ggp <- if(ishtml) ggplotlyr else function(ggobject, ...) ggobject
 # See below for more about ggplotlyr (a front end for ggplotly that can
 # correct a formatting issue with hover text)
 ```
@@ -245,12 +245,33 @@ The `href` redefinition above turns URLs into footnotes if running $\LaTeX$.
 There is one output element provided by `Quarto` that will not render correctly to $\LaTeX$: a marginal note using the markup `.column-margin`.  To automatically use an alternate in-body format, define a function that can be used for both typesetting formats.
 
 ```{r eval=FALSE}
-mNote <- if(outfmt == 'html') '.column-margin'
+mNote <- if(ishtml) '.column-margin'
   else
-    '.callout-note appearance="minimal"'
+                    '.callout-note appearance="minimal"'
 ```
 
 Then use <tt>r mNote</tt> enclosed in backticks in place of the `.column-margin` callout for generality.
+
+:::
+
+::: {.callout-note collapse="true"}
+## Using `Hmisc` Formatting for Variable Labels in Tables
+
+As done with various `Hmisc` and `rms` package functions, one can capitalize on `Hmisc`'s special formatting of variable labels and units when constructing tables in $\LaTeX$ or html.  The basic constructs are shown in the code below.
+
+```{r labtab,eval=FALSE}
+# Retrieve a set of markup functions depending on typesetting format
+# markupSpecs is defined in Hmisc
+# See below for definition of ishtml
+specs    <- markupSpecs[[if(ishtml) 'html' else 'latex']]
+varlabel <- specs$varlabel  # retrieve an individual function
+# Format text describing variable named x
+# hfill=TRUE typesets units to be right-justified in label
+# Use the following character string as a row label
+# Default specifies the string to use if there is not label
+# (usually taken as the variable name)
+varlabel(label(x, default='x'), units(x), hfill=TRUE)
+```
 
 :::
 
@@ -377,14 +398,25 @@ if(any(i)) cat('The following variables have no metadata:',
                paste(n[i], collapse=', '), '\n')
 vcomment        <- m$comment
 names(vcomment) <- m$name
-m               <- subset(m, name %in% n)
-labs            <- m$label
-un              <- m$units
-names(labs)     <- names(un) <- m$name
+mn              <- subset(m, name %in% n)
+labs            <- mn$label
+un              <- mn$units
+names(labs)     <- names(un) <- mn$name
 d <- upData(d, labels=labs, units=un)
 ```
 
 To look up the `comment` for a variable at any time use e.g. `vcomment['height']`.  All comments were saved in vector `vcomment` in case the metadata dictionary `m` defined variables that are not in `d` but were to be imported later in the script.  Comments for multiple variables can be looked up using e.g. `vcomment[.q(height, weight, age)]`.
+
+::: {.column-margin}
+If you want to look up a variable's comment without having to quote its name use the following:
+
+```{r vcom,eval=FALSE}
+vcom <- function(...)
+  vcomment[as.character(sys.call()[-1])]
+# Example usage: vcom(age,sbp,dbp)
+```
+
+:::
 
 ## CSV
 
@@ -1251,14 +1283,19 @@ I make heavy use of [ggplot2](https://ggplot2.tidyverse.org), [plotly](https://p
 
 Many types of graphs can be created with base graphics, e.g. `hist(age, nclass=50)` or `Ecdf(age)` but using `ggplot2` for even simple graphics makes it easy to add handle multiple groups on one graph or to create multiple panels for strata using faceting.  `ggplot2` has excellent default font sizes and axis labeling that works for most sizes of plots.
 
-Here is a prototypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.  Options are given to the `Hmisc` `label` function so that it will retrieve the variable `label` and `units` (if present) and format them for axis labels or tables.
+Here is a prototypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.  Options are given to the `Hmisc` `label` function so that it will retrieve the variable `label` and `units` (if present) and format them for axis labels or tables.  The formatting takes into account whether html output is being created and `plotly` is being used.
 
 ```{r ggplot2ex}
 # Create a vector of formatted labels for all variables in data
-vlabs <- sapply(d, label, plot=TRUE, html=TRUE)
-# This will format OK for plotly since plotly uses HTML
-# It will not look good without plotly so leave off html=TRUE to
-# make label use R's plotmath syntax for regular ggplot2
+# For variables without labels or units use the variable name
+# as the label.  If html and plotly are not in effect use R's
+# regular plotmath notation to typeset labels/units
+nam   <- names(d)
+nv    <- length(nam)
+vlabs <- structure(character(nv), names=nam)
+for(n in nam)
+  vlabs[n] <- label(d[[n]], plot=TRUE, html=ishtml, default=n)
+
 # Define substitutes for xlab and ylab that look up our
 # constructed labels.
 # Could instead directly use xlab(vlabs['age'])
@@ -1285,16 +1322,16 @@ y <- 2 * (x > 1.5) + round(rnorm(2000), 1)
 z <- sample(c('a', 'b'), 2000, replace=TRUE)
 label(x) <- 'X Variable'   # could use xlab() &
 label(y) <- 'Y Variable'   # ylab() in ggfreqScatter()
-g <- ggfreqScatter(x, y, by=z, html=TRUE)
+g <- ggfreqScatter(x, y, by=z, html=ishtml)
 # If variables were inside a data table use
-# g <- d[, ggfreqScatter(x, y, by=z, html=TRUE)]
+# g <- d[, ggfreqScatter(x, y, by=z, html=ishtml)]
 g
 ```
 
-Now convert the graphic to `plotly`.
+Now convert the graphic to `plotly` if html is in effect otherwise stay with `ggplot2` output.
 
 ```{r ggfreqp}
-ggplotlyr(g)
+ggp(g)
 ```
 
 When you hover the mouse over a point, its frequency pops up.
