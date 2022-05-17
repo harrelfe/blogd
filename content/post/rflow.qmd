@@ -177,11 +177,11 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.[Report formatting is very much enhanced by using variable attributes such as labels and units of measurement that are not considered in base R.  Methods for better annotating output using labels and units are given below.]{.aside}
 
-This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.]{.aside}
+This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.  `inline` is more for printing character strings.]{.aside}
 
 ::: {.column-margin}
 
-An example of something that will not render correctly:
+An example of something that will not render correctly due to `results='asis'` being in the chunk header (needed for `html(...)`):
 
 ```{r eval=FALSE}
 html(describe(d))
@@ -198,7 +198,7 @@ pr <- markupSpecs$markdown$pr
 x <- (1:5)/7
 pr('x:', x)
 pr(obj=x)
-pr(inline=round(x,3))
+pr(inline=paste(round(x,3), collapse=', '))
 ```
 
 Instead of working to keep certain outputs verbatim you can use `knitr::kable()` to convert verbatim output to markdown.
@@ -261,9 +261,10 @@ As done with various `Hmisc` and `rms` package functions, one can capitalize on 
 
 ```{r labtab,eval=FALSE}
 # Retrieve a set of markup functions depending on typesetting format
-# markupSpecs is defined in Hmisc
 # See below for definition of ishtml
 specs    <- markupSpecs[[if(ishtml) 'html' else 'latex']]
+# Hmisc markupSpecs functions create plain text, html, latex,
+# markdown, or plotmath code
 varlabel <- specs$varlabel  # retrieve an individual function
 # Format text describing variable named x
 # hfill=TRUE typesets units to be right-justified in label
@@ -523,7 +524,8 @@ The `Hmisc` package `cleanup.import` function improves imported data storage in 
 
 ## Variable Naming
 
-I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age variable `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below). [`Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.]{.aside}
+I prefer short but descriptive variable names.  As exemplified above, I use variable `label`s and `units` to provide more information.  For example I wouldn't name the age variable `age.at.enrollment.yrs` but would name it `age` with a label of `Age at Enrollment` and with `units` of `years`.  Short, clear names unclutter code, especially formulas in statistical models.  One can always fetch a variable label while writing a program (e.g., typing `label(d$age)` at the console) to check that you have the right variable (or put the data dictionary in a window for easy reference, as shown below).  `Hmisc` package graphics and table making functions such as `summaryM` and `summary.formula` specially typeset `units` in a smaller font.
+
 
 ## Data Dictionary
 
@@ -576,6 +578,31 @@ htmlViewx(contents(support ), describe(support ),
 ```
 
 A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
+
+# Data Checking
+
+Besides useful descriptive statistics exemplified below, it is important to flag suspicious values in an automated way.  Since checking multiple columns may involve a large number of R expressions to run to classify observations as suspicious, let's automate the process somewhat by specifying a vector of expressions.  Then we have R "compute on the language" to parse the expressions for finding observations to flag, and for printing.  This is done by the [`dataChk`](https://github.com/harrelfe/rscripts/blob/master/dataChk.r) function in `Github`.
+
+The following code results in separate output for each individual data check, in separate `Quarto` tabs.  The dataset does not have a subject ID variable so let's create one.
+
+```{r dcheck,results='asis'}
+getRs('dataChk.r',  put='source')  # Fetch source code from Github
+getRs('maketabs.r', put='source')  # Needed by dataChk when html=TRUE
+require(data.table)
+w <- d
+setDT(w)
+w[, id := 1 : .N]
+checks <- expression(
+  age < 30 | age > 90,
+  gender == 'female' & maxhr > 170,
+  baseEF %between% c(72, 77),
+  baseEF > 77,
+  baseEF > 99,
+  sbp > 250 & maxhr < 160)
+s <- dataChk(w, checks, id='id', html=TRUE)
+cat('\n\n## Summary of Data Checks\n\n')
+knitr::kable(s)
+```
 
 # Descriptive Statistics
 
