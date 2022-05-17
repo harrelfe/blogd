@@ -236,7 +236,7 @@ format:
     reference-location: document
     listings: false
     header-includes:
-      \usepackage{marginnote, here, relsize, needspace, setspace}
+      \usepackage{marginnote, here, relsize, needspace, setspace, hyperref}
       \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
 ```
 
@@ -559,10 +559,12 @@ cat(html(contents(d)), file='contents.html')
 browseURL('contents.html', browser='vivaldi -new-window')
 ```
 
-`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.  If you are running outside `RStudio`, your default browser will be launched instead.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.]{.aside}
+
+`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function as shown below.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.  If you are running outside `RStudio`, your default browser will be launched instead.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.<br>Code for `htmlView` and `htmlViewx` may be viewed in [`reptools.r`](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}
 
 ```{r eval=FALSE}
-getRs('htmlView.r', put='source')
+getRs('reptools.r', put='source')
+# reptools.r defines htmlView, htmlViewx, kabl, maketabs, dataChk
 htmlView(contents(d))
 ```
 
@@ -581,17 +583,18 @@ A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
 
 # Data Checking
 
-Besides useful descriptive statistics exemplified below, it is important to flag suspicious values in an automated way.  Since checking multiple columns may involve a large number of R expressions to run to classify observations as suspicious, let's automate the process somewhat by specifying a vector of expressions.  Then we have R "compute on the language" to parse the expressions for finding observations to flag, and for printing.  This is done by the [`dataChk`](https://github.com/harrelfe/rscripts/blob/master/dataChk.r) function in `Github`.
+Besides useful descriptive statistics exemplified below, it is important to flag suspicious values in an automated way.  Since checking multiple columns may involve a large number of R expressions to run to classify observations as suspicious, let's automate the process somewhat by specifying a vector of expressions.  Then we have R "compute on the language" to parse the expressions for finding observations to flag, and for printing.  This is done by the [`dataChk`](https://github.com/harrelfe/rscripts/blob/master/reptools.r) function in `Github`.
 
-The following code results in separate output for each individual data check, in separate `Quarto` tabs.  The dataset does not have a subject ID variable so let's create one.
+The following code results in separate output for each individual data check, in separate `Quarto` tabs.  The dataset does not have a subject ID variable so let's create one, and also add a `site` variable to print.
 
 ```{r dcheck,results='asis'}
-getRs('dataChk.r',  put='source')  # Fetch source code from Github
-getRs('maketabs.r', put='source')  # Needed by dataChk when html=TRUE
+getRs('reptools.r', put='source')  # Define dataChk, maketabs
 require(data.table)
 w <- d
 setDT(w)
 w[, id := 1 : .N]
+set.seed(1)
+w[, site := sample(LETTERS[1:6], .N, replace=TRUE)]
 checks <- expression(
   age < 30 | age > 90,
   gender == 'female' & maxhr > 170,
@@ -599,14 +602,12 @@ checks <- expression(
   baseEF > 77,
   baseEF > 99,
   sbp > 250 & maxhr < 160)
-s <- dataChk(w, checks, id='id', html=TRUE)
-cat('\n\n## Summary of Data Checks\n\n')
-knitr::kable(s)
+dataChk(w, checks, id=c('id', 'site'), html=TRUE)
 ```
 
 # Descriptive Statistics
 
-The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary.  Clicking on `Glossary` on the right will pop up a browser window with a more in-depth glossary of terms used in `Hmisc` package output.  It links to `hbiostat.org/R/glossary.html` which you can link  from your reports that use `Hmisc`.[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.<br><a href="https://hbiostat.org/comment.html" target="popup" onclick="window.open('https://hbiostat.org/R/glossary.html#describe', 'popup', 'width=450,height=600'); return false;"><small>Glossary</small></a>]{.aside}.
+The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary.  Clicking on `Glossary` on the right will pop up a browser window with a more in-depth glossary of terms used in `Hmisc` package output.  It links to `hbiostat.org/R/glossary.html` which you can link  from your reports that use `Hmisc`.[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.<br><a href="https://hbiostat.org/comment.html" target="popup" onclick="window.open('https://hbiostat.org/R/glossary.html#describe', 'popup', 'width=450,height=600'); return false;"><small>Glossary</small></a>]{.aside}
 
 `Gmd` in the output stands for Gini's mean difference---the mean absolute difference over all possible pairs of different observations.  It is a very interpretable measure of dispersion that is more robust than the standard deviation.
 
@@ -650,23 +651,9 @@ p$Continuous
 
 :::
 
-To make creation of tabs in `Quarto` easier, here is a function that loops through the elements of a named list and outputs each element into a separate `Quarto` tab.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked.  [This function is in `Github` and can be defined using the `Hmisc` `getRs` function, i.e., `getRs('maketabs.r', put='source')`.]{.aside}
+To make creation of tabs in `Quarto` easier, the `maketabs` function loops through the elements of a named list and outputs each element into a separate `Quarto` tab.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked.  [This function was defined by the earlier `getRs('reptools.r', put='source')` command and its source code may be viewed [here](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}
 
 ```{r maketabs,results='asis'}
-maketabs <- function(x, labels=names(x), wide=FALSE, initblank=FALSE) {
-  yaml <- paste0('.panel-tabset', if(wide) ' .column-page')
-  k <- c('', '::: {', yaml, '}', '')
-  if(initblank) k <- c(k, '', '##   ', '')
-  .objmaketabs. <<- x
-  for(i in 1 : length(x)) {
-    cname <- paste0('c', round(100000 * runif(1)))
-    k <- c(k, '', paste('##', labels[i]), '',
-           paste0('```{r ', cname, ',results="asis",echo=FALSE}'),
-           paste0('.objmaketabs.[[', i, ']]'), '```', '')
-  }
-  k <- c(k, ':::', '')
-  cat(knitr::knit(text=knitr::knit_expand(text=k), quiet=TRUE))
-}
 maketabs(p)
 ```
 
