@@ -35,7 +35,7 @@ format:
     reference-location: document
     listings: false
     header-includes:
-      \usepackage{marginnote, here}
+      \usepackage{marginnote, here, hyperref}
       \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
 
 comments:
@@ -125,16 +125,6 @@ require(rms)
 lg <- function(p) qlogis(pmax(pmin(p, 1. - 0.02), 0.02))
 # Function to curtail log ORs to [-6, 6]
 cu <- function(x) pmin(pmax(x, -6), 6)
-# Function to print a list
-listpr <- function(x) {
-  g <- function(z)
-	  if(is.character(z)) paste(z,           collapse=', ') else
-	                      paste(round(z, 4), collapse=', ')
-  w <- sapply(x, g)
-	d <- data.frame(name=names(w), value=w)
-	rownames(d) <- NULL
-	kabl(d, col.names=NULL)
-	}
 
 # Function to quantify degree of non-proportional odds first by computing the
 # Gini's mean difference of the difference between
@@ -186,7 +176,7 @@ npod <- function(y1, y2, pl=FALSE, xlim=range(ys),
   c(npo1=npo1, npo2=npo2)
 }
 
-getRs('kable.r', put='source')
+getRs('reptools.r',  put='source')   # defines kabl, htmlList
 getRs('hashCheck.r', put='source')   # defines runifChanged
 
 n <- 50; n0 <- n1 <- 25
@@ -476,7 +466,7 @@ for(i in 1 : nt) {
 Here are details of the simulated trial that resulted in non-PO of 2.95.
 
 ```{r highestdetails}
-listpr(ww)
+htmlList(ww)
 ```
 :::
 
