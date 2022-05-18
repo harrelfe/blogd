@@ -220,7 +220,7 @@ ggp <- if(ishtml) ggplotlyr else function(ggobject, ...) ggobject
 ::: {.callout-note collapse="true"}
 ## Special Considerations For $\LaTeX$/PDF
 
-The `Hmisc`, `rms`, and `rmsb` packages have a good deal of support for creating $\LaTeX$ output in addition to html.  They require some special $\LaTeX$ packages to be accessed.  In addition, if using any of `Quarto`'s nice features for making marginal notes, there is another $\LaTeX$ package to attach.  Below you'll find what needs to be added to the `yaml` prologue at the top of your script if using `Quarto`.  You have to modify `pdf-engine` to suit your needs.  I use `luatex` because it handles special unicode characters.
+The `Hmisc`, `rms`, and `rmsb` packages have a good deal of support for creating $\LaTeX$ output in addition to html.  They require some special $\LaTeX$ packages to be accessed.  In addition, if using any of `Quarto`'s nice features for making marginal notes, there is another $\LaTeX$ package to attach.  Below you'll find what needs to be added to the `yaml` prologue at the top of your script if using `Quarto`.  You have to modify `pdf-engine` to suit your needs.  I use `luatex` because it handles special unicode characters.  In the future (approximately July 2022) a bug in `Pandoc` will be fixed and you can put `links-as-notes: true` in the `yaml` header instead of redefining `href` and linking in `hyperref`.
 
 ```
 format:
@@ -1357,9 +1357,57 @@ Many functions in the `Hmisc` and `rms` packages produce `plotly` graphics direc
 
 # Analysis
 
+## Big Picture
+
+For analysis the sky is the limit, but [statistical principles](https://www.fharrell.com/post/principles) should guide every step.  Some of the general principles are
+
+* If there is to be a pivotal analysis there should be a statistical analysis plan (SAP) for this analysis that does not allow for many "statistician degrees of freedom."  The plan should be completed before doing any analysis that might inform the plan in a way that would bias the results (e.g., bias the estimate of treatment effect or bias standard errors of effects in a model).
+* All analyses should be completely reproducible.  Explicitly state random number seeds if any random processes (bootstrap, simulation, Bayesian posterior sampling) are involved.
+* Exploratory analysis can take place after any needed SAP is completed.
+* Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
+* If the study is a randomized trial, presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
+* Above the tendency to interchange the roles of independent and dependent variables by presenting a "Table 2" in such a way that stratifies by the outcome.  Stratifying (conditioning) on the outcome is placing it in the role of a baseline variable.  Instead, show relationships of baseline variables to outcomes as mentioned in the previous point.
+* Nonparametric smoothers are excellent tools for relating individual continuous variables to an outcome.
+* Models are often the best descriptive tools because they can account for multiple variables simultaneously.  For example, instead of computing proportions of missing values of a variable Y stratified by age groups and sex, use a binary logistic regression model to relate smooth nonlinear age and sex to the probability Y is missing.
+
+## Replacement for Table 1
+
+Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  What is unknown is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.  Here is an example using the `Hmisc` `summaryRc` function.  Extended box plots show the mean, median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
+
+```{r summaryrc}
+#| layout-ncol: 2
+getHdata(support)
+summaryRc(hospdead ~ age + crea + meanbp + wblc,
+          ylim=c(.1, .6), data=support, bpplot='top')
+```
+
+## Other Examples
+
+Here is an example in which the distribution of continuous distributions is shown, stratified by disease group.
+
+```{r bpplotM}
+bpplotM(age + crea + meanbp + wblc ~ dzgroup,
+        data=support, cex.strip=0.4, cex.means=0.3, cex.n=0.45)
+```
+
+To understand the relationship between two continuous variables we may desire to estimate the mean (using ordinary least squares) and median (using quantile regression) as a smooth function of a predictor (using a restricted cubic spline fit).
+
+```{r meanq}
+require(rms)
+ddist <- datadist(support); options(datadist='ddist')
+f  <- ols(crea ~ rcs(age, 5), data=support)
+p1 <- Predict(f)
+g  <- Rq(crea ~ rcs(age, 5), tau=0.5, data=support)
+p2 <- Predict(g)
+p  <- rbind(Mean=p1, Median=p2)
+ggplot(p, groups='.set.')
+```
+
+Trends estimated from this plot are more accurate than those estimated from simply stratifying on age.
+
 ## Formatting
 
-For analysis the sky is the limit.  I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the special formatting.  Here is an example.
+I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the special formatting.  Here is an example.
 
 ```{r lrm,results='asis'}
 require(rms)
