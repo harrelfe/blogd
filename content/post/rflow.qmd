@@ -1361,7 +1361,7 @@ Many functions in the `Hmisc` and `rms` packages produce `plotly` graphics direc
 
 For analysis the sky is the limit, but [statistical principles](https://www.fharrell.com/post/principles) should guide every step.  Some of the general principles are
 
-* If there is to be a pivotal analysis there should be a statistical analysis plan (SAP) for this analysis that does not allow for many "statistician degrees of freedom."  The plan should be completed before doing any analysis that might inform the plan in a way that would bias the results (e.g., bias the estimate of treatment effect or bias standard errors of effects in a model).
+* If there is to be a pivotal analysis there should be a statistical analysis plan (SAP) for this analysis that does not allow for many "statistician degrees of freedom."  The plan should be completed before doing any analysis that might inform analysis choices in a way that would bias the results (e.g., bias the estimate of treatment effect or bias standard errors of effects in a model).
 * All analyses should be completely reproducible.  Explicitly state random number seeds if any random processes (bootstrap, simulation, Bayesian posterior sampling) are involved.
 * Exploratory analysis can take place after any needed SAP is completed.
 * Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
@@ -1390,6 +1390,15 @@ bpplotM(age + crea + meanbp + wblc ~ dzgroup,
         data=support, cex.strip=0.4, cex.means=0.3, cex.n=0.45)
 ```
 
+This is better done with interactive plots so that one can for example hover over a corner of a box plot and see which quantile that corner represents.
+
+```{r bpplotMp}
+s <- summaryM(age + crea + meanbp + wblc ~ dzgroup,
+              data=support)
+options(grType='plotly')
+plot(s)
+```
+
 To understand the relationship between two continuous variables we may desire to estimate the mean (using ordinary least squares) and median (using quantile regression) as a smooth function of a predictor (using a restricted cubic spline fit).
 
 ```{r meanq}
@@ -1399,15 +1408,42 @@ f  <- ols(crea ~ rcs(age, 5), data=support)
 p1 <- Predict(f)
 g  <- Rq(crea ~ rcs(age, 5), tau=0.5, data=support)
 p2 <- Predict(g)
-p  <- rbind(Mean=p1, Median=p2)
+p  <- rbind('OLS Mean'=p1, 'QR Median'=p2)
 ggplot(p, groups='.set.')
 ```
 
-Trends estimated from this plot are more accurate than those estimated from simply stratifying on age.
+Trends estimated from this plot are more accurate than those estimated from simply stratifying on age, and there were minimal assumptions.  In general the fewest assumptions are made when using known unbiased estimators (in this case the sample mean and sample median) computed on overlapping moving windows (here, of age) that advance by a small amount (here 0.5 years) each time.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  For each target age value the window for estimating creatinine is the target age ± 5y.  A `data.table` non-equi join handles the fuzzy matching into target age intervals.
+
+```{r moving}
+s      <- as.data.table(support)[, .(age, crea)]
+arange <- s[, round(c(sort(age)[10], sort(age, decreasing=TRUE)[10]))]
+aseq   <- seq(arange[1], arange[2], by=0.5)
+# Same as
+# arange <- round(ddist$limits[c('Low:prediction', 'High:prediction'), 'age'])
+a <- data.table(tage=aseq, key='tage')    # target ages for estimation
+a[, .q(lo, hi) := .(tage - 5, tage + 5)]  # define all windows
+m <- a[s, on=.(lo <= age, hi >= age)]     # non-equi join
+setkey(m, tage)
+g <- function(x) list('Sample Mean'   = mean(x, na.rm=TRUE),
+                      'Sample Median' = median(x, na.rm=TRUE))
+u <- m[, g(crea), by=tage]
+w <- melt(u, id.vars='tage',
+          measure.variables=c('Sample Mean', 'Sample Median'),
+          variable.name='Statistic', value.name='Creatinine')
+# Also compute loess estimates
+np <- loess(crea ~ age, data=s)
+pc <- predict(np, data.frame(age=aseq))
+w  <- rbind(w, data.table(tage=aseq, Creatinine=pc, Statistic='loess'))
+# Add estimates from OLS and quantile regression
+setDT(p)  # make it a data.table
+w  <- rbind(w, p[, .(tage=age, Creatinine=yhat, Statistic=.set.)])
+ggplot(w, aes(x=tage, y=Creatinine, color=Statistic)) + geom_line() +
+  xlab('Age')
+```
 
 ## Formatting
 
-I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the special formatting.  Here is an example.
+I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the formatting.  Here is an example.
 
 ```{r lrm,results='asis'}
 require(rms)
@@ -1419,6 +1455,7 @@ dd <- datadist(w); options(datadist='dd')  # rms needs for summaries and plottin
 f <- lrm(y ~ x + rcs(x2, 4), data=w)
 f
 anova(f)
+latex(f)   # show fitted model in math notation
 ```
 
 ## Caching
