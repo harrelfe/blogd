@@ -45,6 +45,39 @@ source('~/r/rmarkdown/qbookfun.r')
 This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering the creation of annotated analysis files and running descriptive statistics on them with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Finally, examples of caching results and doing parallel processing are presented.
 
 ::: {.callout-note collapse="true"}
+# R Code Repositories Used in This Report
+This report makes heavy use of the following R packages and Github repository:
+
+* [`Hmisc` package](https://hbiostat.org/R/Hmisc) which contains functions for importing data, data annotation, summary statistics, statistical graphics, advanced table making, etc.
+* [`data.table` package](https://www.rdocumentation.org/packages/data.table/versions/1.14.2) for data storage, retrieval, manipulation, aggregation, merging, and reshaping
+* [`ggplot2` package](https://ggplot2.tidyverse.org) for static graphics
+* [`plotly` package](https://plotly.com/r) for interactive graphics
+* [`rms` package](https://hbiostat.org/R/rms) for statistical modeling, validation, and presentation
+* [`knitr` package](https://cran.r-project.org/web/packages/knitr) for running reproducible reports, and also providing `kable` and `kables` functions for simple html table printing
+* [`rscripts` Github repository](https://github.com/harrelfe/rscripts) with utility functions such as
+   + `dataChk` for data checking
+   + `hashCheck` for checking if parent objects have changed so a slow analysis has to be re-run (i.e., talking control of caching)
+   + `htmlList` to easily print vectors in a named list using `kable`
+   + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
+   + `kabl` to make it easy to use `kable` and `kables` for making html tables
+   + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of an R object
+   + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
+   + `rsHelp` for viewing helps files for functions in `rscripts`
+   + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
+   
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
+
+```{r eval=FALSE}
+require(Hmisc)
+getRs('reptools.r')
+getRs('movStats.r')
+```
+   
+All the available help files for functions in `rscripts` are at [hbiostat.org/R/rscripts](https://hbiostat.org/R/rscripts).  To view a help file for one of the functions in the `RStudio` browser use for example `rsHelp(movStats)` or `rsHelp(reptools)`.
+:::
+
+::: {.callout-note collapse="true"}
 # R Basics
 ## Assignment Operator
 
@@ -1463,7 +1496,7 @@ latex(f)   # show fitted model in math notation
 
 ## Caching
 
-The workhorse behind `Rmarkdown` and `Quarto` is [knitr](https://www.r-project.org/nosvn/pandoc/knitr.html), which processes the code chunks and properly mingles code and tabular and graphical output.  `knitr` has a built-in caching mechanism to make it so that code is not needlessly executed when the code inputs have not changed. This easy-to-use process does have two disadvantages: the dependencies are not transparent, and the stored cache files may be quite large.  I like to take control of caching.  To that end, the [runifChanged](https://github.com/harrelfe/rscripts/blob/master/hashCheck.r) function was written.  Here is an example of its use.  First a function with no arguments must be composed.  This is the (usually slow) function that will be conditionally run if any of a group of listed objects has changed since the last time it was run.  This function when needed to be run produces an object that is stored in binary form in a user-specified file (the default file name is the name of the current R code chunk with `.rds` appended).
+The workhorse behind `Rmarkdown` and `Quarto` (besides [`Pandoc`](https://pandoc.org)) is [knitr](https://www.r-project.org/nosvn/pandoc/knitr.html), which processes the code chunks and properly mingles code and tabular and graphical output.  `knitr` has a built-in caching mechanism to make it so that code is not needlessly executed when the code inputs have not changed. This easy-to-use process does have two disadvantages: the dependencies are not transparent, and the stored cache files may be quite large.  I like to take control of caching.  To that end, the [runifChanged](https://github.com/harrelfe/rscripts/blob/master/hashCheck.r) function was written.  Here is an example of its use.  First a function with no arguments must be composed.  This is the (usually slow) function that will be conditionally run if any of a group of listed objects has changed since the last time it was run.  This function when needed to be run produces an object that is stored in binary form in a user-specified file (the default file name is the name of the current R code chunk with `.rds` appended).
 
 ```{r runifch}
 # Read the source code for the hashCheck and runifChanged functions from
