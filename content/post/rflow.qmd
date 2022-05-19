@@ -1362,7 +1362,7 @@ Many functions in the `Hmisc` and `rms` packages produce `plotly` graphics direc
 For analysis the sky is the limit, but [statistical principles](https://www.fharrell.com/post/principles) should guide every step.  Some of the general principles are
 
 * If there is to be a pivotal analysis there should be a statistical analysis plan (SAP) for this analysis that does not allow for many "statistician degrees of freedom."  The plan should be completed before doing any analysis that might inform analysis choices in a way that would bias the results (e.g., bias the estimate of treatment effect or bias standard errors of effects in a model).
-* All analyses should be completely reproducible.  Explicitly state random number seeds if any random processes (bootstrap, simulation, Bayesian posterior sampling) are involved.
+* All analyses should be completely [reproducible](https://hbiostat.org/bbr/md/repro.html).  Explicitly state random number seeds if any random processes (bootstrap, simulation, Bayesian posterior sampling) are involved.
 * Exploratory analysis can take place after any needed SAP is completed.
 * Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
 * If the study is a randomized trial, presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
@@ -1372,7 +1372,7 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 
 ## Replacement for Table 1
 
-Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  What is unknown is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.  Here is an example using the `Hmisc` `summaryRc` function.  Extended box plots show the mean, median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
+Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  When _apparent_ imbalances are found, they lead to inappropriate decisions and ignore the fact that [apparently counterbalancing factors are not hard to find](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials).  What is unknown and new is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.  Here is an example using the `Hmisc` `summaryRc` function.  Extended box plots show the mean, median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
 
 ```{r summaryrc}
 #| layout-ncol: 2
@@ -1381,9 +1381,7 @@ summaryRc(hospdead ~ age + crea + meanbp + wblc,
           ylim=c(.1, .6), data=support, bpplot='top')
 ```
 
-## Other Examples
-
-Here is an example in which the distribution of continuous variables is shown, stratified by disease group.
+Let's take a closer look at extended box plots.  Here is an example in which the distribution of continuous variables is shown, stratified by disease group.
 
 ```{r bpplotM}
 bpplotM(age + crea + meanbp + wblc ~ dzgroup,
@@ -1399,8 +1397,26 @@ options(grType='plotly')
 plot(s)
 ```
 
-To understand the relationship between two continuous variables we may desire to estimate the mean (using ordinary least squares) and median (using quantile regression) as a smooth function of a predictor (using a restricted cubic spline fit).
-Trends estimated this way are more accurate than those estimated from simply stratifying on age, and there were minimal assumptions.  In general the fewest assumptions are made when using known unbiased estimates (in this case the sample mean and sample median) are computed on overlapping moving windows (here, of age) that advance by a small amount (here 0.5 years) each time.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  For each target age value the window for estimating creatinine is the target ± 5y.  All this plus the two regression fits and `loess` nonparametric smoothers estimating the mean as a function of age are obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` package.
+## Descriptively Relating One Variable to Another
+
+To understand the relationship between a continuous variable X and an outcome or another variable Y we may estimate the mean, median, and other quantities as a smooth function of X[For binary Y the mean is the proportion of ones, which estimates the probability that Y=1]{.aside}.  There are many ways to do this, including
+
+* making a scatter plot if Y is continuous or almost continuous
+* stratifying by fixed or variable intervals of X, e.g., summarizing Y by quintiles of X.  This is [arbitrary, inefficient, and misleading](https://discourse.datamethods.org/t/categorizing-continuous-variables) and should never be done.
+* using a nonparametric smoother such as `loess`
+* parametrically estimating the mean Y as a function of X using an ordinary linear least squares (OLS) model with a regression spline in X so as to not assume linearity
+* likewise but with a logistic regression model if Y is binary
+* semiparametrically estimating quantiles of Y as a function of X using quantile regression and a regression spline for X
+* semiparametrically estimating the mean, quantiles, and exceedance probabilities of Y as a function of X using an ordinal regression model and a spline in X
+* nonparametrically using overlapping moving windows of X that advance by a small amount each time.  For each window compute the estimate of the property of Y using ordinary sample estimators (means, quantiles, Kaplan-Meier estimates, etc.).  This approach has the fewest assumptions and is very general in the sense that all types of Y are accommodated, but it may be difficult to choose the window width.
+
+In the following several of the above methods are illustrated to study how serum creatinine of critically ill patients relates to age.  Start with a scatterplot that has no problems with ties in the data.
+
+```{r ggfcr}
+with(support, ggfreqScatter(age, crea))
+```
+
+Now consider moving estimates, least squares and quantile regression estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.
 
 ```{r moving}
 #| fig.height: 5
@@ -1412,6 +1428,20 @@ u <- movStats(crea ~ age, eps=5, xinc=0.5,
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
   xlab('Age') + ylab('Serum Creatinine')
+```
+
+`r cwbc <- '$\\sqrt[3]{\\mathrm{WBC}}$'`
+Let's describe how white blood count relates to the probability of hospital death, using a binary logistic regression model and moving proportions with a ± 0.4 tolerance on `r cwbc`, and getting estimates every 0.025 `r cwbc` units.  The cube root transformation is used because of the extreme skewness of WBC, resulting in data being too sparse for high WBC for a fixed-window moving proportion to work well.  Use 6 knots at default locations on `r cwbc`. 
+
+```{r wbc}
+u <- movStats(hospdead ~ wblc, eps=0.4, xinc=0.025, k=6,
+              trans  = function(x) x^(1/3),
+              itrans = function(x) x^3,
+              loess=TRUE, lrm=TRUE,
+              melt=TRUE, data=support)
+ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
 ```
 
 ## Formatting
