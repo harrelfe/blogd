@@ -1449,7 +1449,7 @@ In the following several of the above methods are illustrated to study how serum
 with(support, ggfreqScatter(age, crea))
 ```
 
-Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used.
+Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used.  Moving estimates are shown with and without `lowess`-smoothing them.
 
 ```{r moving}
 #| fig.height: 5
@@ -1457,11 +1457,24 @@ Now consider moving estimates, least squares (OLS), ordinal regression (ORM), an
 getRs('movStats.r', put='source')
 u <- movStats(crea ~ age, eps=5, xinc=0.5,
               loess=TRUE, ols=TRUE, qreg=TRUE,
-              orm=TRUE, family='loglog',
+              orm=TRUE, family='loglog', msmooth='both',
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
   xlab('Age') + ylab('Serum Creatinine')
+```
+
+Recommended practice for relating a continuous variable to another continuouos variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. Since we are smoothing the moving estimates we use a smaller tolerance.  `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
+
+```{r creapref}
+u <- movStats(crea ~ age, eps=2, xinc=0.5,
+              msmooth='smoothed',
+              data=support)
+ggplot(u, aes(x=age, y=`Moving Median`)) + geom_line() +
+  geom_ribbon(aes(ymin=`Moving Q1`, ymax=`Moving Q3`), alpha=0.2) +
+  geom_line(aes(x=age, y=`Moving Mean`, col=I('blue'))) +
+  xlab('Age') + ylab('Serum Creatinine') +
+  labs(caption='Black line: median\nBlue line: mean\nBand: Q1 & Q3')
 ```
 
 `r cwbc <- '$\\sqrt[3]{\\mathrm{WBC}}$'`
@@ -1471,9 +1484,21 @@ Let's describe how white blood count relates to the probability of hospital deat
 u <- movStats(hospdead ~ wblc, eps=0.4, xinc=0.025, k=6,
               trans  = function(x) x^(1/3),
               itrans = function(x) x^3,
-              loess=TRUE, lrm=TRUE,
+              loess=TRUE, lrm=TRUE, msmooth='both',
               melt=TRUE, data=support)
 ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
+```
+
+The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example.
+
+```{r km}
+u <- movStats(Surv(d.time / 365.25, death) ~ age,
+              eps=2, xinc=0.5, times=1:2,
+              melt=TRUE, data=support)
+ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
+  ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom')
 ```
