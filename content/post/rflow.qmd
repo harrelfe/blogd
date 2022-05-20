@@ -1449,7 +1449,7 @@ In the following several of the above methods are illustrated to study how serum
 with(support, ggfreqScatter(age, crea))
 ```
 
-Now consider moving estimates, least squares and quantile regression estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.
+Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used.
 
 ```{r moving}
 #| fig.height: 5
@@ -1457,6 +1457,7 @@ Now consider moving estimates, least squares and quantile regression estimates, 
 getRs('movStats.r', put='source')
 u <- movStats(crea ~ age, eps=5, xinc=0.5,
               loess=TRUE, ols=TRUE, qreg=TRUE,
+              orm=TRUE, family='loglog',
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
