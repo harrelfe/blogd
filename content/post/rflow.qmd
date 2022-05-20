@@ -42,14 +42,14 @@ source('~/r/rmarkdown/qbookfun.r')
 ```
 
 [`r hypcomment`]{.aside}
-This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering the creation of annotated analysis files and running descriptive statistics on them with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Finally, examples of caching results and doing parallel processing are presented.
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate analysis methods are presented.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
 
 ::: {.callout-note collapse="true"}
 # R Code Repositories Used in This Report
 This report makes heavy use of the following R packages and Github repository:
 
 * [`Hmisc` package](https://hbiostat.org/R/Hmisc) which contains functions for importing data, data annotation, summary statistics, statistical graphics, advanced table making, etc.
-* [`data.table` package](https://www.rdocumentation.org/packages/data.table/versions/1.14.2) for data storage, retrieval, manipulation, aggregation, merging, and reshaping
+* [`data.table` package](https://www.rdocumentation.org/packages/data.table/versions/1.14.2) for data storage, retrieval, manipulation, munging, aggregation, merging, and reshaping
 * [`ggplot2` package](https://ggplot2.tidyverse.org) for static graphics
 * [`plotly` package](https://plotly.com/r) for interactive graphics
 * [`rms` package](https://hbiostat.org/R/rms) for statistical modeling, validation, and presentation
@@ -70,11 +70,11 @@ The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, 
 
 ```{r eval=FALSE}
 require(Hmisc)
-getRs('reptools.r')
-getRs('movStats.r')
+getRs('reptools.r', put='source')
+getRs('movStats.r', put='source')
 ```
    
-All the available help files for functions in `rscripts` are at [hbiostat.org/R/rscripts](https://hbiostat.org/R/rscripts).  To view a help file for one of the functions in the `RStudio` browser use for example `rsHelp(movStats)` or `rsHelp(reptools)`.
+All the available help files for functions in `rscripts` are at [hbiostat.org/R/rscripts](https://hbiostat.org/R/rscripts).  To view a help file for one of the functions in the `RStudio` `Viewer` pane use for example `rsHelp(movStats)` or `rsHelp(reptools)`.
 :::
 
 ::: {.callout-note collapse="true"}
@@ -210,7 +210,7 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.[Report formatting is very much enhanced by using variable attributes such as labels and units of measurement that are not considered in base R.  Methods for better annotating output using labels and units are given below.]{.aside}
 
-This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object in the same code chunk that produces plain text, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.  `inline` is more for printing character strings.]{.aside}
+This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object that produces plain text in the same code chunk, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.  `inline` is more for printing character strings.]{.aside}
 
 ::: {.column-margin}
 
