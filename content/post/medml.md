@@ -1,7 +1,7 @@
 +++
 title = "Is Medicine Mesmerized by Machine Learning?"
 date = 2018-02-01
-modified = 2020-06-22
+modified = 2022-05-21
 tags = ["machine-learning", "accuracy-score", "classification", "data-science", "decision-making", "medicine", "prediction", "validation", "2018"]
 summary = "Deep learning and other forms of machine learning are getting a lot of press in medicine.  The reality doesn't match the hype, and interpretable statistical models still have a lot to offer."
 +++
@@ -96,10 +96,8 @@ In the rush to use ML and large EHR databases to accelerate learning from data, 
 * [The "inconvenient truth" about AI in
   healthcare](https://www.nature.com/articles/s41746-019-0155-4) by T
   Panch, H Mattie, L Celi
-* [Deep learning: A critical
-  appraisal](https://arxiv.org/abs/1801.00631) by Gary Marcus
-* [Comments on Rebooting
-  AI](https://twitter.com/EricTopol/status/1165753310730579969) by
+* [Deep learning: A critical appraisal](https://arxiv.org/abs/1801.00631) by Gary Marcus
+* [Comments on Rebooting AI](https://twitter.com/EricTopol/status/1165753310730579969) by
   Eric Topol
 * [AI equal with human experts in medical diagnosis, study finds](https://amp.theguardian.com/technology/2019/sep/24/ai-equal-with-human-experts-in-medical-diagnosis-study-finds) by Nicola Davis
 * [Why deep-learning AIs are so easy to fool](https://www.nature.com/articles/d41586-019-03013-5) by Douglas Heaven
@@ -110,3 +108,4 @@ In the rush to use ML and large EHR databases to accelerate learning from data, 
 * [Fair warning](https://reallifemag.com/fair-warning) by Adeba Birhane
 * [Logistic regression was as good as machine learning for predicting
   major chronic diseases](https://www.jclinepi.com/article/S0895-4356(19)31019-4/abstract) by Nusinovici et al
+* [AI for medicine is overhyped right now](https://moreisdifferent.substack.com/p/ai-deep-learning-radiology-medicine-overhyped) by Dan Elton

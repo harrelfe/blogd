@@ -42,7 +42,7 @@ source('~/r/rmarkdown/qbookfun.r')
 ```
 
 [`r hypcomment`]{.aside}
-This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate analysis methods are presented.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
 
 ::: {.callout-note collapse="true"}
 # R Code Repositories Used in This Report
@@ -70,6 +70,7 @@ The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, 
 
 ```{r eval=FALSE}
 require(Hmisc)
+#ggplotlyr <- function(x, ...) x   ## ?????
 getRs('reptools.r', put='source')
 getRs('movStats.r', put='source')
 ```
@@ -153,7 +154,7 @@ f <- switch(parametric     = ols(y ~ x),
             semiparametric = orm(y ~ x),
             nonparametric  = rcorr(x, y, type='spearman'),
             { z <- y / x
-              c(median=median(z), gmean=exp(mean(log(z))) } )
+              c(median=median(z), gmean=exp(mean(log(z)))) } )
 # The last 2 lines are executed for any type other than the 3 listed
 f <- if(type == 'parametric')    ols(y ~ x)
   else
@@ -1397,10 +1398,11 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 * If there is to be a pivotal analysis there should be a statistical analysis plan (SAP) for this analysis that does not allow for many "statistician degrees of freedom."  The plan should be completed before doing any analysis that might inform analysis choices in a way that would bias the results (e.g., bias the estimate of treatment effect or bias standard errors of effects in a model).
 * All analyses should be completely [reproducible](https://hbiostat.org/bbr/md/repro.html).  Explicitly state random number seeds if any random processes (bootstrap, simulation, Bayesian posterior sampling) are involved.
 * Exploratory analysis can take place after any needed SAP is completed.
+* [Stay close to the raw data](https://stackoverflow.blog/2022/03/03/stop-aggregating-away-the-signal-in-your-data)
 * Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
 * If the study is a randomized trial, presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
 * Above the tendency to interchange the roles of independent and dependent variables by presenting a "Table 2" in such a way that stratifies by the outcome.  Stratifying (conditioning) on the outcome is placing it in the role of a baseline variable.  Instead, show relationships of baseline variables to outcomes as mentioned in the previous point.
-* Nonparametric smoothers are excellent tools for relating individual continuous variables to an outcome.
+* Nonparametric smoothers and estimating in overlapping moving windows are excellent tools for relating individual continuous variables to an outcome.
 * Models are often the best descriptive tools because they can account for multiple variables simultaneously.  For example, instead of computing proportions of missing values of a variable Y stratified by age groups and sex, use a binary logistic regression model to relate smooth nonlinear age and sex to the probability Y is missing.
 
 ## Replacement for Table 1
@@ -1441,7 +1443,9 @@ To understand the relationship between a continuous variable X and an outcome or
 * likewise but with a logistic regression model if Y is binary
 * semiparametrically estimating quantiles of Y as a function of X using quantile regression and a regression spline for X
 * semiparametrically estimating the mean, quantiles, and exceedance probabilities of Y as a function of X using an ordinal regression model and a spline in X
-* nonparametrically using overlapping moving windows of X that advance by a small amount each time.  For each window compute the estimate of the property of Y using ordinary sample estimators (means, quantiles, Kaplan-Meier estimates, etc.).  This approach has the fewest assumptions and is very general in the sense that all types of Y are accommodated, but it may be difficult to choose the window width.
+* nonparametrically using overlapping moving windows of X that advance by a small amount each time.  For each window compute the estimate of the property of Y using ordinary sample estimators (means, quantiles, Kaplan-Meier estimates, etc.).  This approach has the fewest assumptions and is very general in the sense that all types of Y are accommodated.  The moving estimates need to be smoothed; the R `supsmu` function is well suited for this.
+
+The estimated trend curves depend on the window width and amount of smoothing, but this problem is tiny in comparison with the huge effect of changing how a continuous predictor is binned when the usual non-overlapping strata are created.  The idea is assume smooth relationships and get close to the data.
 
 In the following several of the above methods are illustrated to study how serum creatinine of critically ill patients relates to age.  Start with a scatterplot that has no problems with ties in the data.
 
@@ -1449,7 +1453,7 @@ In the following several of the above methods are illustrated to study how serum
 with(support, ggfreqScatter(age, crea))
 ```
 
-Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used.  Moving estimates are shown with and without `lowess`-smoothing them.
+Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  Estimates are made from the 10th smallest to the 10th largest age to avoid extrapolation.  The mean and all three quartiles are estimated.  For each target age value the window for estimating creatinine is the target ± 5y.  Age is incremented by 0.5y for the next window.  All this is obtained by the `movStats` function [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r), which makes heavy use of `data.table` and the `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used.  Moving estimates are shown with and without [`supsmu`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/supsmu)-smoothing them.
 
 ```{r moving}
 #| fig.height: 5
@@ -1501,6 +1505,66 @@ ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
   ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom')
+```
+
+## One Continuous and One Categorical Predictor
+
+It is possible to descriptively estimate trends against more than one independent variables when the effective sample size is sufficient.  Trends can be estimated nonparametrically through stratification (when the third variable is categorical) or with flexible regression models allowing the two predictors to interact.  In the graphical displays it is useful to keep sample size limitations in certain regions of the space defined by the two predictors in mind, by superimposing spike histograms on trend curves.
+
+Repeat the last example but stratified by disease class.  The window is widened a bit because of the reduced sample size upon stratification.
+
+```{r km2}
+u <- movStats(Surv(d.time / 365.25, death) ~ age + dzclass,
+              eps=3, xinc=0.5, times=1:2,
+              msmooth='both',
+              melt=TRUE, data=support)
+ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
+  facet_grid(Type ~ Statistic) +
+  ylab(label(u$incidence)) +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
+```
+
+Consider another example with a continuous dependent variable.  Use the NHANES dataset that was created for analyzing glycohemoglobin (HbA$_{\mathrm{1c}}$) for diabetes screening.  Stratify by race/ethnicity
+
+```{r nhanes}
+getHdata(nhgh)
+u <- movStats(gh ~ age + re,
+              eps=2, xinc=0.5,
+              melt=TRUE, data=nhgh)
+ggplot(u, aes(x=age, y=gh, col=re)) + geom_line() +
+  facet_wrap( ~ Statistic) +
+  ylab(label(nhgh$gh)) +
+  guides(color=guide_legend(title='', nrow=2)) +
+  theme(legend.position='bottom')
+```
+
+Mimic these results using flexible regression with interaction.  Start by estimating the mean.  Add spike histograms to estimated trend curves.  Spike heights are proportional to the sample size in age/race-ethnicity groups after binning age into 100 bins.
+
+```{r ghols,results='asis'}
+require(rms)
+options(prType='html')  # needed to use special formatting (can use prType='latex')
+dd <- datadist(nhgh); options(datadist='dd')
+f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
+anova(f)
+source('~/R/rms/R/ggplot.Predict.s')
+ggplot(Predict(f, age, re), rdata=nhgh,
+       histSpike.opts=
+         list(frac=function(f) 0.1 * f / max(f),
+              side=1, nint=100))
+# For some reason can't add theme or guides to ggplot.Predict output
+```
+
+Now use quantile regression to estimate quartiles of glycohemoglobin as a function of age and race/ethnicity.
+
+```{r nhghq}
+f1 <- Rq(gh ~ rcs(age, 5) * re, tau=0.25, data=nhgh)
+f2 <- Rq(gh ~ rcs(age, 5) * re, tau=0.5,  data=nhgh)
+f3 <- Rq(gh ~ rcs(age, 5) * re, tau=0.75, data=nhgh)
+p  <- rbind(Q1     = Predict(f1, age, re, conf.int=FALSE),
+            Median = Predict(f2, age, re, conf.int=FALSE),
+            Q3     = Predict(f3, age, re, conf.int=FALSE))
+ggplot(p)
 ```
 
 ## Formatting
@@ -1693,6 +1757,10 @@ u <- data.table(r    = as.vector(m),
   
 # Plot u using same ggplot code as above
 ```
+
+# Other Resources
+
+* [Software development resources for data scientists](https://www.rstudio.com/blog/software-development-resources-for-data-scientists) by ISABELLA VELÁSQUEZ
 
 # Computing Environment
 
