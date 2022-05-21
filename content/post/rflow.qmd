@@ -1468,7 +1468,7 @@ ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   xlab('Age') + ylab('Serum Creatinine')
 ```
 
-Recommended practice for relating a continuous variable to another continuouos variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. Since we are smoothing the moving estimates we use a smaller tolerance.  `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
+Recommended practice for relating a continuous variable to another continuous variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. Since we are smoothing the moving estimates we use a smaller tolerance.  `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
 
 ```{r creapref}
 u <- movStats(crea ~ age, eps=2, xinc=0.5,
@@ -1495,13 +1495,15 @@ ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
   theme(legend.position='bottom')
 ```
 
-The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example.
+The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example that also uses an flexible parametric method, [hazard regression](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476491), implemented in the R [`polspline`](https://cran.r-project.org/web/packages/polspline/index.html) package, that adaptively finds knots (points of slope change) in the covariate and in time, and products of piecewise linear terms so as to allow for non-proportional hazards.  We use far less penalization that is the default for the `hare` function for demonstration purposes.  For this dataset the default settings of `penalty` and `maxdim` result in straight lines.
 
 ```{r km}
 u <- movStats(Surv(d.time / 365.25, death) ~ age,
               eps=2, xinc=0.5, times=1:2,
+              hare=TRUE, penalty=0.5, maxdim=30,
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
+  facet_wrap(~ Type) +
   ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom')
@@ -1511,12 +1513,12 @@ ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
 
 It is possible to descriptively estimate trends against more than one independent variables when the effective sample size is sufficient.  Trends can be estimated nonparametrically through stratification (when the third variable is categorical) or with flexible regression models allowing the two predictors to interact.  In the graphical displays it is useful to keep sample size limitations in certain regions of the space defined by the two predictors in mind, by superimposing spike histograms on trend curves.
 
-Repeat the last example but stratified by disease class.  The window is widened a bit because of the reduced sample size upon stratification.
+Repeat the last example but stratified by disease class.  The window is widened a bit because of the reduced sample size upon stratification.  Default smoothing is used for hazard regression.
 
 ```{r km2}
 u <- movStats(Surv(d.time / 365.25, death) ~ age + dzclass,
               eps=3, xinc=0.5, times=1:2,
-              msmooth='both',
+              msmooth='both', hare=TRUE,
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   facet_grid(Type ~ Statistic) +
@@ -1547,7 +1549,6 @@ options(prType='html')  # needed to use special formatting (can use prType='late
 dd <- datadist(nhgh); options(datadist='dd')
 f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
 anova(f)
-source('~/R/rms/R/ggplot.Predict.s')
 ggplot(Predict(f, age, re), rdata=nhgh,
        histSpike.opts=
          list(frac=function(f) 0.1 * f / max(f),
