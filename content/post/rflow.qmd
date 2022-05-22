@@ -1465,7 +1465,8 @@ u <- movStats(crea ~ age,
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
-  xlab('Age') + ylab('Serum Creatinine')
+  xlab('Age') + ylab('Serum Creatinine') +
+  labs(caption=attr(u, 'info'))
  ```
 
 Recommended practice for relating a continuous variable to another continuous variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
@@ -1491,10 +1492,12 @@ u <- movStats(hospdead ~ wblc, k=6,
               melt=TRUE, data=support)
 ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
   guides(color=guide_legend(title='')) +
-  theme(legend.position='bottom')
+  theme(legend.position='bottom',
+        plot.caption=element_text(family='mono', size=6)) +
+  labs(caption=attr(u, 'info'))
 ```
 
-The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example that also uses an flexible parametric method, [hazard regression](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476491), implemented in the R [`polspline`](https://cran.r-project.org/web/packages/polspline/index.html) package, that adaptively finds knots (points of slope change) in the covariate and in time, and products of piecewise linear terms so as to allow for non-proportional hazards.  We use far less penalization that is the default for the `hare` function for demonstration purposes.  For this dataset the default settings of `penalty` and `maxdim` result in straight lines.
+The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example that also uses an flexible parametric method, [hazard regression](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476491), implemented in the R [`polspline`](https://cran.r-project.org/web/packages/polspline/index.html) package, that adaptively finds knots (points of slope change) in the covariate and in time, and products of piecewise linear terms so as to allow for non-proportional hazards.  We use far less penalization than is the default for the `hare` function for demonstration purposes.  For this dataset the default settings of `penalty` and `maxdim` result in straight lines.
 
 ```{r km}
 u <- movStats(Surv(d.time / 365.25, death) ~ age, times=1:2,
@@ -1523,7 +1526,9 @@ ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   facet_grid(Type ~ Statistic) +
   ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
-  theme(legend.position='bottom')
+  theme(legend.position='bottom',
+        plot.caption=element_text(family='mono', size=6)) +
+  labs(caption=attr(u, 'info'))
 ```
 
 Consider another example with a continuous dependent variable.  Use the NHANES dataset that was created for analyzing glycohemoglobin (HbA$_{\mathrm{1c}}$) for diabetes screening.  Stratify by race/ethnicity
@@ -1536,7 +1541,10 @@ ggplot(u, aes(x=age, y=gh, col=re)) + geom_line() +
   facet_wrap( ~ Statistic) +
   ylab(label(nhgh$gh)) +
   guides(color=guide_legend(title='', nrow=2)) +
-  theme(legend.position='bottom')
+  theme(legend.position='bottom',
+        plot.caption=element_text(family='mono', size=6)) +
+  labs(caption=attr(u, 'info'))
+
 ```
 
 Mimic these results using flexible regression with interaction.  Start by estimating the mean.  Add spike histograms to estimated trend curves.  Spike heights are proportional to the sample size in age/race-ethnicity groups after binning age into 100 bins.  Direct `plotly` plotting is used.  The user can click on elements of the legend (including the histograms) to turn their display off and on.
