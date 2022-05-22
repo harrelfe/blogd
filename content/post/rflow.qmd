@@ -1466,6 +1466,7 @@ u <- movStats(crea ~ age,
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
   xlab('Age') + ylab('Serum Creatinine') +
+  theme(plot.caption=element_text(family='mono', size=7)) +
   labs(caption=attr(u, 'info'))
  ```
 
@@ -1493,7 +1494,7 @@ u <- movStats(hospdead ~ wblc, k=6,
 ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=6)) +
+        plot.caption=element_text(family='mono', size=7)) +
   labs(caption=attr(u, 'info'))
 ```
 
@@ -1527,7 +1528,7 @@ ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=6)) +
+        plot.caption=element_text(family='mono', size=7)) +
   labs(caption=attr(u, 'info'))
 ```
 
@@ -1542,9 +1543,8 @@ ggplot(u, aes(x=age, y=gh, col=re)) + geom_line() +
   ylab(label(nhgh$gh)) +
   guides(color=guide_legend(title='', nrow=2)) +
   theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=6)) +
+        plot.caption=element_text(family='mono', size=7)) +
   labs(caption=attr(u, 'info'))
-
 ```
 
 Mimic these results using flexible regression with interaction.  Start by estimating the mean.  Add spike histograms to estimated trend curves.  Spike heights are proportional to the sample size in age/race-ethnicity groups after binning age into 100 bins.  Direct `plotly` plotting is used.  The user can click on elements of the legend (including the histograms) to turn their display off and on.
