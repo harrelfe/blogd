@@ -1468,7 +1468,9 @@ In the following several of the above methods are illustrated to study how serum
 with(support, ggfreqScatter(age, crea))
 ```
 
-Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  `movStats` provides two methods for creating moving overlapping windows.  The default used here creates varying-width intervals in the data space but fixed-width in terms of sample size.  It includes by default 75 observations to the left of the target point and 75 to the right, and moves up $\max(\frac{n}{200}, 1)$ observations for each evaluation of the statistics.  These may be overridden by specifying `eps` and `xinc`.  The mean and all three quartiles are estimated for each window.  All this is obtained by `movStats`, which is [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r) and makes heavy use of the `data.table` and `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used in the example below.  Moving estimates are shown with and without [`supsmu`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/supsmu)-smoothing them.
+Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, nonparametric `loess` estimates, and a flexible adaptive survival model.  Moving estimates computed on overlapping x-variable windows, moving averages being the oldest example, have the advantage of great flexibility.  As long as one has an estimator (mean, median, Kaplan-Meier estimate, etc.) that can be applied to a relatively homogeneous (with respect to x) sample, moving statistics can estimate smooth trends over x.  Unless the windows are wide or the sample size is very large so that one can afford to use narrow x windows, the moving statistics will be noisy and need to be further smoothed.  The smaller the windows, the larger the amount of smoothing will be needed.  To control bias it is generally better to have smaller windows and more after-estimation smoothing.
+
+The function  `movStats` on [Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r)    provides two methods for creating moving overlapping windows from x.  The default used here creates varying-width intervals in the data space but fixed-width in terms of sample size.  It includes by default 15 observations to the left of the target point and 15 to the right, and moves up $\max(\frac{n}{200}, 1)$ observations for each evaluation of the statistics.  These may be overridden by specifying `eps` and `xinc`.  If the user does not provide a statistical estimation function `stat`, the mean and all three quartiles are estimated for each window.  `movStats` makes heavy use of the `data.table`, `rms`, and other packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used in the example below.  Moving estimates are shown with and without [`supsmu`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/supsmu)-smoothing them.
 
 ```{r moving,results='asis'}
 #| fig.height: 5
@@ -1487,7 +1489,7 @@ ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
 Recommended practice for relating a continuous variable to another continuous variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
 
 ```{r creapref}
-u <- movStats(crea ~ age, data=support)
+u <- movStats(crea ~ age, bass=9, data=support)
 ggplot(u, aes(x=age, y=`Moving Median`)) + geom_line() +
   geom_ribbon(aes(ymin=`Moving Q1`, ymax=`Moving Q3`), alpha=0.2) +
   geom_line(aes(x=age, y=`Moving Mean`, col=I('blue'))) +
@@ -1500,7 +1502,7 @@ Let's describe how white blood count relates to the probability of hospital deat
 The cube root transformation in regression fits is used because of the extreme skewness of WBC.  Use 6 knots at default locations on `r cwbc`.  The `r cwbc` transformation affects moving statistics only in that mean x-values for plotting are cubes of mean `r cwbc` instead of means on the original WBC scale.
 
 ```{r wbc,results='asis'}
-u <- movStats(hospdead ~ wblc, k=6,
+u <- movStats(hospdead ~ wblc, k=6, eps=20,
               trans  = function(x) x ^ (1/3),
               itrans = function(x) x ^ 3,
               loess=TRUE, lrm=TRUE, msmooth='both',
@@ -1514,6 +1516,7 @@ The flexibility of the moving statistic method is demonstrated by estimating how
 
 ```{r km}
 u <- movStats(Surv(d.time / 365.25, death) ~ age, times=1:2,
+              eps=30, bass=9,
               hare=TRUE, penalty=0.5, maxdim=30,
               melt=TRUE, data=support)
 ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
@@ -1533,7 +1536,8 @@ Repeat the last example but stratified by disease class.  The window is widened 
 # The Coma stratum has only n=60 so is not compatible with eps=75
 # Use varyeps options
 u <- movStats(Surv(d.time / 365.25, death) ~ age + dzclass, times=1:2,
-              varyeps=TRUE, msmooth='both', hare=TRUE,
+              eps=30,
+              msmooth='both', bass=8, hare=TRUE,
               melt=TRUE, data=support, pr='margin')
 ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   facet_grid(Type ~ Statistic) +
@@ -1563,7 +1567,7 @@ options(prType='html')  # needed to use special formatting (can use prType='late
 dd <- datadist(nhgh); options(datadist='dd')
 f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
 # fontsize will be available for print(anova()) in rms 6.3-1
-makecolmarg(anova(f), list(dec.ms=2, dec.ss=2, fontsize=1.1))
+makecolmarg(anova(f), printargs=list(dec.ms=2, dec.ss=2, fontsize=1.2))
 # Normal printing: anova(f) or anova(f, dec.ms=2, dec.ss=2)
 hso <- list(frac=function(f) 0.1 * f / max(f),
             side=1, nint=100)
