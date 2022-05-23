@@ -62,11 +62,12 @@ This report makes heavy use of the following R packages and Github repository:
    + `kabl` to make it easy to use `kable` and `kables` for making html tables
    + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of an R object
    + `makecolmarg` to print an object in the right margin in `Quarto` reports
+   + `makecnote` to print an object in a collapsible `Quarto` note
    + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
    + `rsHelp` for viewing helps files for functions in `rscripts`
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
    
-Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
 
 ```{r eval=FALSE}
@@ -179,6 +180,18 @@ type <- ifelse(x %in% c('cat', 'dog'), 'domestic', 'wild')
 type
 require(data.table)
 fcase(x %in% c('cat', 'dog'), 'domestic', default='wild')
+```
+
+### `if` Trick
+
+Sometimes when constructing variable-length vectors and other objects, elements are to be included in the newly constructed object only when certain conditions apply.  When a condition does not apply, no element is to be inserted.  We can capitalize on the fact that the result of `if(...)` is `NULL` when `...` is not `TRUE`, and concatenating `NULL` results in ignoring it.  Here are two examples.  In the first the resulting vector will have length 2, 3, or 4 depending on `sex` and `height`.  In the second example the new vector will have the appropriate element `names` preserved.
+
+```{r iftrick}
+y <- 23; z <- 46; sex <- 'female'; height <- 71; u <- pi; w <- 7
+c(y, z, if(sex == 'male') u, if(height > 70) w)
+c(x1=3, if(sex == 'male') c(x2=4), if(height > 70) c(x3=height))
+# reduce clutter in case of variable name conflicts:
+rm(y, z, sex, height, u, w)
 ```
 
 ## Functions
@@ -1549,7 +1562,9 @@ require(rms)
 options(prType='html')  # needed to use special formatting (can use prType='latex')
 dd <- datadist(nhgh); options(datadist='dd')
 f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
-anova(f)
+# fontsize will be available for print(anova()) in rms 6.3-1
+makecolmarg(anova(f), list(dec.ms=2, dec.ss=2, fontsize=1.1))
+# Normal printing: anova(f) or anova(f, dec.ms=2, dec.ss=2)
 hso <- list(frac=function(f) 0.1 * f / max(f),
             side=1, nint=100)
 # Plot with plotly directly
@@ -1581,7 +1596,8 @@ w <- data.table(x=runif(n), x2=rnorm(n), y=sample(0:1, n, replace=TRUE))
 dd <- datadist(w); options(datadist='dd')  # rms needs for summaries and plotting
 f <- lrm(y ~ x + rcs(x2, 4), data=w)
 f
-anova(f)
+makecnote(anova(f), printargs=list(fontsize=2))   # in collapsible note
+# Compensating font size for a problem where the size was too small
 latex(f)   # show fitted model in math notation
 ```
 
