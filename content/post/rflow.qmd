@@ -61,16 +61,16 @@ This report makes heavy use of the following R packages and Github repository:
    + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
    + `kabl` to make it easy to use `kable` and `kables` for making html tables
    + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of an R object
+   + `makecolmarg` to print an object in the right margin in `Quarto` reports
    + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
    + `rsHelp` for viewing helps files for functions in `rscripts`
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
    
-Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
 
 ```{r eval=FALSE}
 require(Hmisc)
-#ggplotlyr <- function(x, ...) x   ## ?????
 getRs('reptools.r', put='source')
 getRs('movStats.r', put='source')
 ```
@@ -563,7 +563,7 @@ I prefer short but descriptive variable names.  As exemplified above, I use vari
 
 ## Data Dictionary
 
-The `Hmisc` package `contents` function will provide a concise data dictionary.    Here is an example using the permanent version[The permanent version of `stressEcho` coded binary variables as 0/1 instead of N/Y.]{.aside} of the dataset created above, which can be accessed with the `Hmisc` `getHdata` function.  The top of the `contents` output has the number of levels for `factor` variables hyperlinked.  Click on the number to go directly to the list of levels for that variable.
+The `Hmisc` package `contents` function will provide a concise data dictionary.    Here is an example using the permanent version (which coded binary variables as 0/1 instead of N/Y) of the dataset created above, which can be accessed with the `Hmisc` `getHdata` function.  The top of the `contents` output has the number of levels for `factor` variables hyperlinked.  Click on the number to go directly to the list of levels for that variable.
 
 ```{r getdat}
 require(Hmisc)
@@ -580,7 +580,6 @@ html(contents(d), levelType='table')
 :::
 
 You can write the text output of `contents` into a text file in your current working directory, and click on that file in the `RStudio` `Files` window to create a new tab in the editor panel where you can view the data dictionary at any time.  This is especially helpful if you need a reminder of variable definitions that are stored in the variable labels.  Here is an example where the formatted data dictionary is saved.  [Users having the `xless` system command installed can pop up a `contents` window at any time by typing `xless(contents(d))` in the console. `xless` is in `Hmisc`.]{.aside}
-
 
 ```{r,eval=FALSE}
 capture.output(contents(d), file='contents.txt')
@@ -1360,6 +1359,9 @@ g <-
          labs(caption='Scatterplot of age by basal heart rate stratified by sex') +
          labx(age) + laby(bhr)
 # or just xlab('Age in years') + ylab('Basal heart rate')
+# To put the caption in a different font or size use e.g.
+#   theme(plot.caption=element_text(family='mono', size=7))
+
 ggplotlyr(g, remove='.*): ')  # removes paste0("dose:", dose): 
 # dose is in hover text for each point
 ```
@@ -1455,20 +1457,19 @@ with(support, ggfreqScatter(age, crea))
 
 Now consider moving estimates, least squares (OLS), ordinal regression (ORM), and quantile regression (QR) estimates, and nonparametric `loess` estimates.  `movStats` provides two methods for creating moving overlapping windows.  The default used here creates varying-width intervals in the data space but fixed-width in terms of sample size.  It includes by default 75 observations to the left of the target point and 75 to the right, and moves up $\max(\frac{n}{200}, 1)$ observations for each evaluation of the statistics.  These may be overridden by specifying `eps` and `xinc`.  The mean and all three quartiles are estimated for each window.  All this is obtained by `movStats`, which is [on Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r) and makes heavy use of the `data.table` and `rms` packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used in the example below.  Moving estimates are shown with and without [`supsmu`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/supsmu)-smoothing them.
 
-```{r moving}
+```{r moving,results='asis'}
 #| fig.height: 5
 #| fig.width: 7
 getRs('movStats.r', put='source')
 u <- movStats(crea ~ age,
               loess=TRUE, ols=TRUE, qreg=TRUE,
               orm=TRUE, family='loglog', msmooth='both',
-              melt=TRUE, data=support)
+              melt=TRUE, data=support, pr='margin')
+# pr='margin' causes window information to be put in margin
 ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
   facet_wrap(~ Statistic) +
-  xlab('Age') + ylab('Serum Creatinine') +
-  theme(plot.caption=element_text(family='mono', size=7)) +
-  labs(caption=attr(u, 'info'))
- ```
+  xlab('Age') + ylab('Serum Creatinine')
+```
 
 Recommended practice for relating a continuous variable to another continuous variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
 
@@ -1485,17 +1486,15 @@ ggplot(u, aes(x=age, y=`Moving Median`)) + geom_line() +
 Let's describe how white blood count relates to the probability of hospital death, using a binary logistic regression model and moving proportions.
 The cube root transformation in regression fits is used because of the extreme skewness of WBC.  Use 6 knots at default locations on `r cwbc`.  The `r cwbc` transformation affects moving statistics only in that mean x-values for plotting are cubes of mean `r cwbc` instead of means on the original WBC scale.
 
-```{r wbc}
+```{r wbc,results='asis'}
 u <- movStats(hospdead ~ wblc, k=6,
               trans  = function(x) x ^ (1/3),
               itrans = function(x) x ^ 3,
               loess=TRUE, lrm=TRUE, msmooth='both',
-              melt=TRUE, data=support)
+              melt=TRUE, pr='margin', data=support)
 ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
   guides(color=guide_legend(title='')) +
-  theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=7)) +
-  labs(caption=attr(u, 'info'))
+  theme(legend.position='bottom')
 ```
 
 The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example that also uses an flexible parametric method, [hazard regression](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476491), implemented in the R [`polspline`](https://cran.r-project.org/web/packages/polspline/index.html) package, that adaptively finds knots (points of slope change) in the covariate and in time, and products of piecewise linear terms so as to allow for non-proportional hazards.  We use far less penalization than is the default for the `hare` function for demonstration purposes.  For this dataset the default settings of `penalty` and `maxdim` result in straight lines.
@@ -1517,34 +1516,30 @@ It is possible to descriptively estimate trends against more than one independen
 
 Repeat the last example but stratified by disease class.  The window is widened a bit because of the reduced sample size upon stratification.  Default smoothing is used for hazard regression.
 
-```{r km2}
+```{r km2,results='asis'}
 # The Coma stratum has only n=60 so is not compatible with eps=75
 # Use varyeps options
 u <- movStats(Surv(d.time / 365.25, death) ~ age + dzclass, times=1:2,
               varyeps=TRUE, msmooth='both', hare=TRUE,
-              melt=TRUE, data=support)
+              melt=TRUE, data=support, pr='margin')
 ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   facet_grid(Type ~ Statistic) +
   ylab(label(u$incidence)) +
   guides(color=guide_legend(title='')) +
-  theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=7)) +
-  labs(caption=attr(u, 'info'))
+  theme(legend.position='bottom')
 ```
 
 Consider another example with a continuous dependent variable.  Use the NHANES dataset that was created for analyzing glycohemoglobin (HbA$_{\mathrm{1c}}$) for diabetes screening.  Stratify by race/ethnicity
 
-```{r nhanes}
+```{r nhanes,results='asis'}
 getHdata(nhgh)
 u <- movStats(gh ~ age + re,
-              melt=TRUE, data=nhgh)
+              melt=TRUE, data=nhgh, pr='margin')
 ggplot(u, aes(x=age, y=gh, col=re)) + geom_line() +
   facet_wrap( ~ Statistic) +
   ylab(label(nhgh$gh)) +
   guides(color=guide_legend(title='', nrow=2)) +
-  theme(legend.position='bottom',
-        plot.caption=element_text(family='mono', size=7)) +
-  labs(caption=attr(u, 'info'))
+  theme(legend.position='bottom')
 ```
 
 Mimic these results using flexible regression with interaction.  Start by estimating the mean.  Add spike histograms to estimated trend curves.  Spike heights are proportional to the sample size in age/race-ethnicity groups after binning age into 100 bins.  Direct `plotly` plotting is used.  The user can click on elements of the legend (including the histograms) to turn their display off and on.
