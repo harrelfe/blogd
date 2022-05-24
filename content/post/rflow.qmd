@@ -224,20 +224,25 @@ yn <- function(x) factor(x, 0:1, c('no', 'yes'))
 
 A state-of-the-art way to make reproducible reports is to use a statistical computing language such as R and its [`knitr`](https://cran.r-project.org/web/packages/knitr) package in conjunction with either [`RMarkdown`](https://rmarkdown.rstudio.com) or [`Quarto`](https://quarto.org), with the latter likely to replace the former.  Both of the report-making systems allow one to produce reports in a variety of formats including html, pdf, and Word.  Html is recommended because pages can be automatically resized to allow optimum viewing on devices of most sizes, and because html allows for interactive graphics and other interactive components.  Pdf is produced by converting `RMarkdown` or `Quarto`-produced markdown elements to $\LaTeX$.[Report formatting is very much enhanced by using variable attributes such as labels and units of measurement that are not considered in base R.  Methods for better annotating output using labels and units are given below.]{.aside}
 
-This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except for the following.  To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object that produces plain text in the same code chunk, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.[If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.  `inline` is more for printing character strings.]{.aside}
+This document can serve as a template for using R with `Quarto`; one can see the raw script by clicking on `Code` at the top right of the report.  When one has only one output format target, things are fairly straightforward except some situations where mixed formats are rendered in the same code *chunk*. Click below for details.
 
-::: {.column-margin}
+::: {.callout-note collapse="true"}
+# Notes on Printing Mixed Output in Chunks
 
-An example of something that will not render correctly due to `results='asis'` being in the chunk header (needed for `html(...)`):
+To make use of specialized functions that produce html or $\LaTeX$ markup, one often has to put `results='asis'` in the code chunk header to keep the system from disturbing the generated html or $\LaTeX$ markup so that it will be typeset correctly in the final document.  This process works smoothly but creates one complication: if you print an object that produces plain text in the same code chunk, the system will try to typeset it in html or $\LaTeX$.  To prevent this from happening you either need to split the chunks into multiple chunks (some with `results='asis'` and some not) or you need to make it clear that parts of the output are to be typeset verbatim.  To do that a simple function `pr` can sense if `results='asis'` is in effect for the current chunk.  If so, the object is surrounded by the `markdown` verbatim indicator---three consecutive back ticks.  If not the object is left alone.  `pr` is defined in the `marksupSpecs$markdown$pr` object, so you can bring it to your session by copying into a local function `pr` as shown below, which has a chunk option `results='asis'` to show that verbatim output appears anyway.  If the argument `obj` to `pr` is a data frame or data table, variables will be rounded to the value given in the argument `dec` (default `dec=3`) before printing.  If you specify `inline=x` the object `x` is printed with `cat()` instead of `print()`.  `inline` is more for printing character strings.
+
+An example of something that may not render correctly due to `results='asis'` being in the chunk header (needed for `html(...)`):
 
 ```{r eval=FALSE}
-html(describe(d))
-table(sex, country)
-# use pr(obj=table(sex, country))
-# to fix
+options(prType='html')
+f <- ols(y ~ rcs(x1, 5))
+f    # prints model summary in html format
+m <- matrix((1:10)/3, ncol=2)
+m
+# use pr(obj=m) to fix
 ```
 
-:::
+Here are examples of `pr` usage.
 
 ```{r,results='asis'}
 require(Hmisc)
@@ -249,6 +254,8 @@ pr(inline=paste(round(x,3), collapse=', '))
 ```
 
 Instead of working to keep certain outputs verbatim you can use `knitr::kable()` to convert verbatim output to markdown.
+
+:::
 
 ## Multi-Output Format Reports
 
@@ -1567,7 +1574,7 @@ options(prType='html')  # needed to use special formatting (can use prType='late
 dd <- datadist(nhgh); options(datadist='dd')
 f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
 # fontsize will be available for print(anova()) in rms 6.3-1
-makecolmarg(anova(f), printargs=list(dec.ms=2, dec.ss=2, fontsize=1.2))
+makecolmarg(anova(f), dec.ms=2, dec.ss=2, fontsize=1.2)
 # Normal printing: anova(f) or anova(f, dec.ms=2, dec.ss=2)
 hso <- list(frac=function(f) 0.1 * f / max(f),
             side=1, nint=100)
@@ -1600,7 +1607,7 @@ w <- data.table(x=runif(n), x2=rnorm(n), y=sample(0:1, n, replace=TRUE))
 dd <- datadist(w); options(datadist='dd')  # rms needs for summaries and plotting
 f <- lrm(y ~ x + rcs(x2, 4), data=w)
 f
-makecnote(anova(f), printargs=list(fontsize=2))   # in collapsible note
+makecnote(anova(f), fontsize=2)   # in collapsible note
 # Compensating font size for a problem where the size was too small
 latex(f)   # show fitted model in math notation
 ```
