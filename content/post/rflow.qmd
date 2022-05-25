@@ -60,7 +60,7 @@ This report makes heavy use of the following R packages and Github repository:
    + `htmlList` to easily print vectors in a named list using `kable`
    + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
    + `kabl` to make it easy to use `kable` and `kables` for making html tables
-   + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of an R object
+   + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of one or more R command
    + `makecolmarg` to print an object in the right margin in `Quarto` reports
    + `makecnote` to print an object in a collapsible `Quarto` note
    + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
@@ -705,7 +705,7 @@ p$Continuous
 
 :::
 
-To make creation of tabs in `Quarto` easier, the `maketabs` function loops through the elements of a named list and outputs each element into a separate `Quarto` tab.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked.  [This function was defined by the earlier `getRs('reptools.r', put='source')` command and its source code may be viewed [here](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}
+To make creation of tabs in `Quarto` easier, the `maketabs` function loops through the elements of a sequence of formulas, runs the commands (separately by `+` if more than one) just after the ~, outputs each element into a separate `Quarto` tab.  The label for the tab is taken as the left hand side of the formula, which must be enclosed in backticks and not quotes if it is a multi-word string.  If `+ raw` in the formula's right side, the chunk assumes the command's output is raw text.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula `` `` ~ `` ``. [`maketabs` was loaded by the earlier `getRs('reptools.r', put='source')` command and its source code may be viewed [here](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}  `maketabs` can also be called with a named list instead of a series of formulas.  The list names become tab labels.
 
 ```{r maketabs,results='asis'}
 maketabs(p)
@@ -719,7 +719,7 @@ p <- plot(w, bvspace=2.5)
 maketabs(p, wide=TRUE)
 ```
 
-See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).  [The `initblank` option to the `maketabs` function creates the initially opened tab, which has no content, thereby leaving it to the user to click one of the other tabs before output is shown.]{.aside}
+See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
 
 ```{r summaryM,results='asis'}
 require(data.table)
@@ -731,11 +731,12 @@ vars <- setdiff(names(d), 'hxofMI')
 form <- as.formula(paste(paste(vars, collapse='+'), '~ hxofMI'))
 print(form)
 s <- summaryM(form, data=d, test=TRUE)
-w <- list('Table 1'                   = html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE),
-          'Categorical Variable Plot' = plot(s, which='categorical', vars=1 : 4, height=600, width=1000),
-          'Continuous Variable Plot'  = plot(s, which='continuous',  vars=1 : 4))
-# initblank=TRUE: Put an empty tab first so that nothing initially displays
-maketabs(w, wide=TRUE, initblank=TRUE)
+maketabs(
+  ` `                         ~ ` `,   # empty tab
+  `Table 1`                   ~ html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE),
+  `Categorical Variable Plot` ~ plot(s, which='categorical', vars=1 : 4, height=600, width=1000),
+  `Continuous Variable Plot`  ~ plot(s, which='continuous',  vars=1 : 4),
+  wide=TRUE)
 ```
 
 Semi-interactive stratified spike histograms are also useful descriptive plots.  These plots also contain a superset of the quantiles used in box plots, and the legend is clickable, allowing any of the statistical summaries to be turned off.
@@ -1509,7 +1510,7 @@ Let's describe how white blood count relates to the probability of hospital deat
 The cube root transformation in regression fits is used because of the extreme skewness of WBC.  Use 6 knots at default locations on `r cwbc`.  The `r cwbc` transformation affects moving statistics only in that mean x-values for plotting are cubes of mean `r cwbc` instead of means on the original WBC scale.
 
 ```{r wbc,results='asis'}
-u <- movStats(hospdead ~ wblc, k=6, eps=20,
+u <- movStats(hospdead ~ wblc, k=6, eps=20, bass=3,
               trans  = function(x) x ^ (1/3),
               itrans = function(x) x ^ 3,
               loess=TRUE, lrm=TRUE, msmooth='both',
@@ -1574,7 +1575,7 @@ options(prType='html')  # needed to use special formatting (can use prType='late
 dd <- datadist(nhgh); options(datadist='dd')
 f <- ols(gh ~ rcs(age, 5) * re, data=nhgh)
 # fontsize will be available for print(anova()) in rms 6.3-1
-makecolmarg(anova(f), dec.ms=2, dec.ss=2, fontsize=1.2)
+makecolmarg(anova(f), dec.ms=2, dec.ss=2, fontsize=0.6)
 # Normal printing: anova(f) or anova(f, dec.ms=2, dec.ss=2)
 hso <- list(frac=function(f) 0.1 * f / max(f),
             side=1, nint=100)
@@ -1601,15 +1602,27 @@ I take advantage of special formatting for model fit objects from the `rms` pack
 ```{r lrm,results='asis'}
 require(rms)
 options(prType='html')  # needed to use special formatting (can use prType='latex')
-set.seed(1)
-n <- 1000
-w <- data.table(x=runif(n), x2=rnorm(n), y=sample(0:1, n, replace=TRUE))
-dd <- datadist(w); options(datadist='dd')  # rms needs for summaries and plotting
-f <- lrm(y ~ x + rcs(x2, 4), data=w)
+dd <- datadist(support); options(datadist='dd') # rms needs for summaries, plotting
+cr <- function(x) x ^ (1/3)
+f <- lrm(hospdead ~ rcs(meanbp, 5) + rcs(age, 5) + rcs(cr(crea), 4), data=support)
 f
-makecnote(anova(f), fontsize=2)   # in collapsible note
-# Compensating font size for a problem where the size was too small
-latex(f)   # show fitted model in math notation
+makecnote(anova(f))   # in collapsible note
+```
+
+Write a function to compute several model summaries and put them in tabs.  `raw` in a formula makes the generated R chunk include output in raw format.
+
+```{r lrmtabs,results='asis'}
+sfit <- function(f) 
+  maketabs(
+    ` `              ~ ` `,
+    Model            ~ f,
+    Specs            ~ specs(f, long=TRUE) + raw,
+    Equation         ~ latex(f),
+    ANOVA            ~ anova(f) + plot(anova(f)),
+   `Partial Effects` ~ ggplot(Predict(f)),
+    Nomogram         ~ plot(nomogram(f, fun=plogis, funlabel='P(death)')))
+
+sfit(f)
 ```
 
 ## Caching
