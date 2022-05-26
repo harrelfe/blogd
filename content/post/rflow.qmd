@@ -1571,7 +1571,7 @@ ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
   theme(legend.position='bottom')
 ```
 
-`movStats` can also compute stratified non-smoothed estimates when x is discrete.  After compute 1- and 2y Kaplan-Meier incidence probability estimates, order disease groups by ascending order of 1-year mortality before plotting.
+`movStats` can also compute stratified non-smoothed estimates when x is discrete.  After computing 1- and 2y Kaplan-Meier incidence probability estimates, order disease groups by ascending order of 1-year mortality before plotting.
 
 ```{r movdisc}
 u <- movStats(Surv(d.time / 365.25, death) ~ dzgroup, times=1:2,
@@ -1651,6 +1651,29 @@ ggplot(p, histSpike.opts=hso)
 
 We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.
 
+::: {.callout-note collapse="true"}
+## Alternative to Manually Selecting Variables
+
+Sometimes it is worth having a function do the work of determining which variables to treat as continuous and which ones to treat as categorical.  Here is one such function.
+
+```{r vartype}
+vartype <- function(data, include=NULL, exclude=NULL, ndistinct=10) {
+  # include: vector of variables in data to attend to
+  # exclude: attend to all variables in data except those in exclude
+  v <- if(length(include)) include else setdiff(names(data), exclude)
+  g <- function(x) 
+    if(is.character(x) || is.factor(x) ||
+       (is.numeric(x) && length(unique(x)) <= ndistinct))
+      'discrete' else 'continuous'
+  s <- sapply(data[v], g)
+  split(names(s), s)
+}
+types <- vartype(support, exclude=.q(d.time, death, hospdead, sfdm2))
+print(types, quote=FALSE)
+```
+
+:::
+
 ```{r movall}
 U <- NULL
 V <- .q(age, meanbp, wblc, hrt, temp, alb, crea, sod)
@@ -1665,7 +1688,7 @@ for(v in V) {
 }
 ggplot(U, aes(x=.x., y=incidence, col=Statistic)) + geom_line() +
   facet_wrap(~ vname, scales='free_x') +
-  ylab(label(u$incidence)) +
+  ylab(label(u$incidence)) + xlab('') +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom')
 ```
