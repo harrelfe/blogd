@@ -145,7 +145,7 @@ The last line of code can be read as "values of `x` such that `y > 7`".
 
 ## Branching and If/Then
 
-### Decisions Base on One Scalar Value
+### Decisions Based on One Scalar Value
 
 Common approaches to this problem are `if` and `switch`.
 
@@ -271,9 +271,9 @@ Helper functions are defined when you run the `Hmisc` function `getRs` to retrie
 |`makecolmarg`|print objects or run code and place output in a marginal note|
 |`maketabs`   |print objects or run code placing output in separate tabs|
 
-The input to `maketabs`, as will be demonstrated later, may be a named `list`, or more commonly, a series of formulas whose right-hand sides are executed and the result of each formula is placed in a separate tab.  The left side of the formula becomes the tab label.  For `makecolmarg` there should be no left side of the formula as marginal notes are not labeled.  For the named `list` option the `list` names become the tab names.  Examples of both approaches appear later in this report.  In formuls, a left side label must be enclosed in backticks and not quotes if it is a multi-word string.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`.
+The input to `maketabs`, as will be demonstrated later, may be a named `list`, or more commonly, a series of formulas whose right-hand sides are executed and the result of each formula is placed in a separate tab.  The left side of the formula becomes the tab label.  For `makecolmarg` there should be no left side of the formula as marginal notes are not labeled.  For the named `list` option the `list` names become the tab names.  Examples of both approaches appear later in this report.  In formulas, a left side label must be enclosed in back ticks and not quotes if it is a multi-word string.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`.
 
-The two approaches to using `maketabs` also apply to `makecnote` and `makecolmarg`.  Examples of the "print an object and place it inside a callout" are given later in the report for `makecnote` and `makecolmarg`.  Here is an example of the more general formula method that can render any object, including html widgets as produced by `plotly` graphics.  An interactive `plotly` graphic appears at the bottom of the plots in the right margin.
+The two approaches to using `maketabs` also apply to `makecnote` and `makecolmarg`.  Examples of the "print an object and place it inside a callout" are given later in the report for `makecnote` and `makecolmarg`.  Here is an example of the more general formula method that can render any object, including html widgets as produced by `plotly` graphics.  An interactive `plotly` graphic appears at the bottom of the plots in the right margin.  You can single click on elements in the legend to turn them off and on, and double click within the legend to restore to default values.
 
 ```{r makecex,results='asis'}
 require(Hmisc)
@@ -299,7 +299,7 @@ Adding `+ raw` to a formula in `makecnote`, `makecolmarg`, or `maketabs` forces 
 
 ## Multi-Output Format Reports
 
-To allow one report to be used to render multiple output formats, especially html and pdf, it is helpful to be able to sense which output format is currently in play, and to use different functions or options to render output explicitly for the current format.  Here is how to create variables that can be referenced simply in code throughout the report, and to invoke the `plotly` graphics package if output is in html to allow interactivity.  A small function `ggp` is defined so that if you run any `ggplot2` output through it, the result will be automatically converted to `plotly` using the `ggplotly` function, otherwise it is left at standard static `ggplot2` output if html is not the output target.[See [this](https://hbiostat.org/ordinal) for examples of articles rendered in both html and PDF]{.aside}
+To allow one report to be used to render multiple output formats, especially html and pdf, it is helpful to be able to sense which output format is currently in play, and to use different functions or options to render output explicitly for the current format.  Here is how to create variables that can be referenced simply in code throughout the report, and to invoke the `plotly` graphics package if output is in html to allow interactivity.  A small function `ggp` is defined so that if you run any `ggplot2` output through it, the result will be automatically converted to `plotly` using the `ggplotly` function, otherwise it is left at standard static `ggplot2` output if html is not the output target.[See [this](https://hbiostat.org/ordinal) for examples of articles rendered in both html and PDF from the same script.]{.aside}
 
 ```{r senseformat}
 outfmt <- if(knitr::is_html_output ()) 'html'  else 'pdf'
@@ -1571,6 +1571,21 @@ ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
   theme(legend.position='bottom')
 ```
 
+`movStats` can also compute stratified non-smoothed estimates when x is discrete.  After compute 1- and 2y Kaplan-Meier incidence probability estimates, order disease groups by ascending order of 1-year mortality before plotting.
+
+```{r movdisc}
+u <- movStats(Surv(d.time / 365.25, death) ~ dzgroup, times=1:2,
+              discrete=TRUE,
+              melt=TRUE, data=support)
+m1 <- u[Statistic == '1-year', .(dzgroup, incidence)]
+i  <- m1[, order(incidence)]
+u[, dzgroup := factor(dzgroup, levels=m1[i, dzgroup])]
+ggplot(u, aes(x=incidence, y=dzgroup, col=Statistic)) + geom_point() +
+  xlab(label(u$incidence)) + ylab('') +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
+```
+
 ## One Continuous and One Categorical Predictor
 
 It is possible to descriptively estimate trends against more than one independent variables when the effective sample size is sufficient.  Trends can be estimated nonparametrically through stratification (when the third variable is categorical) or with flexible regression models allowing the two predictors to interact.  In the graphical displays it is useful to keep sample size limitations in certain regions of the space defined by the two predictors in mind, by superimposing spike histograms on trend curves.
@@ -1630,6 +1645,63 @@ p  <- rbind(Q1     = Predict(f1, age, re, conf.int=FALSE),
             Median = Predict(f2, age, re, conf.int=FALSE),
             Q3     = Predict(f3, age, re, conf.int=FALSE))
 ggplot(p, histSpike.opts=hso)
+```
+
+## Another Replacement for Table 1
+
+We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.
+
+```{r movall}
+U <- NULL
+V <- .q(age, meanbp, wblc, hrt, temp, alb, crea, sod)
+for(v in V) {
+  support$.x. <- support[[v]]
+  u <- movStats(Surv(d.time / 365.25, death) ~ .x., times=1:2,
+              eps=30,
+              msmooth='smoothed', bass=8,
+              melt=TRUE, data=support)
+  u[, vname := label(support$.x.)]
+  U <- rbind(U, u)
+}
+ggplot(U, aes(x=.x., y=incidence, col=Statistic)) + geom_line() +
+  facet_wrap(~ vname, scales='free_x') +
+  ylab(label(u$incidence)) +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
+```
+
+Likewise we can produce a graph summarizing how categorical baseline variables relate to the study outcome variable.
+
+```{r allcat}
+U <- NULL
+V <- .q(sex, dzgroup, adls, race)
+for(v in V) {
+  support$.x. <- support[[v]]
+  u <- movStats(Surv(d.time / 365.25, death) ~ .x., times=1:2,
+                discrete=TRUE, melt=TRUE, data=support)
+  lab <- label(support$.x., default=v)
+  u[, vname := lab]
+  U <- rbind(U, u)
+}
+ggplot(U, aes(x=incidence, y=.x., col=Statistic)) + geom_point() +
+  facet_wrap(~ vname, scales='free_y') +
+  xlab(label(u$incidence)) + ylab('') +
+  guides(color=guide_legend(title='')) +
+  theme(legend.position='bottom')
+```
+
+Alternatively we can put each variable in a separate tab:
+
+```{r catkmtabs,results='asis'}
+gg <- function(data)
+  ggplot(data, aes(x=incidence, y=.x., col=Statistic)) + geom_point() +
+    xlab('Mortality') + ylab('') +
+    guides(color=guide_legend(title='')) +
+    theme(legend.position='bottom')
+
+w <- split(U, U$vname)   # split into one data table per x variable
+g <- lapply(w, gg)       # put 'em all together to a list of ggplot objects
+maketabs(g)
 ```
 
 ## Formatting
