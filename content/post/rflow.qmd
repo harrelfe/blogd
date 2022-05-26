@@ -67,7 +67,7 @@ This report makes heavy use of the following R packages and Github repository:
    + `rsHelp` for viewing helps files for functions in `rscripts`
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
    
-Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `makecallout`, `makecodechunk`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
 
 ```{r eval=FALSE}
@@ -256,6 +256,46 @@ pr(inline=paste(round(x,3), collapse=', '))
 Instead of working to keep certain outputs verbatim you can use `knitr::kable()` to convert verbatim output to markdown.
 
 :::
+
+## `Quarto` Report Writing Helper Functions
+
+Helper functions are defined when you run the `Hmisc` function `getRs` to retrieve them from [`Github`](https://github.com/harrelfe/rscripts/blob/master/reptools.r), i.e., `getRs('reptools.r')`.  You can get help on these functions by running `rsHelp(functionname)`.  Several of the functions construct `Quarto` _callouts_ which are fenced-off sections of markup that trigger special formatting, especially when producing html.  The special formatting includes collapsible sections and marginal notes.  Here is a summary of some of the `reptools` helper functions.
+
+| Function | Purpose |
+|------|---------|
+|`dataChk`    |run a series of logical expressions for checking data consistency, put results in separate tabs using `maketabs`, and optionally create two summary tabs|
+|`htmlList`   |print a named `list` using the names as headers|
+|`kabl`       |front-end to `knitr::kable` and `kables`.  If you run `kabl` on more than one object it will automatically call `kables`. |
+|`makecallout`|generic Quarto callout maker used by `makecnote`, `makecolmarg`|
+|`makecnote`  |print objects or run code and place output in an initially collapsed callout note|
+|`makecolmarg`|print objects or run code and place output in a marginal note|
+|`maketabs`   |print objects or run code placing output in separate tabs|
+
+The input to `maketabs`, as will be demonstrated later, may be a named `list`, or more commonly, a series of formulas whose right-hand sides are executed and the result of each formula is placed in a separate tab.  The left side of the formula becomes the tab label.  For `makecolmarg` there should be no left side of the formula as marginal notes are not labeled.  For the named `list` option the `list` names become the tab names.  Examples of both approaches appear later in this report.  In formuls, a left side label must be enclosed in backticks and not quotes if it is a multi-word string.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`.
+
+The two approaches to using `maketabs` also apply to `makecnote` and `makecolmarg`.  Examples of the "print an object and place it inside a callout" are given later in the report for `makecnote` and `makecolmarg`.  Here is an example of the more general formula method that can render any object, including html widgets as produced by `plotly` graphics.  An interactive `plotly` graphic appears at the bottom of the plots in the right margin.
+
+```{r makecex,results='asis'}
+require(Hmisc)
+getRs('reptools.r', put='source')
+set.seed(1)
+x <- round(rnorm(100, 100, 15))
+makecolmarg(~ table(x) + raw + hist(x) + plot(ecdf(x)) + histboxp(x=x))
+# or try makecnote(`makecnote example` ~ kabl(table(x)) + hist(x) + ...
+# Avoid raw by using kabl(table(x)) instead of table(x)
+```
+
+Adding `+ raw` to a formula in `makecnote`, `makecolmarg`, or `maketabs` forces printed results to be treated as raw verbatim R output.
+
+`makecallout` is a general `Quarto` callout maker that implements different combinations of the following: `list` or formula, `print` or run code, defer executing and only produce the code to execute vs. running the code now, and close the callout or leave it open for more calls.
+
+`reptools` also has helper functions for interactively accessing information to help in report and analysis building:
+
+| Function  | Purpose |
+|-----------|--------|
+|`htmlView`|view html-converted objects in `RStudio` `View` pane|
+|`htmlViewx`|view html-converted objects in external browser|
+
 
 ## Multi-Output Format Reports
 
@@ -613,7 +653,7 @@ browseURL('contents.html', browser='vivaldi -new-window')
 ```
 
 
-`RStudio` provides a nice way to do this, facilitated by the `htmlView` function which may be fetched from `Github` using the `Hmisc` `getRs` function as shown below.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.  If you are running outside `RStudio`, your default browser will be launched instead.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.<br>Code for `htmlView` and `htmlViewx` may be viewed in [`reptools.r`](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}
+`RStudio` provides a nice way to do this, facilitated by the `htmlView` helper function in `reptools`.  `htmlView` takes any number of objects for which an `html` method exists to render them.  They are rendered in the `RStudio` `Viewer` pane.  If you are running outside `RStudio`, your default browser will be launched instead.[Occasionally `RStudio Viewer` will drop its arrow button making it impossible to navigate back and forth to different `html` outputs.<br>Code for `htmlView` and `htmlViewx` may be viewed in [`reptools.r`](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}
 
 ```{r eval=FALSE}
 getRs('reptools.r', put='source')
@@ -623,7 +663,7 @@ htmlView(contents(d))
 
 In some cases it is best to have a browser window open to the full descriptive statistics for a data table/frame (see below; the `describe` function also shows labels, units, and levels).  [For either approach it would be easy to have multiple tabs open, one tab for each of a series of data tables, or use `htmlView`.]{.aside}
 
-To be able to have multiple windows open to see information about datasets it is advantageous to open an external browser window.  The `htmlViewx` function defined when you read `htmlView.r` will by default open a Vivaldi browser window with the first output put in a new window and all subsequent objects displayed as tabs within that same window.  This behavior can be controlled with the `tab` argument, and you can use a different browser by issuing for example `options(vbrowser='firefox')`.[In Windows you may have to specify a full path and `firefox.exe`.  The tab names will not be correct until `Hmisc` 4.7-1 appears.]{.aside}  As an example suppose that two datasets were read from the `hbiostat.org/data` data repository, and the data dictionary and descriptive statistics for both datasets were to be converted to `html` and placed in an external browser window for the duration of the R session.
+To be able to have multiple windows open to see information about datasets it is advantageous to open an external browser window.  The `htmlViewx` function will by default open a Vivaldi browser window with the first output put in a new window and all subsequent objects displayed as tabs within that same window.  This behavior can be controlled with the `tab` argument, and you can use a different browser by issuing for example `options(vbrowser='firefox')`.[In Windows you may have to specify a full path and `firefox.exe`.  The tab names will not be correct until `Hmisc` 4.7-1 appears.]{.aside}  As an example suppose that two datasets were read from the `hbiostat.org/data` data repository, and the data dictionary and descriptive statistics for both datasets were to be converted to `html` and placed in an external browser window for the duration of the R session.
 
 ```{r vbrowse,eval=FALSE}
 getHdata(support)
@@ -668,10 +708,13 @@ The `Hmisc` `describe` function is my main tool for getting initial descriptive 
 ::: {.callout-note .column-page collapse="true"}
 # `describe` Output
 ```{r desc,results='asis'}
+# The callout was typed manually; could have run
+#  makecnote(~ html(describe(d)), wide=TRUE)
 w <- describe(d)
 html(w)
 ```
 :::
+
 
 ```{r eval=FALSE}
 # To create a separate browser window:
@@ -686,37 +729,17 @@ htmlView(w, contents(d))  # or htmlView(describe(d1), describe(d2), ...)
 # Use htmlViewx to use an external browser window (see above)
 ```
 
-There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.
+There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.  The result can be fed directly into `maketabs` described earlier.  `results='asis'` must appear in the chunk header.
 
-```{r pdesc}
-p <- plot(w, bvspace=2.5)
-```
-
-::: {.panel-tabset}
-## Categorical Variables
-```{r pdesccat}
-p$Categorical
-```
-
-## Continuous Variables
-```{r pdesccon}
-p$Continuous
-```
-
-:::
-
-To make creation of tabs in `Quarto` easier, the `maketabs` function loops through the elements of a sequence of formulas, runs the commands (separately by `+` if more than one) just after the ~, and outputs each element into a separate `Quarto` tab.  The label for the tab is taken as the left hand side of the formula, which must be enclosed in backticks and not quotes if it is a multi-word string.  If `+ raw` in the formula's right side, the chunk assumes the command's output is raw text.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`. [`maketabs` was loaded by the earlier `getRs('reptools.r', put='source')` command and its source code may be viewed [here](https://github.com/harrelfe/rscripts/blob/master/reptools.r).]{.aside}  `maketabs` can also be called with a named list instead of a series of formulas.  The list names become tab labels.
-
-```{r maketabs,results='asis'}
-maketabs(p)
+```{r pdesc,results='asis'}
+maketabs(plot(w, bvspace=2.5))
 ```
 
 By specifying `grType` option you can instead get `plotly` graphics that use hover text to show more information, especially when hovering over the leftmost dot or tick mark for a variable.
 
 ```{r pldesc,results='asis'}
 options(grType='plotly')
-p <- plot(w, bvspace=2.5)
-maketabs(p, wide=TRUE)
+maketabs(plot(w, bvspace=2.5), wide=TRUE)
 ```
 
 See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
