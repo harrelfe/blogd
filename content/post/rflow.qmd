@@ -196,6 +196,34 @@ rm(y, z, sex, height, u, w)
 
 ## Functions
 
+There are so many functions in R that it may be better to use the [stackoverflow.com](https://stackoverflow.com/questions/tagged/r) Q&A to find the ones you need.[As of 2022-05-26 there are 450,000 R questions there]{.aside}  Here are just a few of the multitude of handy R functions.  The first functions listed below return the R missing value `NA` if any element is missing.  You can specify `na.rm=TRUE` to remove `NA`s from consideration first, so they will not cause the result to be `NA`.  Must functions get their arguments (inputs) in () after the function name.  Some functions like `%in%` are binary operators whose two arguments are given on the left and right of `%in%`.
+
+* `mean`, `median`, `quantile`, `var`, `sd`: compute statistical summaries on one vector
+* `min, max`: minimum or maximum of values in a vector or of multiple variables, resulting in one number
+* `pmin, pmax`: parallel minimum and maximum for vectors, resulting in a vector.  Example: `pmin(x, 3)` returns a vector of the same length as `x`.  Each element is the minimum of the original value or 3.
+* `unique`: return vector of distinct values, in same order as original values
+* `union`, `intersect`, `setdiff`, `setequal`: set operations on two vectors (see below)
+* `a %in% b`, `a %nin% b`: set membership functions that determine whether each element in `a` is in `b` (for `%in%`) or is not in `b` (for `%nin%`, which is in the `Hmisc` package)
+
+Set operators are amazingly helpful.  Here are some examples.
+
+```{r setup,eval=FALSE}
+unique(x)       # vector of distinct values of x, including NA if occurred
+sort(unique(x)) # distinct values in ascending order
+setdiff(unique(x), NA)  # distinct values excluding NA if it occurred
+duplicated(x)   # returns TRUE for elements that are duplicated by
+                # values occurring EARLIER in the list
+union(x, y)     # find all distinct values in the union of x & y
+intersect(x, y) # find all distinct values in both x & y
+setdiff(x, y)   # find all distinct x that are not in y
+setequal(x, y)  # returns TRUE or FALSE depending on whether the distinct
+                # values of x and y are identical, ignoring how they
+                # are ordered
+# Find list of subject ids that are found in baseline but not
+# in follow-up datasets
+idn <- setdiff(baseline$id, followup$id) 
+```
+
 Even new R users can benefit from writing functions to reduce repetitive coding.  A function has _arguments_ and these can have default values for when the argument is not specified by the user when the function is called.  Here are some examples.  One line functions do not need to have their bodies enclosed in `{}`.
 
 ```{r runex}
