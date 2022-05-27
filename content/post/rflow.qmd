@@ -7,6 +7,8 @@ date: last-modified
 format:
   html:
     self-contained: true
+    number-sections: true
+    number-depth: 3
     anchor-sections: true
     code-tools: true
     code-fold: false
@@ -81,7 +83,8 @@ All the available help files for functions in `rscripts` are at [hbiostat.org/R/
 
 ::: {.callout-note collapse="true"}
 # R Basics
-## Assignment Operator
+
+## Assignment Operator {.unnumbered}
 
 You assign an R object to a value using the assignment operator `<-` or the equal sign.  `<-` is read as "gets".
 
@@ -91,7 +94,7 @@ d <- read.csv('mydata.csv')
 x = y
 ```
 
-## Object Types
+## Object Types {.unnumbered}
 
 Everything in R is an object.  Some primitive types of objects in R are below.
 
@@ -122,7 +125,29 @@ Vectors can be of many different types when a `class` is added to them.  Two of 
 
 Rectangular data objects, i.e., when the number of rows is the same for every column (variable), can be represented by matrices, `data.frame`s, and `data.table`s.  In a matrix, every value is of the same type.  A `data.frame` or a `data.table` is an R `list` that can have mixtures of numeric, character, factor, dates, and other object types.  A `data.table` is also a `data.frame` but the converse isn't true.  `data.table`s are handled by the R `data.table` package and don't have row names but can be indexed, are much faster to process, and have a host of methods implemented for aggregation and other operations.  `data.frame`s are handled by base R.
 
-## Subscripting
+Data frames are best managed by converting them to data tables and using the `data.table` package.  When `data.table` is not used there are three indispensable functions for operating on data frames:
+
+* `with` for analyzing variables within a data frame without constantly prefixing variable names with `dataframename$`
+* `transform` for adding or changing variables within a data frame
+* `Hmisc` `upData` function for doing the same as `transform` but also allowing metadata to be added to the data, e.g., variable labels and units (to be discussed later)
+
+Here are some examples of `with` and `transform`.
+
+```{r with,eval=FALSE}
+# Better than mean(mydata$systolic.bp - mydata$diastolic.bp) :
+with(mydata, mean(systolic.bp - diastolic.bp))
+# Better than mydata$pulse.pressure <- mydata$systolic.bp - mydata$diastolic.bp:
+mydata <- transform(mydata,
+                    pulse.pressure = systolic.bp - diastolic.bp,
+                    bmi            = wt / ht ^ 2)
+# Perform several operations on the same data frame
+with(mydata, {
+               x3 <- x1 / sqrt(x2)
+               ols(y ~ x3)
+             }  )
+```
+
+## Subscripting {.unnumbered}
 
 Examples of subscripting are given above. 
 Subscripting via placement of `[]` after an object name is used for subsetting, and occasionally for using some elements more than once:
@@ -143,9 +168,9 @@ x[y > 7]
 
 The last line of code can be read as "values of `x` such that `y > 7`".
 
-## Branching and If/Then
+## Branching and If/Then {.unnumbered}
 
-### Decisions Based on One Scalar Value
+### Decisions Based on One Scalar Value {.unnumbered}
 
 Common approaches to this problem are `if` and `switch`.
 
@@ -170,7 +195,7 @@ f <- if(type == 'parametric')    ols(y ~ x)
 
 What is inside `if( )` must be a single scalar element that is evaluated to whether it's `TRUE` or `FALSE`.
 
-### Series of Separate Decisions Over a Vector of Values
+### Series of Separate Decisions Over a Vector of Values {.unnumbered}
 
 The `ifelse` or `data.table::fifelse` functions are most often used for this, but `data.table::fcase` is a little better.  Here's an example.
 
@@ -182,7 +207,7 @@ require(data.table)
 fcase(x %in% c('cat', 'dog'), 'domestic', default='wild')
 ```
 
-### `if` Trick
+### `if` Trick {.unnumbered}
 
 Sometimes when constructing variable-length vectors and other objects, elements are to be included in the newly constructed object only when certain conditions apply.  When a condition does not apply, no element is to be inserted.  We can capitalize on the fact that the result of `if(...)` is `NULL` when `...` is not `TRUE`, and concatenating `NULL` results in ignoring it.  Here are two examples.  In the first the resulting vector will have length 2, 3, or 4 depending on `sex` and `height`.  In the second example the new vector will have the appropriate element `names` preserved.
 
@@ -194,9 +219,9 @@ c(x1=3, if(sex == 'male') c(x2=4), if(height > 70) c(x3=height))
 rm(y, z, sex, height, u, w)
 ```
 
-## Functions
+## Functions {.unnumbered}
 
-There are so many functions in R that it may be better to use the [stackoverflow.com](https://stackoverflow.com/questions/tagged/r) Q&A to find the ones you need.[As of 2022-05-26 there are 450,000 R questions there]{.aside}  Here are just a few of the multitude of handy R functions.  The first functions listed below return the R missing value `NA` if any element is missing.  You can specify `na.rm=TRUE` to remove `NA`s from consideration first, so they will not cause the result to be `NA`.  Must functions get their arguments (inputs) in () after the function name.  Some functions like `%in%` are binary operators whose two arguments are given on the left and right of `%in%`.
+There are so many functions in R that it may be better to use the [stackoverflow.com](https://stackoverflow.com/questions/tagged/r) Q&A to find the ones you need (as of 2022-05-26 there are 450,000 R questions there).  Here are just a few of the multitude of handy R functions.  The first functions listed below return the R missing value `NA` if any element is missing.  You can specify `na.rm=TRUE` to remove `NA`s from consideration first, so they will not cause the result to be `NA`.  Must functions get their arguments (inputs) in () after the function name.  Some functions like `%in%` are binary operators whose two arguments are given on the left and right of `%in%`.
 
 * `mean`, `median`, `quantile`, `var`, `sd`: compute statistical summaries on one vector
 * `min, max`: minimum or maximum of values in a vector or of multiple variables, resulting in one number
@@ -222,6 +247,12 @@ setequal(x, y)  # returns TRUE or FALSE depending on whether the distinct
 # Find list of subject ids that are found in baseline but not
 # in follow-up datasets
 idn <- setdiff(baseline$id, followup$id) 
+# Don't do this:
+# if(animal == 'cat' | animal == 'dog') ....
+# But use %in% instead:
+# if(animal %in% c('cat', 'dog')) ...
+# Likewise don't say if(animal != 'cat' & animal != 'dog') but
+# use if(animal %nin% c('cat', 'dog')) ...
 ```
 
 Even new R users can benefit from writing functions to reduce repetitive coding.  A function has _arguments_ and these can have default values for when the argument is not specified by the user when the function is called.  Here are some examples.  One line functions do not need to have their bodies enclosed in `{}`.
@@ -794,6 +825,63 @@ Semi-interactive stratified spike histograms are also useful descriptive plots. 
 
 ```{r spikeh}
 d[, histboxp(x=maxhr, group=ecg, bins=200)]
+```
+
+## Longitudinal Data
+
+For a continuous response variable measured longitudinally, two of the ways to display the data are
+
+* "spaghetti plots" showing all data for all individual subjects, if the number of subjects is not very large
+* finding clusters of individual subject curve characteristics and plotting a random sample of raw data curves within each cluster if the sample size is large
+
+The `Hmisc` package [`curveRep`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/curveRep) function facilitates the latter.  It is important to consider per-subject sample sizes and measurement time gaps as these will not only limit how we look at the data but may be informative, e.g., subjects who are failing may start to get more frequent measurements.
+
+To demonstrate we simulate data in the following way.
+
+* Simulate 200 subjects (curves) with per-curve sample sizes ranging from 1 to 10
+* Make curves with odd-numbered IDs have a measurement time distribution that is random uniform [0,1] and those with even-numbered IDs have a time distribution that is half as wide but still centered at 0.5.  Shift y values higher with increasing IDs
+
+Request `curveRep` to cluster the 200 curves on the following characteristics:
+
+* `kn=3` sample size groups (`curveRep` actually used one more than this)
+* `kxdist=2` time point distribution groups based here on the earliest and latest measurement times and the longest gap between any two measurements within a subject
+* `k=4` trajectory clusters.  Trajectories are determined by `loess`-smoothing each subject's curve and linearly interpolating the estimates to the same evenly-spaced grid of time points, then clustering on these 10 y-estimates.  This captures intercepts, slopes, and shapes.
+
+All subjects within each cluster are shown; we didn't need to take random samples for 200 subjects.  Results for the 4 per-curve sample size groups are placed in separate tabs.
+
+
+```{r long,results='asis'}
+set.seed(1)
+N <- 200
+nc <- sample(1:10, N, TRUE)
+id <- rep(1:N, nc)
+x  <- y <- id
+for(i in 1 : N) {
+  x[id==i] <- if(i %% 2) runif(nc[i]) else runif(nc[i], c(.25, .75))
+  y[id==i] <- i + 10*(x[id==i] - .5) + runif(nc[i], -10, 10)
+}
+require(cluster)
+w   <- curveRep(x, y, id, kn=3, kxdist=2, k=4, p=10)
+gg  <- vector('list', 4)
+nam <- rep('', 4)
+for(i in 1 : 4) {
+  z <- plot(w, i, method='data')  # method='data' available in Hmisc 4.7-1
+  z <- transform(z,
+                 distribution = paste('Time Distribution:', distribution),
+                 cluster      = paste('Trajectory Cluster:', cluster))
+  gg[[i]] <-
+    if(i == 1)
+      ggplot(z, aes(x, y, color=curve)) + geom_point() +
+        facet_grid(distribution ~ cluster) +
+        theme(legend.position='none')
+  else
+      ggplot(z, aes(x, y, color=curve)) + geom_line() +
+        facet_grid(distribution ~ cluster) +
+        theme(legend.position='none')
+  nam[i] <- z$ninterval[1]
+}
+names(gg) <- nam
+maketabs(gg)
 ```
 
 # Data Manipulation and Aggregation
@@ -1677,7 +1765,7 @@ ggplot(p, histSpike.opts=hso)
 
 ## Another Replacement for Table 1
 
-We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.
+We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.  Flexible HARE hazard regression estimates are also included.
 
 ::: {.callout-note collapse="true"}
 ## Alternative to Manually Selecting Variables
@@ -1702,23 +1790,31 @@ print(types, quote=FALSE)
 
 :::
 
-```{r movall}
+In addition to showing all the estimated relationships with the outcome, put covariate distributions in the margin.[Note the bimodality of some of the measurements, and true zero blood pressures for patients having cardiac arrest.]{.aside}
+
+```{r movall,results='asis'}
 U <- NULL
 V <- .q(age, meanbp, wblc, hrt, temp, alb, crea, sod)
 for(v in V) {
   support$.x. <- support[[v]]
-  u <- movStats(Surv(d.time / 365.25, death) ~ .x., times=1:2,
-              eps=30,
+  x <- support[[v]]
+  u <- movStats(Surv(d.time / 365.25, death) ~ x, times=1:2,
+              eps=30, hare=TRUE, penalty=0.25, maxdim=10,
               msmooth='smoothed', bass=8,
               melt=TRUE, data=support)
-  u[, vname := label(support$.x.)]
+  u$vname <- label(x, default=v)
   U <- rbind(U, u)
 }
-ggplot(U, aes(x=.x., y=incidence, col=Statistic)) + geom_line() +
+ggplot(U, aes(x, y=incidence, col=Statistic, linetype=Type)) + geom_line() +
   facet_wrap(~ vname, scales='free_x') +
   ylab(label(u$incidence)) + xlab('') +
   guides(color=guide_legend(title='')) +
   theme(legend.position='bottom')
+# Use plot(describe()) to get spike histograms of these vars.
+require(plotly)   # for %>%
+pl <- plot(describe(support[V])) %>%
+        layout(autosize=FALSE, width=350, height=325)
+makecolmarg(~ pl)
 ```
 
 Likewise we can produce a graph summarizing how categorical baseline variables relate to the study outcome variable.
