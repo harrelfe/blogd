@@ -10,7 +10,7 @@ tags:
   - graphics
   - r
   - reproducible
-summary: 'This article outlines analysis project workflow found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering the creation of annotated analysis files and running descriptive statistics on them with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Finally, examples of caching results and doing parallel processing are presented.'
+summary: 'This article outlines analysis project workflow found to be efficient in making reproducible research reports using R with `Quarto`.  I start by covering the creation of annotated analysis files, discovering missing data patterns, and running descriptive statistics on with goals of understanding the data and the quality and completeness of the data.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement and to produce tabular and graphical statistical summaries. Several examples of processing and manipulating data using the `data.table` package are given.  Much attention is paid to the use of minimal-assumption methods for describing relationships with continuous variables, avoiding disasters such as computing mean Y as a function of quintiles of body mass index.  Finally, examples of caching results, doing parallel processing, and running simulations are presented.'
 header:
   caption: ''
   image: ''

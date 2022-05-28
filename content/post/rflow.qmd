@@ -44,7 +44,7 @@ source('~/r/rmarkdown/qbookfun.r')
 ```
 
 [`r hypcomment`]{.aside}
-This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
 
 ::: {.callout-note collapse="true"}
 # R Code Repositories Used in This Report
@@ -383,6 +383,9 @@ Helper functions are defined when you run the `Hmisc` function `getRs` to retrie
 |`makecnote`  |print objects or run code and place output in an initially collapsed callout note|
 |`makecolmarg`|print objects or run code and place output in a marginal note|
 |`maketabs`   |print objects or run code placing output in separate tabs|
+|`varType`    |classify variables in a data table/frame as continuous, discrete, or non-numeric non-discrete|
+|`conVars`    |use `varType` to extract list of continuous variables|
+|`disVars`    |use `varType` to extract list of discrete variables|
 
 The input to `maketabs`, as will be demonstrated later, may be a named `list`, or more commonly, a series of formulas whose right-hand sides are executed and the result of each formula is placed in a separate tab.  The left side of the formula becomes the tab label.  For `makecolmarg` there should be no left side of the formula as marginal notes are not labeled.  For the named `list` option the `list` names become the tab names.  Examples of both approaches appear later in this report.  In formulas, a left side label must be enclosed in back ticks and not quotes if it is a multi-word string.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`.
 
@@ -789,7 +792,7 @@ A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
 
 # Missing Data
 
-It is extremely important to understand the extent and patterns of missing data, starting with charting the marginal fraction of observations with `NA`s for each variable.  The occurrence of simultaneous missings on multiple variables makes multiple imputation and analysis more difficult, so it is important to correlate and quantify missingness in variables multiple ways.  The `Hmisc` package `naclus`, `naplot`, and `combplotp` functions provide a number of graphics along these lines.  
+It is extremely important to understand the extent and patterns of missing data, starting with charting the marginal fraction of observations with `NA`s for each variable.  The occurrence of simultaneous missings on multiple variables makes multiple imputation and analysis more difficult, so it is important to correlate and quantify missingness in variables multiple ways.  The `Hmisc` package [`naclus`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/varclus), `naplot`, and `combplotp` functions provide a number of graphics along these lines.  
 
 The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
 
@@ -1846,22 +1849,11 @@ ggplot(p, histSpike.opts=hso)
 
 We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.  Flexible HARE hazard regression estimates are also included.
 
-Define a function to determine the continuous/discrete nature of each variable.
+`reptools` includes a function `varType` to determine the continuous/discrete nature of each variable, and other functions that make it easy to extract the list of either continuous variables (`conVars`) or discrete variables (`disVars`).  `varType` also has a third classification: non-numeric variables that have too many (by default > 20) distinct values to be considered discrete.
 
-```{r vartype}
-vartype <- function(data, include=NULL, exclude=NULL, ndistinct=10) {
-  # include: vector of variables in data to attend to
-  # exclude: attend to all variables in data except those in exclude
-  v <- if(length(include)) include else setdiff(names(data), exclude)
-  g <- function(x) 
-    if(is.character(x) || is.factor(x) ||
-       (is.numeric(x) && length(unique(x)) <= ndistinct))
-      'discrete' else 'continuous'
-  s <- sapply(if(is.data.table(data)) data[, ..v] else data[v], g)
-  split(names(s), s)
-}
+```{r}
 # Exclude outcome variables from consideration
-types <- vartype(support,
+types <- varType(support,
                  exclude=.q(slos, charges, totcst, totmcst, avtisst,
                             d.time, death, hospdead, sfdm2))
 print(types, quote=FALSE)
@@ -1915,7 +1907,7 @@ Likewise we can produce a graph summarizing how categorical baseline variables r
 #| column: page-inset-left
 #| fig.height: 5.5
 #| fig.width: 9
-V <- types$discrete
+V <- types$discrete   # or disVars(support, exclude=...)
 U <- list()
 for(v in V) {
   x <- support[[v]]
