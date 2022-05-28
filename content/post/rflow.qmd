@@ -69,7 +69,7 @@ This report makes heavy use of the following R packages and Github repository:
    + `rsHelp` for viewing helps files for functions in `rscripts`
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
    
-Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `makecallout`, `makecodechunk`, `htmlView*`, `dataChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `makecallout`, `makecodechunk`, `htmlView*`, `dataChk`, `missChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
 
 ```{r eval=FALSE}
@@ -316,6 +316,59 @@ Instead of working to keep certain outputs verbatim you can use `knitr::kable()`
 
 :::
 
+## `Quarto` Built-in Syntax for Enhancing R Output
+
+Helper functions described below allow one to enhance graphical and tabular R output by taking advantage of `Quarto` formatting features.  These functions allow one to produce different formats within one code chunk, e.g., a plot in the margin and a table in a collapsible note appearing after the code chunk.  But if you need only one output format within a chunk you can make use of built-in syntax as described [here](https://quarto.org/docs/authoring/article-layout.html).  The `yaml`-like syntax also allows you to specify heights and widths for figures, plus multi-figure layouts.
+
+Here is some example code with all the markup shown.
+
+| ```{r}
+| #| column: margin
+| #| fig-height: 1
+| #| fig-width: 3
+| par(mar=c(2, 2, 0, 0), mgp=c(2, .5, 0))
+| x <- rnorm(1000)
+| hist(x, nclass=40, main='')
+| x[1:3]               # ordinary output stays put
+| knitr::kable(x[1:3]) # html output put in margin
+| hist(x, main='')
+| ```
+
+This results follow.
+
+```{r}
+#| column: margin
+#| fig-height: 1
+#| fig-width: 3
+par(mar=c(2, 2, 0, 0), mgp=c(2, .5, 0))
+x <- rnorm(1000)
+hist(x, nclass=40, main='')
+x[1:3]               # ordinary output stays put
+knitr::kable(x[1:3]) # html output put in margin
+hist(x, main='')
+```
+
+Here are a few markups for figure layout inside R chunks.
+
+Wide page (takes over the margins) and put multiple plots in 1 row:
+
+| #| column: screen-inset
+| #| layout-nrow: 1
+
+When plotting 3 figures put the first 2 in one row and the third in the second row and make it wide.
+
+| #| layout: [[1,1], [1]]
+
+Make the top left panel be wider than the top right one.
+
+| #| layout: [[70,30], [100]]
+
+Top left and top right panels have equal widths but devote 0.1 of the total width to an empty region between the two top panels.
+
+| #| layout: [[45, -10, 45], [100]]
+
+See [here](https://quarto.org/docs/authoring/figures.html) for details about figure specifications inside code chunks.
+
 ## `Quarto` Report Writing Helper Functions
 
 Helper functions are defined when you run the `Hmisc` function `getRs` to retrieve them from [`Github`](https://github.com/harrelfe/rscripts/blob/master/reptools.r), i.e., `getRs('reptools.r')`.  You can get help on these functions by running `rsHelp(functionname)`.  Several of the functions construct `Quarto` _callouts_ which are fenced-off sections of markup that trigger special formatting, especially when producing html.  The special formatting includes collapsible sections and marginal notes.  Here is a summary of some of the `reptools` helper functions.
@@ -323,6 +376,7 @@ Helper functions are defined when you run the `Hmisc` function `getRs` to retrie
 | Function | Purpose |
 |------|---------|
 |`dataChk`    |run a series of logical expressions for checking data consistency, put results in separate tabs using `maketabs`, and optionally create two summary tabs|
+|`missChk`    |creates a series of analyses of the extent and patterns of missing values in a data table or data frame, and puts graphical summaries in tabs|
 |`htmlList`   |print a named `list` using the names as headers|
 |`kabl`       |front-end to `knitr::kable` and `kables`.  If you run `kabl` on more than one object it will automatically call `kables`. |
 |`makecallout`|generic Quarto callout maker used by `makecnote`, `makecolmarg`|
@@ -733,6 +787,22 @@ htmlViewx(contents(support ), describe(support ),
 
 A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
 
+# Missing Data
+
+It is extremely important to understand the extent and patterns of missing data, starting with charting the marginal fraction of observations with `NA`s for each variable.  The occurrence of simultaneous missings on multiple variables makes multiple imputation and analysis more difficult, so it is important to correlate and quantify missingness in variables multiple ways.  The `Hmisc` package `naclus`, `naplot`, and `combplotp` functions provide a number of graphics along these lines.  
+
+The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
+
+```{r misscheck,results='asis'}
+getHdata(support)
+# Make it into a data table
+setDT(support)
+source('~/R/rscripts/reptools.r')
+missChk(support, prednmiss=TRUE, omitpred = ~ dzclass)
+```
+
+The likelihood ratio $\chi^2$ test in the last tab shows strong evidence that the number of missing variables per patient is associated with the values of some of the non-missing variables.  From the dot chart we see that the strongest predictors of missing baseline variables are time to death/censoring and disease group.  This may be due to patients on ventilators not being able to provide as much baseline information such as activities of daily living (`adlp`), and being on a ventilator is a strong prognostic sign.   There is a possible sex effect worth investigating.
+
 # Data Checking
 
 Besides useful descriptive statistics exemplified below, it is important to flag suspicious values in an automated way.  Since checking multiple columns may involve a large number of R expressions to run to classify observations as suspicious, let's automate the process somewhat by specifying a vector of expressions.  Then we have R "compute on the language" to parse the expressions for finding observations to flag, and for printing.  This is done by the [`dataChk`](https://github.com/harrelfe/rscripts/blob/master/reptools.r) function in `Github`.
@@ -834,12 +904,13 @@ For a continuous response variable measured longitudinally, two of the ways to d
 * "spaghetti plots" showing all data for all individual subjects, if the number of subjects is not very large
 * finding clusters of individual subject curve characteristics and plotting a random sample of raw data curves within each cluster if the sample size is large
 
-The `Hmisc` package [`curveRep`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/curveRep) function facilitates the latter.  It is important to consider per-subject sample sizes and measurement time gaps as these will not only limit how we look at the data but may be informative, e.g., subjects who are failing may start to get more frequent measurements.
+The `Hmisc` package [`curveRep`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/curveRep) function facilitates the latter approach using representative curves.  It considers per-subject sample sizes and measurement time gaps as these will not only limit how we look at the data but may be informative, e.g., subjects who are failing may start to get more frequent measurements.
 
 To demonstrate we simulate data in the following way.
 
 * Simulate 200 subjects (curves) with per-curve sample sizes ranging from 1 to 10
 * Make curves with odd-numbered IDs have a measurement time distribution that is random uniform [0,1] and those with even-numbered IDs have a time distribution that is half as wide but still centered at 0.5.  Shift y values higher with increasing IDs
+* Make 1/3 of subjects have a flat trajectory, 1/3 linear and not flat, and 1/3 quadratic
 
 Request `curveRep` to cluster the 200 curves on the following characteristics:
 
@@ -849,16 +920,24 @@ Request `curveRep` to cluster the 200 curves on the following characteristics:
 
 All subjects within each cluster are shown; we didn't need to take random samples for 200 subjects.  Results for the 4 per-curve sample size groups are placed in separate tabs.
 
-
 ```{r long,results='asis'}
 set.seed(1)
 N <- 200
 nc <- sample(1:10, N, TRUE)
 id <- rep(1:N, nc)
 x  <- y <- id
+# Solve for coefficients of quadratic function such that it agrees with 
+# the linear function at x=0.25, 0.75 and is lower by -delta at x=0.5
+delta    <- -3
+cof      <- list(c(0, 0, 0), c(0, 10, 0), c(delta, 10, -2 * delta / (2 * 0.25^2)))
+
 for(i in 1 : N) {
   x[id==i] <- if(i %% 2) runif(nc[i]) else runif(nc[i], c(.25, .75))
-  y[id==i] <- i + 10*(x[id==i] - .5) + runif(nc[i], -10, 10)
+  shape    <- sample(1:3, 1)
+  xc       <- x[id == i] - 0.5
+  k        <- cof[[shape]]
+  y[id == i] <- i/20 + k[1] + k[2] * xc + k[3] * xc ^ 2 +
+                    runif(nc[i], -2.5, 2.5)
 }
 require(cluster)
 w   <- curveRep(x, y, id, kn=3, kxdist=2, k=4, p=10)
@@ -908,6 +987,7 @@ d[, age]              # retrieve one variable
 d[, .(age, gender)]   # make a new table with two variables
 i <- 2; d[, ..i]      # get column 2
 v <- 'age'; d[, ..v]  # get variable named by contents of v
+d[, (v)]              # another way; these return data tables
 d[.N]                 # last row
 d[, .N, keyby=age]    # number of rows for each age, sorted
 d[1:10, bhr:pkhr]     # first 10 rows, variables bhr - pkhr
@@ -1587,7 +1667,6 @@ Analyses should shed light on the unknown and not dwell on the known.  In a rand
 
 ```{r summaryrc}
 #| layout-ncol: 2
-getHdata(support)
 summaryRc(hospdead ~ age + crea + meanbp + wblc,
           ylim=c(.1, .6), data=support, bpplot='top')
 ```
@@ -1767,10 +1846,7 @@ ggplot(p, histSpike.opts=hso)
 
 We can create a matrix of plots that respect continuous baseline variables while staying close to the data through the use of overlapping moving windows.  In the following example we compute moving 1y and 2y mortality for selected continuous baseline variables in `support` and stack them together.  Flexible HARE hazard regression estimates are also included.
 
-::: {.callout-note collapse="true"}
-## Alternative to Manually Selecting Variables
-
-Sometimes it is worth having a function do the work of determining which variables to treat as continuous and which ones to treat as categorical.  Here is one such function.
+Define a function to determine the continuous/discrete nature of each variable.
 
 ```{r vartype}
 vartype <- function(data, include=NULL, exclude=NULL, ndistinct=10) {
@@ -1781,56 +1857,74 @@ vartype <- function(data, include=NULL, exclude=NULL, ndistinct=10) {
     if(is.character(x) || is.factor(x) ||
        (is.numeric(x) && length(unique(x)) <= ndistinct))
       'discrete' else 'continuous'
-  s <- sapply(data[v], g)
+  s <- sapply(if(is.data.table(data)) data[, ..v] else data[v], g)
   split(names(s), s)
 }
-types <- vartype(support, exclude=.q(d.time, death, hospdead, sfdm2))
+# Exclude outcome variables from consideration
+types <- vartype(support,
+                 exclude=.q(slos, charges, totcst, totmcst, avtisst,
+                            d.time, death, hospdead, sfdm2))
 print(types, quote=FALSE)
 ```
 
-:::
-
-In addition to showing all the estimated relationships with the outcome, put covariate distributions in the margin.[Note the bimodality of some of the measurements, and true zero blood pressures for patients having cardiac arrest.]{.aside}
+Let's use only the first 9 continuous variables.
+In addition to showing all the estimated relationships with the outcome, put covariate distributions in collapsed note.  Note the bimodality of some of the measurements, and true zero blood pressures for patients having cardiac arrest.
 
 ```{r movall,results='asis'}
-U <- NULL
-V <- .q(age, meanbp, wblc, hrt, temp, alb, crea, sod)
+#| column: page-inset-left
+#| fig.height: 5.5
+#| fig.width: 8
+V <- types$continuous[1:9]
+U <- list()
 for(v in V) {
-  support$.x. <- support[[v]]
   x <- support[[v]]
   u <- movStats(Surv(d.time / 365.25, death) ~ x, times=1:2,
               eps=30, hare=TRUE, penalty=0.25, maxdim=10,
               msmooth='smoothed', bass=8,
               melt=TRUE, data=support)
-  u$vname <- label(x, default=v)
-  U <- rbind(U, u)
+  U[[label(x, default=v)]] <- u  # stuffs u in an element of list U
+                                 # & names the element w/ var label/name
 }
-ggplot(U, aes(x, y=incidence, col=Statistic, linetype=Type)) + geom_line() +
+w <- rbindlist(U, idcol='vname')   # stack all the data tables
+ggplot(w, aes(x, y=incidence, col=Statistic, linetype=Type)) + geom_line() +
   facet_wrap(~ vname, scales='free_x') +
   ylab(label(u$incidence)) + xlab('') +
   guides(color=guide_legend(title='')) +
-  theme(legend.position='bottom')
-# Use plot(describe()) to get spike histograms of these vars.
+  theme(legend.position='bottom',
+        strip.text = element_text(size=8))
+makecnote(`Covariate Distributions` ~ plot(describe(support[, ..V])))
+```
+
+::: {.column-margin}
+If we were not showing main graphs in wide format (using a 
+`Quarto` callout) we could have put the marginal distributions in
+the right margin using the following, which shrinks the plotly output.
+
+```{r eval=FALSE}
 require(plotly)   # for %>%
-pl <- plot(describe(support[V])) %>%
+pl <- plot(describe(support[, ..V])) %>%
         layout(autosize=FALSE, width=350, height=325)
 makecolmarg(~ pl)
 ```
 
+:::
+
 Likewise we can produce a graph summarizing how categorical baseline variables relate to the study outcome variable.
 
 ```{r allcat}
-U <- NULL
-V <- .q(sex, dzgroup, adls, race)
+#| column: page-inset-left
+#| fig.height: 5.5
+#| fig.width: 9
+V <- types$discrete
+U <- list()
 for(v in V) {
-  support$.x. <- support[[v]]
-  u <- movStats(Surv(d.time / 365.25, death) ~ .x., times=1:2,
+  x <- support[[v]]
+  u <- movStats(Surv(d.time / 365.25, death) ~ x, times=1:2,
                 discrete=TRUE, melt=TRUE, data=support)
-  lab <- label(support$.x., default=v)
-  u[, vname := lab]
-  U <- rbind(U, u)
+  U[[label(x, default=v)]] <- u
 }
-ggplot(U, aes(x=incidence, y=.x., col=Statistic)) + geom_point() +
+w <- rbindlist(U, idcol='vname')   # stack the tables
+ggplot(w, aes(x=incidence, y=x, col=Statistic)) + geom_point() +
   facet_wrap(~ vname, scales='free_y') +
   xlab(label(u$incidence)) + ylab('') +
   guides(color=guide_legend(title='')) +
@@ -1841,13 +1935,11 @@ Alternatively we can put each variable in a separate tab:
 
 ```{r catkmtabs,results='asis'}
 gg <- function(data)
-  ggplot(data, aes(x=incidence, y=.x., col=Statistic)) + geom_point() +
+  ggplot(data, aes(x=incidence, y=x, col=Statistic)) + geom_point() +
     xlab('Mortality') + ylab('') +
     guides(color=guide_legend(title='')) +
     theme(legend.position='bottom')
-
-w <- split(U, U$vname)   # split into one data table per x variable
-g <- lapply(w, gg)       # put 'em all together to a list of ggplot objects
+g <- lapply(U, gg)       # one ggplot per element (a data table) in U
 maketabs(g)
 ```
 
