@@ -52,12 +52,14 @@ This report makes heavy use of the following R packages and Github repository:
 
 * [`Hmisc` package](https://hbiostat.org/R/Hmisc) which contains functions for importing data, data annotation, summary statistics, statistical graphics, advanced table making, etc.
 * [`data.table` package](https://www.rdocumentation.org/packages/data.table/versions/1.14.2) for data storage, retrieval, manipulation, munging, aggregation, merging, and reshaping
+* [`haven` package](https://haven.tidyverse.org) for importing datasets from statistical packages
 * [`ggplot2` package](https://ggplot2.tidyverse.org) for static graphics
 * [`plotly` package](https://plotly.com/r) for interactive graphics
 * [`rms` package](https://hbiostat.org/R/rms) for statistical modeling, validation, and presentation
 * [`knitr` package](https://cran.r-project.org/web/packages/knitr) for running reproducible reports, and also providing `kable` and `kables` functions for simple html table printing
 * [`rscripts` Github repository](https://github.com/harrelfe/rscripts) with utility functions such as
    + `dataChk` for data checking
+	 + `dataOverview` dataset overview
    + `hashCheck` for checking if parent objects have changed so a slow analysis has to be re-run (i.e., talking control of caching)
    + `htmlList` to easily print vectors in a named list using `kable`
    + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
@@ -67,9 +69,11 @@ This report makes heavy use of the following R packages and Github repository:
    + `makecnote` to print an object in a collapsible `Quarto` note
    + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
    + `rsHelp` for viewing helps files for functions in `rscripts`
+	 + `makemermaid` for making `mermaid` diagrams with R variable insertions
+	 + `vClus` for variable clustering
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
    
-Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `makecallout`, `makecodechunk`, `htmlView*`, `dataChk`, `missChk`, `scplot`.  These are all loaded when `reptools.r` is loaded.
+Useful report building tools are gathered into the `rscripts` `reptools.r` script: `htmlList`, `kabl`, `maketabs`, `makecolmarg`, `makecnote`, `makecallout`, `makecodechunk`, `htmlView*`, `dataChk`, `missChk`, `makemermaid`, `vClus`, `dataOverview`, `scplot`.  These are all loaded when `reptools.r` is loaded.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
 
 ```{r eval=FALSE}
@@ -327,6 +331,7 @@ Here is some example code with all the markup shown.
 | #| fig-height: 1
 | #| fig-width: 3
 | par(mar=c(2, 2, 0, 0), mgp=c(2, .5, 0))
+| set.seed(1)
 | x <- rnorm(1000)
 | hist(x, nclass=40, main='')
 | x[1:3]               # ordinary output stays put
@@ -341,6 +346,7 @@ This results follow.
 #| fig-height: 1
 #| fig-width: 3
 par(mar=c(2, 2, 0, 0), mgp=c(2, .5, 0))
+set.seed(1)
 x <- rnorm(1000)
 hist(x, nclass=40, main='')
 x[1:3]               # ordinary output stays put
@@ -376,6 +382,7 @@ Helper functions are defined when you run the `Hmisc` function `getRs` to retrie
 | Function | Purpose |
 |------|---------|
 |`dataChk`    |run a series of logical expressions for checking data consistency, put results in separate tabs using `maketabs`, and optionally create two summary tabs|
+|`dataOverview`|runs a data overview report|
 |`missChk`    |creates a series of analyses of the extent and patterns of missing values in a data table or data frame, and puts graphical summaries in tabs|
 |`htmlList`   |print a named `list` using the names as headers|
 |`kabl`       |front-end to `knitr::kable` and `kables`.  If you run `kabl` on more than one object it will automatically call `kables`. |
@@ -383,9 +390,11 @@ Helper functions are defined when you run the `Hmisc` function `getRs` to retrie
 |`makecnote`  |print objects or run code and place output in an initially collapsed callout note|
 |`makecolmarg`|print objects or run code and place output in a marginal note|
 |`maketabs`   |print objects or run code placing output in separate tabs|
-|`varType`    |classify variables in a data table/frame as continuous, discrete, or non-numeric non-discrete|
+|`makemermaid`|makes a `mermaid` diagram with R variable values included in the diagram|
+|`varType`    |classify variables in a data table/frame or a vector as continuous, discrete, or non-numeric non-discrete|
 |`conVars`    |use `varType` to extract list of continuous variables|
 |`disVars`    |use `varType` to extract list of discrete variables|
+|`vClus`      |run `Hmisc::varclus` on a dataset after reducing it|
 
 The input to `maketabs`, as will be demonstrated later, may be a named `list`, or more commonly, a series of formulas whose right-hand sides are executed and the result of each formula is placed in a separate tab.  The left side of the formula becomes the tab label.  For `makecolmarg` there should be no left side of the formula as marginal notes are not labeled.  For the named `list` option the `list` names become the tab names.  Examples of both approaches appear later in this report.  In formulas, a left side label must be enclosed in back ticks and not quotes if it is a multi-word string.  A `wide` argument is used to expand the width of the output outside the usual margins.  An `initblank` argument creates a first tab that is empty.  This allows one to show nothing until one of the other tabs is clicked. Alternately you can specify as the first formula \` \` ~ \` \`.
 
@@ -596,8 +605,6 @@ for(x in names(d))
 
 ::: {.panel-tabset}
 
-## 
-
 ## External Metadata
 
 Sometimes metadata comes from a separate source.  Suppose you imported a data frame `d` but have also imported a data frame `m` containing metadata: the same variable names in `d` (variable `name`) plus fields `label`, `units`, and `comment`.  Dataset `m` can contain variables not currently being used.  To add the labels and units into `d` and to store comments separately, use the following example.
@@ -773,7 +780,7 @@ browseURL('contents.html', browser='vivaldi -new-window')
 
 ```{r eval=FALSE}
 getRs('reptools.r', put='source')
-# reptools.r defines htmlView, htmlViewx, kabl, maketabs, dataChk
+# reptools.r defines htmlView, htmlViewx, kabl, maketabs, dataChk, ...
 htmlView(contents(d))
 ```
 
@@ -794,12 +801,14 @@ A screenshot of the result is [here](https://hbiostat.org/img/htmlViewx.png).
 
 It is extremely important to understand the extent and patterns of missing data, starting with charting the marginal fraction of observations with `NA`s for each variable.  The occurrence of simultaneous missings on multiple variables makes multiple imputation and analysis more difficult, so it is important to correlate and quantify missingness in variables multiple ways.  The `Hmisc` package [`naclus`](https://www.rdocumentation.org/packages/Hmisc/versions/4.7-0/topics/varclus), `naplot`, and `combplotp` functions provide a number of graphics along these lines.  
 
-The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
+The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using again the `support` dataset.   the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
 
 ```{r misscheck,results='asis'}
 getHdata(support)
 # Make it into a data table
 setDT(support)
+# Remove one variable we'll not be using
+support[, adlsc := NULL]
 missChk(support, prednmiss=TRUE, omitpred = ~ dzclass)
 ```
 
@@ -829,6 +838,17 @@ checks <- expression(
 dataChk(w, checks, id=c('id', 'site'),
         omit0=TRUE, byid=TRUE, html=TRUE)
 ```
+
+# Data Overview: Analyzing Data About the Data
+
+The `contents` function displays the data dictionary and number of missing values for each variable.  We can go deeper in summarizing a dataset as a whole.  The `reptools` `dataOverview` function first produces a brief overview of the dataset with regard to number of variables, observations, and unique subject identifiers (if present).  Then it provides a table, and a graphical report with one graph (in one report tab) per type of variable: continuous, discrete, or non-discrete non-numeric.  Variable characteristics summarized are the number of distinct values, number of `NA`s, information measure (see `describe`), symmetry, modal variable value (most frequent value), frequency of modal value, minimum frequency value, and frequency of that value.  When there are tied frequencies the first value is reported.  The default display is an interactive `plotly`  scatterplot with the number of distinct values on the x-axis and symmetry on the y-axis.  The other data characteristics are shown as hover text.  The points are color-coded for intervals of the number of `NA`s.[`Info` is the information in a variable relative to the information (1.0) in a variable having no tied values.  _Symmetry_ is defined as follows.  For non-numeric variables, symmetry is one minus the mean absolute difference between relative category frequencies and the reciprocal of the number of categories.  It has a value of 1.0 when the frequencies of all the categories are the same.  For continuous variables symmetry is the ratio of the 0.95 quantile minus the mean to the mean minus the 0.05 quantile.  This symmetry measure is < 1.0 when the left tail is heavy and > 1 when the right tail of the distribution is heavy.]{.aside}
+
+Again use the `support` dataset.
+
+```{r overview,results='asis'}
+dataOverview(support)
+```
+
 
 # Descriptive Statistics
 
@@ -993,7 +1013,7 @@ d <- upData(d,
 kabl(pt1, pt2, pt3, pt4)
 multEventChart(status ~ day + pt, data=d,
                absorb=.q(death, discharged),
-							 colorTitle='Status', sortbylast=TRUE) +
+               colorTitle='Status', sortbylast=TRUE) +
   theme_classic() + theme(legend.position='bottom')
 ```
 
@@ -1032,6 +1052,17 @@ event.chart(cdcaids,
   legend.point.at = list(c(7210, 8100), c(35, 27))) #, legend.bty='o')
 ```
 
+## Describing Variable Interrelationships
+
+A good descriptive analysis to help understand relationships among variables and redundancies/collinearities is variable clustering.  Here one clusters on variables instead of observations, and instead of a distance matrix we have a similarly matrix.  A good default similarity matrix is based on the square of pairwise Spearman's $\rho$ rank correlation coefficients.  In order to restrict ourselves to _unsupervised learning_, also called _data reduction_, we restrict attention to non-outcome variables.  The `vClus` function in `reptools` runs the dataset, after excluding some variables, through the `Hmisc` `dataframeReduce` function to eliminate variables that are missing more than 0.4 of the time and to ignore character or factor variables having more than 10 levels.  Binary variables having prevalence < 0.05 are dropped, and categorical variables having < 0.05 of their non-missing values in a category will have such low-frequency categories combined into an "other" category for purposes of variable clustering.[Normally one would omit the `fracmiss, maxlevels, minprev` arguments as the default values are reasonable
+
+```{r varclus}
+#| fig.height: 4
+#| fig.width: 7.5
+outcomes <- .q(slos, charges, totcst, totmcst, avtisst,
+               d.time, death, hospdead, sfdm2)
+vClus(support, exclude=outcomes, fracmiss=0.4, maxlevels=10, minprev=0.05)
+```
 
 # Data Manipulation and Aggregation
 
@@ -1920,10 +1951,8 @@ We can create a matrix of plots that respect continuous baseline variables while
 `reptools` includes a function `varType` to determine the continuous/discrete nature of each variable, and other functions that make it easy to extract the list of either continuous variables (`conVars`) or discrete variables (`disVars`).  `varType` also has a third classification: non-numeric variables that have too many (by default > 20) distinct values to be considered discrete.
 
 ```{r}
-# Exclude outcome variables from consideration
-types <- varType(support,
-                 exclude=.q(slos, charges, totcst, totmcst, avtisst,
-                            d.time, death, hospdead, sfdm2))
+# Exclude outcome variables from consideration (see earlier)
+types <- varType(support, exclude=outcomes)
 print(types, quote=FALSE)
 ```
 
