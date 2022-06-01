@@ -54,7 +54,9 @@ This report makes heavy use of the following R packages and Github repository:
 * [`data.table` package](https://www.rdocumentation.org/packages/data.table/versions/1.14.2) for data storage, retrieval, manipulation, munging, aggregation, merging, and reshaping
 * [`haven` package](https://haven.tidyverse.org) for importing datasets from statistical packages
 * [`ggplot2` package](https://ggplot2.tidyverse.org) for static graphics
+* [`consort` package](https://cran.r-project.org/web/packages/consort) for consort diagrams
 * [`plotly` package](https://plotly.com/r) for interactive graphics
+* [`consort` package](https://cran.r-project.org/web/packages/consort) for consort diagrams showing observation filtering
 * [`rms` package](https://hbiostat.org/R/rms) for statistical modeling, validation, and presentation
 * [`knitr` package](https://cran.r-project.org/web/packages/knitr) for running reproducible reports, and also providing `kable` and `kables` functions for simple html table printing
 * [`rscripts` Github repository](https://github.com/harrelfe/rscripts) with utility functions such as
@@ -605,6 +607,10 @@ for(x in names(d))
 
 ::: {.panel-tabset}
 
+##  
+
+
+
 ## External Metadata
 
 Sometimes metadata comes from a separate source.  Suppose you imported a data frame `d` but have also imported a data frame `m` containing metadata: the same variable names in `d` (variable `name`) plus fields `label`, `units`, and `comment`.  Dataset `m` can contain variables not currently being used.  To add the labels and units into `d` and to store comments separately, use the following example.
@@ -839,7 +845,97 @@ dataChk(w, checks, id=c('id', 'site'),
         omit0=TRUE, byid=TRUE, html=TRUE)
 ```
 
-# Data Overview: Analyzing Data About the Data
+# Data Overview
+
+## Filtering of Observations
+
+When the number of subjects in the final analysis is less than the number of subjects initially entering the study, it is important to detail the observation filtering process.  This is often done with a [consort diagram](http://www.consort-statement.org/consort-statement/flow-diagram), and fortunately R has the [consort package](https://cran.r-project.org/web/packages/consort) by Alim Dayim for drawing data-driven diagrams.  To demonstrate its use let's simulate a two-treatment randomized clinical trial in which 1000 subjects were screened for participation.
+
+```{r simrct}
+N <- 1000
+set.seed(1)
+r <- data.table(id = 1 : N)
+r[, .q(id, age, pain, hxmed) :=
+      .(1 : N,
+        round(rnorm(N, 60, 15)),
+        sample(0 : 5, N, replace=TRUE),
+        sample(0 : 1, N, replace=TRUE, prob=c(0.95, 0.05)) ) ]
+# Set consent status to those not excluded at screening
+r[age >= 40 & pain > 0 & hxmed == 0,
+  consent := sample(0 : 1, .N, replace=TRUE, prob=c(0.1, 0.9))]
+# Set randomization status for those consenting
+r[consent == 1,
+  randomized := sample(0 : 1, .N, replace=TRUE, prob=c(0.15, 0.85))]
+# Add treatment and follow-up time to randomized subjects
+r[randomized == 1, tx     := sample(c('Treatment A', 'Treatment B'), .N, replace=TRUE)]
+r[randomized == 1, futime := pmin(runif(.N, 0, 10), 3)]
+# Add outcome status for those followed 3 years
+# Make a few of those followed 3 years missing
+r[futime == 3,
+  y := sample(c(0, 1, NA), .N, replace=TRUE, prob=c(0.75, 0.2, 0.05))]
+# Print first 15 subjects
+kabl(r[1 : 15, ])
+```
+
+Now show the flow of qualifications and exclusions in a consort diagram.  `consort_plot` wants multiple reasons for exclusions to be prioritized in a hierarchy, and `NA` to be used to denote "no exclusion".  Define a function `dexclude` the creates a `factor` variable whose first level is the most common exclusion, second level is the most common exclusion after excluding subjects based on the first exclusion, and so on.
+
+::: {.column-margin}
+Had we wanted a non-data-dependent hierarchy we could have used
+
+```{r eval=FALSE}
+r[, exc := factor(fcase(pain  == 0, 1,
+                        hxmed == 1, 2,
+                        age < 40  , 3,
+                        default=NA),
+                  1:3, c('pain-free', 'Hx medication', 'age < 40'))]
+```
+
+:::
+
+```{r consort}
+dexclude <- function(..., labels, noneNA=FALSE) {
+  x <- cbind(...)
+  k <- ncol(x)
+  if(k != length(labels)) stop('invalid labels')
+  j <- integer(k)
+  w <- rep(0, nrow(x))
+  for(i in 1 : k) {
+    freqs <- apply(x, 2, sum, na.rm=TRUE)
+    if(all(freqs == 0)) break
+    imax  <- which.max(freqs)
+    j[i]  <- imax
+    w <- ifelse(w == 0 & x[, imax], imax, w)
+    x[x[, imax] == 1, ] <- 0
+  }
+j <- j[j != 0]
+if(noneNA) factor(w, j, labels[j]) else
+           factor(w, c(0, j), c('none', labels[j]))  
+}
+r[, exc := dexclude(pain == 0, hxmed == 1, age < 40,
+                    labels=c('pain-free', 'Hx med', 'age < 40'),
+                    noneNA=TRUE)]
+r[, .q(qual, consent, fin) :=
+    .(is.na(exc),
+      ifelse(consent == 1, 1, NA),
+      ifelse(futime >= 3, 1, NA))]
+
+require(consort)
+consort_plot(r,
+             orders = c(id      = 'Screened',
+                        exc     = 'Excluded',
+                        qual    = 'Qualified for Randomization',
+                        consent = 'Consented',
+                        tx      = 'Randomized',
+                        fin     = 'Finished',
+                        y       = 'Outcome\nassessed'),
+             side_box = 'exc',
+             allocation = 'tx',
+             labels=c('1'='Screening', '3'='Consent', '4'='Randomization', '6'='Follow-up'),
+             coords=c(0.4, 0.6), cex=0.65,
+)
+```
+
+## Analyzing Data About the Data
 
 The `contents` function displays the data dictionary and number of missing values for each variable.  We can go deeper in summarizing a dataset as a whole.  The `reptools` `dataOverview` function first produces a brief overview of the dataset with regard to number of variables, observations, and unique subject identifiers (if present).  Then it provides a table, and a graphical report with one graph (in one report tab) per type of variable: continuous, discrete, or non-discrete non-numeric.  Variable characteristics summarized are the number of distinct values, number of `NA`s, information measure (see `describe`), symmetry, modal variable value (most frequent value), frequency of modal value, minimum frequency value, and frequency of that value.  When there are tied frequencies the first value is reported.  The default display is an interactive `plotly`  scatterplot with the number of distinct values on the x-axis and symmetry on the y-axis.  The other data characteristics are shown as hover text.  The points are color-coded for intervals of the number of `NA`s.[`Info` is the information in a variable relative to the information (1.0) in a variable having no tied values.  _Symmetry_ is defined as follows.  For non-numeric variables, symmetry is one minus the mean absolute difference between relative category frequencies and the reciprocal of the number of categories.  It has a value of 1.0 when the frequencies of all the categories are the same.  For continuous variables symmetry is the ratio of the 0.95 quantile minus the mean to the mean minus the 0.05 quantile.  This symmetry measure is < 1.0 when the left tail is heavy and > 1 when the right tail of the distribution is heavy.]{.aside}
 
@@ -1063,6 +1159,8 @@ outcomes <- .q(slos, charges, totcst, totmcst, avtisst,
                d.time, death, hospdead, sfdm2)
 vClus(support, exclude=outcomes, fracmiss=0.4, maxlevels=10, minprev=0.05)
 ```
+
+The most strongly related variables are competing indicator variables for categories from the same variable, `scoma` vs. `dzgroup` "Coma", and `dzgroup` "Cancer" vs. `dzclass` "Cancer".  The first type of relationship generates a strong negative correlation because if you're in one category you can't be in the other.
 
 # Data Manipulation and Aggregation
 
