@@ -44,7 +44,7 @@ source('~/r/rmarkdown/qbookfun.r')
 ```
 
 [`r hypcomment`]{.aside}
-This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Finally, examples of caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Examples of diagramming the flow of exclusion of observations from analysis, caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
 
 ::: {.callout-note collapse="true"}
 # R Code Repositories Used in This Report
@@ -69,6 +69,7 @@ This report makes heavy use of the following R packages and Github repository:
    + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of one or more R command
    + `makecolmarg` to print an object in the right margin in `Quarto` reports
    + `makecnote` to print an object in a collapsible `Quarto` note
+   + `makemermaid` make Quarto `mermaid` diagrams with insertion of variable values
    + `movStats` for statistics computed efficiently using `data.table` in moving overlapping windows of a continuous variable
    + `rsHelp` for viewing helps files for functions in `rscripts`
 	 + `makemermaid` for making `mermaid` diagrams with R variable insertions
@@ -935,6 +936,125 @@ consort_plot(r,
 )
 ```
 
+`consort` allows provides another way to build the diagram that may be more flexible and intuitive after we define some helper functions.  The built-in R pipe operator `|>` is used.
+
+```{r consort2}
+#| fig.height=5.5
+h <- function(n, label) paste0(label, ' (n=', n, ')')
+htab <- function(x, label=NULL, split=! length(label), br='\n') {
+  tab <- table(x)
+  w <- if(length(label)) paste0(h(sum(tab), label), ':', br)
+  f <- if(split) h(tab, names(tab)) 
+  else
+    paste(paste0('   ', h(tab, names(tab))), collapse=br)
+  if(split) return(f)
+  paste(w, f, sep=if(length(label))'' else br)
+}  
+count <- function(x, by=rep(1, length(x)))
+  tapply(x, by, sum, na.rm=TRUE)
+
+r[, {
+ g <-
+   add_box(txt=h(nrow(r),       'Screened'))                    |>
+   add_side_box(htab(exc,       'Excluded'))                    |>
+   add_box(h(count(is.na(exc)), 'Qualified for Randomization')) |>
+   add_box(h(count(consent),    'Consented'))                   |>
+   add_box(h(count(randomized), 'Randomized'))                  |>
+   add_split(htab(tx))                                          |>
+   add_box(h(count(fin, tx),    'Finished'))                    |>
+   add_box(h(count(! is.na(y), tx), 'Outcome\nassessed'))       |>
+   add_label_box(c('1'='Screening',     '3'='Consent',
+                   '4'='Randomization', '6'='Follow-up'))
+ plot(g)
+}
+]
+```
+
+The [`mermaid`](https://mermaid-js.github.io/mermaid) natural diagramming language can be used to make `consort`-like flowcharts among many other types of diagrams.  `Quarto` has [built-in support for `mermaid`](https://quarto.org/docs/authoring/diagrams.html), and a `reptools` function `makemermaid` uses the capabilities of the `knit_expand` function in the `knitr` package to allow variable values to easily be inserted into `mermaid` specifications using the `{{variablename}}` notation which is also used in one example to insert several program-generated lines of `mermaid` commands.  `results='asis'` needs to be in the chunk header to use `makemermaid`, and any node labels that contain parentheses must be enclosed in quotes.  In the first example, exclusions are in one large node and a special output class (used to limited effect) is used for this node.  In the second example, each exclusion is a subnode to the overall count of exclusions.
+
+```{r results='asis'}
+# TD = top down
+x <- 'flowchart TD
+  S["Screened (n={{N0}})"] --> E["{{excl}}"]
+  S   --> Q["Qualified for Randomization (n={{Nq}})"]
+  Q   --> C["Consented (n={{Nc}})"]
+  C   --> R["Randomized (n={{Nr}})"]
+  R   --> TxA["Treatment A (n={{Ntxa}})"]
+  R   --> TxB["Treatment B (n={{Ntxb}})"]
+  TxA --> FA["Finished (n={{Ntxaf}})"]
+  TxB --> FB["Finished (n={{Ntxbf}})"]
+  FA  --> OA["Outcome assessed (n={{Ntxao}})"]
+  FB  --> OB["Outcome assessed (n={{Ntxbo}})"]
+classDef largert fill:lightgray,width:1.5in,height:10em,text-align:right,font-size:0.8em
+class E largert;
+'
+
+r[, 
+makemermaid(x,
+            N0   = nrow(r),
+            excl = htab(exc, 'Excluded', br='<br>'),
+            Nq   = count(is.na(exc)),
+            Nc   = count(consent),
+            Nr   = count(randomized),
+            Ntxa = count(tx == 'Treatment A'),
+            Ntxb = count(tx == 'Treatment B'),
+            Ntxaf= count(tx == 'Treatment A' & fin),
+            Ntxbf= count(tx == 'Treatment B' & fin),
+            Ntxao= count(tx == 'Treatment A' & ! is.na(y)),
+            Ntxbo= count(tx == 'Treatment B' & ! is.na(y))
+            )
+]
+```
+
+```{r results='asis'}
+exclnodes <- function(x, seq=FALSE) {
+  # Create complete node specifications for individual exclusions, each
+  # linking to overall exclusion count assumed to be in node E
+  # Set seq=TRUE to make use of the fact that the exclusions were
+  # done in frequency priority order so that each exclusion is in
+  # addition to the previous one.  Leave seq=FALSE to make all exclusions
+  # subservient to E.
+  tab <- table(x)
+  i <- 1 : length(tab)
+  w <- paste0('["', names(tab), ' (n=', tab, ')"]')
+  u <- if(seq) ifelse(i == 1, paste0('E --> E1', w),
+                              paste0('E', i-1, '--> E', i, w))
+    else paste0('E --> E', i, w)
+  paste(u, collapse='\n')
+}
+
+x <- 'flowchart TD
+  S["Screened (n={{N0}})"] --> E["Excluded (n={{Ne}})"]
+  {{exclsep}}
+  S   --> Q["Qualified for Randomization (n={{Nq}})"]
+  Q   --> C["Consented (n={{Nc}})"]
+  C   --> R["Randomized (n={{Nr}})"]
+  R   --> TxA["Treatment A (n={{Ntxa}})"]
+  R   --> TxB["Treatment B (n={{Ntxb}})"]
+  TxA --> FA["Finished (n={{Ntxaf}})"]
+  TxB --> FB["Finished (n={{Ntxbf}})"]
+  FA  --> OA["Outcome assessed (n={{Ntxao}})"]
+  FB  --> OB["Outcome assessed (n={{Ntxbo}})"]
+'
+
+r[, 
+makemermaid(x,
+            N0   = nrow(r),
+            Ne   = count(! is.na(exc)),
+            exclsep = exclnodes(exc),  # add seq=TRUE to put exclusions vertical
+            Nq   = count(is.na(exc)),
+            Nc   = count(consent),
+            Nr   = count(randomized),
+            Ntxa = count(tx == 'Treatment A'),
+            Ntxb = count(tx == 'Treatment B'),
+            Ntxaf= count(tx == 'Treatment A' & fin),
+            Ntxbf= count(tx == 'Treatment B' & fin),
+            Ntxao= count(tx == 'Treatment A' & ! is.na(y)),
+            Ntxbo= count(tx == 'Treatment B' & ! is.na(y))
+            )
+]
+```
+
 ## Analyzing Data About the Data
 
 The `contents` function displays the data dictionary and number of missing values for each variable.  We can go deeper in summarizing a dataset as a whole.  The `reptools` `dataOverview` function first produces a brief overview of the dataset with regard to number of variables, observations, and unique subject identifiers (if present).  Then it provides a table, and a graphical report with one graph (in one report tab) per type of variable: continuous, discrete, or non-discrete non-numeric.  Variable characteristics summarized are the number of distinct values, number of `NA`s, information measure (see `describe`), symmetry, modal variable value (most frequent value), frequency of modal value, minimum frequency value, and frequency of that value.  When there are tied frequencies the first value is reported.  The default display is an interactive `plotly`  scatterplot with the number of distinct values on the x-axis and symmetry on the y-axis.  The other data characteristics are shown as hover text.  The points are color-coded for intervals of the number of `NA`s.[`Info` is the information in a variable relative to the information (1.0) in a variable having no tied values.  _Symmetry_ is defined as follows.  For non-numeric variables, symmetry is one minus the mean absolute difference between relative category frequencies and the reciprocal of the number of categories.  It has a value of 1.0 when the frequencies of all the categories are the same.  For continuous variables symmetry is the ratio of the 0.95 quantile minus the mean to the mean minus the 0.05 quantile.  This symmetry measure is < 1.0 when the left tail is heavy and > 1 when the right tail of the distribution is heavy.]{.aside}
@@ -1192,6 +1312,8 @@ d[, .N, keyby=age]    # number of rows for each age, sorted
 d[1:10, bhr:pkhr]     # first 10 rows, variables bhr - pkhr
 d[1:10, !(bhr:pkhr)]  # all but those variables
 d[, 2:4]              # get columns 2-4
+d[, {...}]            # run any number of lines of code in ...
+                      # that reference variables inside d
 ```
 
 `data.table` does many of its operations _by reference_ to avoid the overhead of having multiple copies of data tables.  This idea carries over to _apparent_ copies of data tables.  Here is an example.
