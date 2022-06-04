@@ -39,7 +39,7 @@ execute:
 
 <!-- To compile: quarto render rflow.qmd  -->
 
-<!-- Needed to make hovertext work with mermaid diagrams -->
+<!-- Needed to make hover text work with mermaid diagrams -->
 <style>
   .mermaidTooltip {
       position: absolute;
@@ -60,7 +60,13 @@ execute:
 source('~/r/rmarkdown/qbookfun.r')
 ```
 
-[`r hypcomment`]{.aside}
+<!-- [`r hypcomment`]{.aside} -->
+
+::: {.column-margin}
+[Comments](https://hbiostat.org/comment.html)<br>[Change log](https://github.com/harrelfe/blogd/commits/master/content/post/rflow.qmd)
+
+:::
+
 This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Examples of diagramming the flow of exclusion of observations from analysis, caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
 
 ::: {.callout-note collapse="true"}
@@ -830,6 +836,8 @@ It is extremely important to understand the extent and patterns of missing data,
 The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using again the `support` dataset.   the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
 
 ```{r misscheck,results='asis'}
+getRs('reptools.r', put='source')  # Define dataChk, maketabs
+require(data.table)
 getHdata(support)
 # Make it into a data table
 setDT(support)
@@ -838,7 +846,7 @@ support[, adlsc := NULL]
 missChk(support, prednmiss=TRUE, omitpred = ~ dzclass)
 ```
 
-The likelihood ratio $\chi^2$ test in the last tab shows strong evidence that the number of missing variables per patient is associated with the values of some of the non-missing variables.  From the dot chart we see that the strongest predictors of missing baseline variables are time to death/censoring and disease group.  This may be due to patients on ventilators not being able to provide as much baseline information such as activities of daily living (`adlp`), and being on a ventilator is a strong prognostic sign.   There is a possible sex effect worth investigating.
+The likelihood ratio $\chi^2$ test in the last tab is a test of whether any of a subject's non-missing variable values are associated with the number of missing variables on the subject.  It shows strong evidence for such associations.  From the dot chart we see that the strongest predictors of missing baseline variables are time to death/censoring and disease group.  This may be due to patients on ventilators not being able to provide as much baseline information such as activities of daily living (`adlp`), and being on a ventilator is a strong prognostic sign.   There is a possible sex effect worth investigating.
 
 # Data Checking
 
@@ -847,8 +855,6 @@ Besides useful descriptive statistics exemplified below, it is important to flag
 The following code results in separate output for each individual data check, in separate `Quarto` tabs.  The dataset does not have a subject ID variable so let's create one, and also add a `site` variable to print.  Arguments are specified to `dataChk` so that no tab is produced for a condition that never occurred in the data, and a tab is produced showing all data flags, sorted by `id` and `site`.
 
 ```{r dcheck,results='asis'}
-getRs('reptools.r', put='source')  # Define dataChk, maketabs
-require(data.table)
 w <- d
 setDT(w)
 w[, id := 1 : .N]
@@ -1014,7 +1020,7 @@ makemermaid(x,
 ]
 ```
 
-In the second `mermaid` example, each exclusion is a subnode to the overall count of exclusions, and a new node is added to inform us about multiple exclusions per subject.  To provide fuller information about multiple exclusions, the entire frequency distribution of the number of exclusions per subject appears as a hovertext tooltip (thus the new node is not really needed).  Let's also remove the need for more error-prone manual coding of parallel treatment groups by creating a function `parNodes` to do this.
+In the second `mermaid` example, each exclusion is a subnode to the overall count of exclusions, and a new node is added to inform us about multiple exclusions per subject.  To provide fuller information about multiple exclusions, the entire frequency distribution of the number of exclusions per subject appears as a hover text tooltip (thus the new node is not really needed).  Let's also remove the need for more error-prone manual coding of parallel treatment groups by creating a function `parNodes` to do this.
 
 ::: {.column-margin}
 To make `mermaid` tooltips work the following needs to be placed in your script.
@@ -1130,20 +1136,15 @@ Hover the mouse over `Excluded` to see details
 
 :::
 
-Use a similar approach for displaying missing data exclusions in `support` with respect to selected variables.  Exclusions will automatically start with the variable having the highest number of `NA`s, then go to the variable that is most missing after removing observations that are missing on the first variable, etc.
+Use a similar approach for displaying missing data exclusions in `support` with respect to selected variables.  The `reptools` `missChk` function will automatically start with the variable having the highest number of `NA`s, then go to the variable that is most missing after removing observations that are missing on the first variable, etc.
 
 ```{r results='asis'}
 vars <-  .q(age, sex, dzgroup, edu, income, meanbp, wblc,
             alb, bili, crea, glucose, bun, urine)
-# Replace each variable with missingness indicator
-s <- support[, lapply(.SD, is.na), .SDcols=vars]
-# Hierarchical exclusions
-# Instead of seqFreq(age, sex, dzgroup, ..., noneNA=TRUE) save typing
-# by using do.call to build all those arguments
-s[, exc := do.call('seqFreq', c(.SD, list(noneNA=TRUE)))]
+ex <- missChk(support, use=vars, type='seq') # seq: don't make report
 
 # Create tooltip text from tabulation created by seqFreq
-oc   <- attr(s[, exc], 'obs.per.numcond')
+oc   <- attr(ex, 'obs.per.numcond')
 freq <- data.frame('# Exclusions'= (1 : length(oc)) - 1,
                    '# Subjects'  = oc, check.names=FALSE)
 freq    <- subset(freq, `# Subjects` > 0)
@@ -1157,19 +1158,18 @@ flowchart TD
 	click E1 callback "<pre>{{excltab}}</pre>"
 '
 
-w <- s[,
 makemermaid(x,
-  N0        = nrow(s),
-  exclsep   = exclnodes(exc, from='Enr', seq=TRUE, remain=TRUE),
+  N0        = nrow(support),
+  exclsep   = exclnodes(ex, from='Enr', seq=TRUE, remain=TRUE),
   excltab   = excltab
 )
-]
 ```
 
 ::: {.column-margin}
 Hover over the second box to see more details.
 
 :::
+
 
 ## Analyzing Data About the Data
 
@@ -1417,7 +1417,7 @@ Several `data.table` examples follow.  I like to hold the current dataset in `d`
 ```{r eval=FALSE}
 d[2]                  # print 2nd row
 d[2:4]                # print rows 2,3,4
-d[y > 2 & z > 3]      # rows satisfying condions
+d[y > 2 & z > 3]      # rows satisfying conditions
 d[, age]              # retrieve one variable
 d[, .(age, gender)]   # make a new table with two variables
 i <- 2; d[, ..i]      # get column 2
@@ -2399,7 +2399,7 @@ rmsdisplay <- function(f)
 rmsdisplay(f)
 ```
 
-## Caching
+# Caching
 
 The workhorse behind `Rmarkdown` and `Quarto` (besides [`Pandoc`](https://pandoc.org)) is [knitr](https://www.r-project.org/nosvn/pandoc/knitr.html), which processes the code chunks and properly mingles code and tabular and graphical output.  `knitr` has a built-in caching mechanism to make it so that code is not needlessly executed when the code inputs have not changed. This easy-to-use process does have two disadvantages: the dependencies are not transparent, and the stored cache files may be quite large.  I like to take control of caching.  To that end, the [runifChanged](https://github.com/harrelfe/rscripts/blob/master/hashCheck.r) function was written.  Here is an example of its use.  First a function with no arguments must be composed.  This is the (usually slow) function that will be conditionally run if any of a group of listed objects has changed since the last time it was run.  This function when needed to be run produces an object that is stored in binary form in a user-specified file (the default file name is the name of the current R code chunk with `.rds` appended).
 
@@ -2424,7 +2424,7 @@ dim(b$boot.Coef)
 head(b$boot.Coef)
 ```
 
-## Parallel Computing
+# Parallel Computing
 
 The `runParallel` function makes it easy to use available multiprocessor cores to speed up parallel computations especially for simulations.  By default it runs the number of available cores, less one.  `runParallel` makes the `parallel` package easier to use and does recombinations over per-core batches.  The user writes a function that does the work on one core, and the same function is run on all cores.  This function has set arguments and must return a named list.  A base random number `seed` is given, and the seed is set to this plus `i` for core number `i`.  The total number of repetitions is given, and this most balanced possible number of repetitions is run on each core to sum to the total desired number of iterations.  `runifChanged` is again used, to avoid running the simulations if no inputs have changed.
 
