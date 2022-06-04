@@ -39,6 +39,23 @@ execute:
 
 <!-- To compile: quarto render rflow.qmd  -->
 
+<!-- Needed to make hovertext work with mermaid diagrams -->
+<style>
+  .mermaidTooltip {
+      position: absolute;
+      text-align: center;
+      max-width: 200px;
+      padding: 2px;
+      font-family: 'trebuchet ms', verdana, arial;
+      font-size: 12px;
+      background: #ffffde;
+      border: 1px solid #aaaa33;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+    }
+</style>
+
 ```{r include=FALSE}
 source('~/r/rmarkdown/qbookfun.r')
 ```
@@ -880,7 +897,7 @@ r[futime == 3,
 kabl(r[1 : 15, ])
 ```
 
-Now show the flow of qualifications and exclusions in a consort diagram.  `consort_plot` wants multiple reasons for exclusions to be prioritized in a hierarchy, and `NA` to be used to denote "no exclusion".  Use the `reptools` function `seqFreq` that creates a `factor` variable whose first level is the most common exclusion, second level is the most common exclusion after excluding subjects based on the first exclusion, and so on.  `seqFreq` also returns an attribute `cond.per.obs` with a frequency tabulation of the number of conditions occurring per subject.
+Now show the flow of qualifications and exclusions in a consort diagram.  `consort_plot` wants multiple reasons for exclusions to be prioritized in a hierarchy, and `NA` to be used to denote "no exclusion".  Use the `reptools` function `seqFreq` that creates a `factor` variable whose first level is the most common exclusion, second level is the most common exclusion after excluding subjects based on the first exclusion, and so on.  `seqFreq` also returns an attribute `obs.per.numcond` with a frequency tabulation of the number of observations having a given number of conditions.
 
 ::: {.column-margin}
 Had we wanted a non-data-dependent hierarchy we could have used
@@ -900,16 +917,16 @@ r[, exc := seqFreq('pain-free'  = pain  == 0,
                     'Hx med'    = hxmed == 1,
                                   age < 40,
                     noneNA=TRUE)]
-epo  <- attr(r[, exc], 'cond.per.obs')
+eo  <- attr(r[, exc], 'obs.per.numcond')
 mult <- paste0('1, 2, ≥3 exclusions: n=',
-                epo[2], ', ',
-                epo[3], ', ',
-                epo[-(1:3)]  )
+                eo[2], ', ',
+                eo[3], ', ',
+                eo[-(1:3)]  )
 
 r[, .q(qual, consent, fin) :=
     .(is.na(exc),
       ifelse(consent == 1, 1, NA),
-      ifelse(futime >= 3, 1, NA))]
+      ifelse(futime  >= 3, 1, NA))]
 			
 require(consort)
 consort_plot(r,
@@ -997,22 +1014,48 @@ makemermaid(x,
 ]
 ```
 
-In the second `mermaid` example, each exclusion is a subnode to the overall count of exclusions, and a node is added to inform us about multiple exclusions per subject.  Let's also remove the need for more error-prone manual coding of parallel treatment groups.
+In the second `mermaid` example, each exclusion is a subnode to the overall count of exclusions, and a new node is added to inform us about multiple exclusions per subject.  To provide fuller information about multiple exclusions, the entire frequency distribution of the number of exclusions per subject appears as a hovertext tooltip (thus the new node is not really needed).  Let's also remove the need for more error-prone manual coding of parallel treatment groups by creating a function `parNodes` to do this.
+
+::: {.column-margin}
+To make `mermaid` tooltips work the following needs to be placed in your script.
+
+```
+<style>
+  .mermaidTooltip {
+      position: absolute;
+      text-align: center;
+      max-width: 200px;
+      padding: 2px;
+      font-family: 'trebuchet ms', verdana, arial;
+      font-size: 12px;
+      background: #ffffde;
+      border: 1px solid #aaaa33;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+    }
+</style>
+```
+
+:::
+
 
 ```{r results='asis'}
-exclnodes <- function(x, seq=FALSE) {
+exclnodes <- function(x, from='E', root='E', seq=FALSE, remain=FALSE) {
   # Create complete node specifications for individual exclusions, each
-  # linking to overall exclusion count assumed to be in node E
+  # linking to overall exclusion count assumed to be in node root.
   # Set seq=TRUE to make use of the fact that the exclusions were
   # done in frequency priority order so that each exclusion is in
   # addition to the previous one.  Leave seq=FALSE to make all exclusions
-  # subservient to E.
+  # subservient to root.  Use remain=TRUE to include # obs remaining
+	# remain=TRUE assumes noneNA specified to seqFreq
   tab <- table(x)
   i <- 1 : length(tab)
-  w <- paste0('["', names(tab), ' (n=', tab, ')"]')
-  u <- if(seq) ifelse(i == 1, paste0('E --> E1', w),
-                              paste0('E', i-1, '--> E', i, w))
-    else paste0('E --> E', i, w)
+	rem <- if(remain) paste0(', ', length(x) - cumsum(tab), ' remain')
+  w <- paste0('["', names(tab), ' (n=', tab, rem, ')"]')
+  u <- if(seq) ifelse(i == 1, paste0(from, ' --> ', root, '1', w),
+                              paste0(root, i-1, '--> ', root, i, w))
+    else paste0(from, ' --> ', root, i, w)
   paste(u, collapse='\n')
 }
 
@@ -1037,17 +1080,29 @@ parNodes <- function(counts, root, from=NULL, fromparallel=NULL,
 	  else  paste0(from, ' --> ', paste(nodes, collapse=' & '))
   paste(w, collapse='\n')
 	}
-	
-x <- 'flowchart TD
+
+# Create tooltip text from tabulation created by seqFreq earlier
+efreq <- data.frame('# Exclusions'= (1 : length(eo)) - 1,
+                    '# Subjects'  = eo, check.names=FALSE)
+efreq <- subset(efreq, `# Subjects` > 0)
+# Convert to text which will be wrapped by the html
+# verbatim text tags <pre>...</pre>
+# This preserves spacing and line breaks
+excltab <- paste(capture.output(print(efreq, row.names=FALSE)),
+                 collapse='\n')
+									
+x <- '
+flowchart TD
   S["Screened (n={{N0}})"] --> E["Excluded (n={{Ne}})"]
   {{exclsep}}
   E1 & E2 & E3 --> M["{{mult}}"]
   S   --> Q["Qualified for Randomization (n={{Nq}})"]
   Q   --> C["Consented (n={{Nc}})"]
   C   --> R["Randomized (n={{Nr}})"]
-	{{txcounts}}
-	{{finished}}
-	{{outcome}}
+  {{txcounts}}
+  {{finished}}
+  {{outcome}}
+click E callback "<pre>{{excltab}}</pre>"
 '
 
 w <- r[, 
@@ -1055,6 +1110,7 @@ makemermaid(x,
   N0       = nrow(r),
   Ne       = count(! is.na(exc)),
   exclsep  = exclnodes(exc),  # add seq=TRUE to put exclusions vertical
+  excltab  = excltab,         # tooltip text
   mult     = mult,  # separate node: count multiple exclusions
   Nq       = count(is.na(exc)),
   Nc       = count(consent),
@@ -1062,11 +1118,58 @@ makemermaid(x,
   txcounts = parNodes(table(tx),         'Tx', from='R'),
   finished = parNodes(count(fin, by=tx), 'F',  fromparallel='Tx',
                       label='Finished'),
-  outcome  = parNodes(count(! is.na(y), by=tx),
-                      'O',fromparallel='F', label='Outcome assessed')
+  outcome  = parNodes(count(! is.na(y), by=tx), 'O',
+                      fromparallel='F', label='Outcome assessed')
 )
 ]
 ```
+
+::: {.column-margin}
+
+Hover the mouse over `Excluded` to see details
+
+:::
+
+Use a similar approach for displaying missing data exclusions in `support` with respect to selected variables.  Exclusions will automatically start with the variable having the highest number of `NA`s, then go to the variable that is most missing after removing observations that are missing on the first variable, etc.
+
+```{r results='asis'}
+vars <-  .q(age, sex, dzgroup, edu, income, meanbp, wblc,
+            alb, bili, crea, glucose, bun, urine)
+# Replace each variable with missingness indicator
+s <- support[, lapply(.SD, is.na), .SDcols=vars]
+# Hierarchical exclusions
+# Instead of seqFreq(age, sex, dzgroup, ..., noneNA=TRUE) save typing
+# by using do.call to build all those arguments
+s[, exc := do.call('seqFreq', c(.SD, list(noneNA=TRUE)))]
+
+# Create tooltip text from tabulation created by seqFreq
+oc   <- attr(s[, exc], 'obs.per.numcond')
+freq <- data.frame('# Exclusions'= (1 : length(oc)) - 1,
+                   '# Subjects'  = oc, check.names=FALSE)
+freq    <- subset(freq, `# Subjects` > 0)
+excltab <- paste(capture.output(print(freq, row.names=FALSE)),
+                 collapse='\n')
+
+x <- '
+flowchart TD
+  Enr["Enrolled (n={{N0}})"]
+	{{exclsep}}
+	click E1 callback "<pre>{{excltab}}</pre>"
+'
+
+w <- s[,
+makemermaid(x,
+  N0        = nrow(s),
+  exclsep   = exclnodes(exc, from='Enr', seq=TRUE, remain=TRUE),
+  excltab   = excltab
+)
+]
+```
+
+::: {.column-margin}
+Hover over the second box to see more details.
+
+:::
 
 ## Analyzing Data About the Data
 
@@ -1314,7 +1417,7 @@ Several `data.table` examples follow.  I like to hold the current dataset in `d`
 ```{r eval=FALSE}
 d[2]                  # print 2nd row
 d[2:4]                # print rows 2,3,4
-d[y > 2 & z > 3]      # rows satisfying conditions
+d[y > 2 & z > 3]      # rows satisfying condions
 d[, age]              # retrieve one variable
 d[, .(age, gender)]   # make a new table with two variables
 i <- 2; d[, ..i]      # get column 2
