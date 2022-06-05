@@ -100,6 +100,8 @@ This report makes heavy use of the following R packages and Github repository:
 	 + `seqFreq` for creating a factor variable with categories in descending order of sequential frequencies of conditions (as used in computing study exclusion counts)
 	 + `vClus` for variable clustering
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
+* [`qreport` Github repository](https://github.com/harrelfe/qreport/tree/master) which has functions dedicated to randomized clinical trial reporting
+   + `aePlot` for making an interactive `plotly` dot chart of adverse event proportions by treatment
 
 Another file in `rscripts` is `movStats.r` which defines the `movStats` function for computing summary statistics by moving overlapping windows of a continuous variable, or simply stratified by a categorical variable.
 The `rscripts` `Github` functions are accessed by the `Hmisc` function `getRs`, e.g.
@@ -1367,6 +1369,34 @@ The final display doesn't capture the within-subject correlation as done with th
 ggplotlyr(propsPO(state ~ time + sex, data=d))
 ```
 
+## Adverse Event Chart
+
+When there is a potentially large number of event types, such as adverse events (AEs) in a clinical trial, and the event timing is not considered, a dot chart is an excellent way to present the proportion of subjects suffering each type of AE.  The AEs can be sorted in descending order by the difference in proportions between treatments, and `plotly` hover text can display more details.  Half-width confidence intervals are used (these will be described later).  An AE chart is easily produced using the `aePlot` function in the `qreport` repository on [`github`](https://github.com/harrelfe/qreport/tree/master).  `aePlot` expects the dataset to have one record per subject per AE, so the dataset itself does not define the proper denominator and this must be specified by the user (see `denom` below).  The color coded needles in the right margin are guideposts to which denominators are being used in the analysis (details are [here](http://hbiostat.org/R/hreport/report.html)).
+
+```{r results='asis'}
+getRs('misc.r',   grepo='qreport')
+getRs('aePlot.r', grepo='qreport')
+getHdata(aeTestData)  # original data source: HH package
+# One record per subject per adverse event
+
+# For this example, the denominators for the two treatments in the
+# pop-up needles will be incorrect because the dataset did not have
+# subject IDs.
+
+getHdata(aeTestData)
+ae <- aeTestData
+# qreport requires us to define official clinical trial counts and 
+# name of treatment variable
+denom <- c(enrolled   = 1000,
+           randomized =  400,
+           a=212, b=188)
+
+setqreportOption(tx.var='treat', denom=denom)
+
+aePlot(event ~ treat, data=ae, minincidence=.05, size='wide')
+```
+
+
 ## Continuous Event Times
 
 For time-to-event data with possibly multiple types of events, an event chart is a good way to show the raw outcome data for a sample of up to perhaps 40 subjects.  The `Hmisc` package offers the `event.chart` function written by Jack Lee, Kenneth Hess, and Joel Dubin.  Here is an example they provided.  Patients are sorted by diagnosis date.
@@ -1381,7 +1411,7 @@ event.chart(cdcaids,
   point.pch=c(1,2,15,0), point.cex=c(1,1,0.8,0.8),
   legend.plot=TRUE, legend.location='i', legend.cex=0.8,
   legend.point.text=.q(transfusion,'AIDS diagnosis',death,censored),
-  legend.point.at = list(c(7210, 8100), c(35, 27))) #, legend.bty='o')
+  legend.point.at = list(c(7210, 8100), c(35, 27)))
 ```
 
 ## Describing Variable Interrelationships
@@ -2094,7 +2124,10 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 * Exploratory analysis can take place after any needed SAP is completed.
 * [Stay close to the raw data](https://stackoverflow.blog/2022/03/03/stop-aggregating-away-the-signal-in-your-data)
 * Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
-* If the study is a randomized trial, presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
+* Descriptive and inferential statistics should respect the study design.  For parallel-group studies, it is [not appropriate](http://hbiostat.org/bbr/md/change.html#whats-wrong-with-change-in-general) to compute change from baseline.
+* Question whether unadjusted estimates should be presented.  If females in the study are older and age is a risk factor for the outcome, what is the meaning of female - male differences unadjusted for age?
+* If the study is a parallel-group randomized clinical trial (RCT), presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
+* An RCT is designed to estimate relative treatment effectiveness, and since it does not incorporate random sampling from the population, it cannot provide outcome estimates for a single treatment arm that reference the population.  Hence uncertainty intervals for per-treatment outcomes are not meaningful, and uncertainty intervals should be presented only for treatment differences.  This is facilitated by "half confidence intervals" described below.
 * Above the tendency to interchange the roles of independent and dependent variables by presenting a "Table 2" in such a way that stratifies by the outcome.  Stratifying (conditioning) on the outcome is placing it in the role of a baseline variable.  Instead, show relationships of baseline variables to outcomes as mentioned in the previous point.
 * Nonparametric smoothers and estimating in overlapping moving windows are excellent tools for relating individual continuous variables to an outcome.
 * Models are often the best descriptive tools because they can account for multiple variables simultaneously.  For example, instead of computing proportions of missing values of a variable Y stratified by age groups and sex, use a binary logistic regression model to relate smooth nonlinear age and sex to the probability Y is missing.
@@ -2368,9 +2401,29 @@ g <- lapply(U, gg)       # one ggplot per element (a data table) in U
 maketabs(g)
 ```
 
+## Confidence Bands for Differences
+
+Studies almost never randomly sample from a population, hence inference to the population for a single treatment's outcome should seldom be attempted.  The uncertainty intervals and bands that should be presented are ones having inferential meaning and are based on treatment differences.  One can easily construct a graph that shows differences and confidence intervals for them, but it is useful to be able to show the individual group estimates along with CIs for the differences.  Fortunately, Maarten Boers had the idea of a [_null bar_ or _null zone_](https://www.jclinepi.com/article/S0895-4356(04)00080-0/fulltext).  When a confidence interval for a difference is symmetric, the confidence interval includes 0.0 if and only if the  midpoint of the two outcome estimates $\pm \frac{1}{4} \times w$ touches the individual group estimates, where $w$ is the width of the confidence interval.  Null zone/half-width CIs can be put to especially good use in avoiding clutter when displaying Kaplan-Meier plots, and can be graphed using the `rms` package `survplot` (static plot) and `survplotp` (`plotly` interactive graphic) functions.  The latter has the additional advantage of providing continuous data on number of subjects still at risk by hovering over the survival curve for one group.  Here is an example using `support`.  Estimate survival differences between patients who were or were not able to be interviewed for determining their baseline activities of daily living. [The primary reason for not being interviewed was the patient needing to be on a ventilator.<br><br>Cumulative incidence are recommended over cumulative survival probabilities, principally because many journals will force you to scale the $y$-axis for survival probability as $[0,1]$ even in a very low-risk sample, whereas journals do not have silly scaling conventions for cumulative incidence.]{.aside}
+
+```{r}
+require(rms)
+s <- support[, .(d.time      = d.time / 365.25,
+                 death,
+                 interviewed = ifelse(is.na(adlp), 'not interviewed',
+                                                   'interviewed'))]
+units(s$d.time) <- 'year' 
+# Compute nonparametric Kaplan-Meier estimates (uses survival::survfit)
+f <- npsurv(Surv(d.time, death) ~ interviewed, data=s)
+survplotp(f, fun=function(y) 1. - y, height=450, width=700)
+```
+
+Hovering over the curves reveals the continuous number at risk.  Non-recommended individual survival curves can be turned on by clicking in the legend, and the null zone bands can be turned off.  Note strong evidence for a difference in mortality early but not as much late.
+
+The adverse event chart presented earlier is another example using half-width confidence intervals.
+
 ## Formatting
 
-I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the formatting.  Here is an example.
+I take advantage of special formatting for model fit objects from the `rms` package by using `html` or `latex` methods and putting `results='asis'` in the chunk header to preserve the formatting.
 
 ```{r lrm,results='asis'}
 require(rms)
