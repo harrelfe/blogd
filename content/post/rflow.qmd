@@ -40,6 +40,7 @@ execute:
 <!-- To compile: quarto render rflow.qmd  -->
 
 <!-- Needed to make hover text work with mermaid diagrams -->
+<!--
 <style>
   .mermaidTooltip {
       position: absolute;
@@ -47,7 +48,7 @@ execute:
       max-width: 200px;
       padding: 2px;
       font-family: 'trebuchet ms', verdana, arial;
-      font-size: 12px;
+      font-size: 120px;
       background: #ffffde;
       border: 1px solid #aaaa33;
       border-radius: 2px;
@@ -55,19 +56,13 @@ execute:
       z-index: 100;
     }
 </style>
+-->
 
 ```{r include=FALSE}
 source('~/r/rmarkdown/qbookfun.r')
 ```
 
-<!-- [`r hypcomment`]{.aside} -->
-
-::: {.column-margin}
-[Comments](https://hbiostat.org/comment.html)<br>[Change log](https://github.com/harrelfe/blogd/commits/master/content/post/rflow.qmd)
-
-:::
-
-This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Examples of diagramming the flow of exclusion of observations from analysis, caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs.
+This article outlines analysis project workflow that I've found to be efficient in making reproducible research reports using R with `Rmarkdown` and now `Quarto`.  I start by covering importing data, creating annotated analysis files, examining extent and patters of missing data, and running descriptive statistics on them with goals of understanding the data and their quality and completeness.  Functions in the `Hmisc` package are used to annotate data frames and data tables with labels and units of measurement, show metadata/data dictionaries, and to produce tabular and graphical statistical summaries.  Efficient and clear methods of recoding variables are given.  Several examples of processing and manipulating data using the `data.table` package are given, including some non-trivial longitudinal data computations.  General principles of data analysis are briefly surveyed and some flexible bivariate and 3-variable analysis methods are presented with emphasis on staying close to the data while avoiding highly problematic categorization of continuous independent variables.  Examples of diagramming the flow of exclusion of observations from analysis, caching results, parallel processing, and simulation are presented.  In the process several useful report writing methods are exemplified, including program-controlled creation of multiple report tabs. [[Comments](https://hbiostat.org/comment.html)<br>[Change log](https://github.com/harrelfe/blogd/commits/master/content/post/rflow.qmd)]{.aside}
 
 ::: {.callout-note collapse="true"}
 # R Code Repositories Used in This Report
@@ -83,6 +78,7 @@ This report makes heavy use of the following R packages and Github repository:
 * [`rms` package](https://hbiostat.org/R/rms) for statistical modeling, validation, and presentation
 * [`knitr` package](https://cran.r-project.org/web/packages/knitr) for running reproducible reports, and also providing `kable` and `kables` functions for simple html table printing
 * [`rscripts` Github repository](https://github.com/harrelfe/rscripts) with utility functions that are all loaded when `reptools.r` is loaded
+   + `addCap`, `printCap` for adding captions to a list of figures and for printing the list
    + `dataChk` for data checking
 	 + `dataOverview` dataset overview
    + `hashCheck` for checking if parent objects have changed so a slow analysis has to be re-run (i.e., talking control of caching)
@@ -350,6 +346,26 @@ Instead of working to keep certain outputs verbatim you can use `knitr::kable()`
 
 :::
 
+## `Quarto` Syntax for Figures
+
+One can specify sizes, layouts, captions, and more using `Quarto` markup.  Captions are ignored unless a figure is given a label.  Figure labels must begin with `fig-`.  The figure can be cross-referenced elsewhere in the document using for example `See figure \@fig-scatterplot`.  Here is example syntax.
+
+| ```{r}
+| #| label: fig-myplot
+| #| fig-cap: An example caption (use one long line for caption)
+| #| fig-height: 3
+| #| fig-width: 4
+| #| plot(1:7, abs(-3 : 3))
+| ```
+
+Other examples are in the next section.
+
+The `reptools` repository has helper functions for building a table of figures.  To use those, put `addCap()` or `addCap(scap="short caption for figure")` as the first line of code in the chunk.  If you don't specify `scap` the short caption will be taken as the full caption you specified with the `caption: ` markup.  At the end of the report you can print the table of figures using the following syntax (but surround the last line with back ticks).
+
+| # Figures
+|
+| r printCap()
+
 ## `Quarto` Built-in Syntax for Enhancing R Output
 
 Helper functions described below allow one to enhance graphical and tabular R output by taking advantage of `Quarto` formatting features.  These functions allow one to produce different formats within one code chunk, e.g., a plot in the margin and a table in a collapsible note appearing after the code chunk.  But if you need only one output format within a chunk you can make use of built-in syntax as described [here](https://quarto.org/docs/authoring/article-layout.html).  The `yaml`-like syntax also allows you to specify heights and widths for figures, plus multi-figure layouts.
@@ -432,6 +448,8 @@ The two approaches to using `maketabs` also apply to `makecnote` and `makecolmar
 
 ```{r makecex,results='asis'}
 require(Hmisc)
+options(plotlyauto=TRUE)  # makes Hmisc use plotly's auto size option
+                          # rather than computing height, width
 getRs('reptools.r', put='source')
 set.seed(1)
 x <- round(rnorm(100, 100, 15))
@@ -500,6 +518,13 @@ mNote <- if(ishtml) '.column-margin'
 ```
 
 Then use <tt>r mNote</tt> enclosed in back ticks in place of the `.column-margin` callout for generality.
+
+:::
+
+::: {.callout-note collapse="true"}
+## Saving Graphics Images
+
+Even when producing only html, one may wish to save individual graphics for manuscript writing.  For non-interactive graphics you can right click on the image and download the `.png` file.  For interactive plots, `plotly` shows a "take a snapshot" icon when you hover over the image.  Clicking this icon will produce a static `.png` snapshot of the graph.  Some graphs are not appropriate for static documents, and the variables created in the code above can be checked so that, for example, an alternative graph can be produced when making a `.pdf` file.  But in other cases one just produces an additional static plot that is not shown in the html report.  See the margin note near @fig-survplotp for an example.
 
 :::
 
@@ -838,14 +863,15 @@ It is extremely important to understand the extent and patterns of missing data,
 The `missChk` function in `reptools` uses these functions and others to produces a fairly comprehensive missingness report, placing each output in its own tab.  When the number of variables containing any `NA` is small, the `Hmisc` `na.pattern` function's simple output is by default all that is shown, and only one sentence is produced if there are no variables with `NA`s.  Here is an example using again the `support` dataset.   the 1000-patient `support` dataset on `hbiostat.org/data`, retrieved with the `Hmisc` function `getHdata`.  Variables with no missing values are excluded from the report (except for being used in the predictive model at the end) to save space.  The chart in the next-to-last tab is interactive.  We also use the `prednmiss` options to run an ordinal logistic regression model to predict the number of missing variables from the values of all the non-missing variables, omitting the predictor `dzclass` because it is redundant with the variable `dzgroup`.  The results of this analysis are in the last tab. 
 
 ```{r misscheck,results='asis'}
-getRs('reptools.r', put='source')  # Define dataChk, maketabs
+getRs('reptools.r', put='source')  # Define dataChk, missChk, maketabs
 require(data.table)
 getHdata(support)
 # Make it into a data table
 setDT(support)
 # Remove one variable we'll not be using
 support[, adlsc := NULL]
-missChk(support, prednmiss=TRUE, omitpred = ~ dzclass)
+missChk(support, prednmiss=TRUE, omitpred = ~ dzclass,
+        baselabel='misscheck')
 ```
 
 The likelihood ratio $\chi^2$ test in the last tab is a test of whether any of a subject's non-missing variable values are associated with the number of missing variables on the subject.  It shows strong evidence for such associations.  From the dot chart we see that the strongest predictors of missing baseline variables are time to death/censoring and disease group.  This may be due to patients on ventilators not being able to provide as much baseline information such as activities of daily living (`adlp`), and being on a ventilator is a strong prognostic sign.   There is a possible sex effect worth investigating.
@@ -921,6 +947,9 @@ r[, exc := factor(fcase(pain  == 0, 1,
 :::
 
 ```{r consort}
+#| label: fig-consort
+#| fig-cap: Consort diagram produced with `consort_plot`
+addCap()
 r[, exc := seqFreq('pain-free'  = pain  == 0,
                     'Hx med'    = hxmed == 1,
                                   age < 40,
@@ -955,7 +984,11 @@ consort_plot(r,
 `consort` allows provides another way to build the diagram that may be more flexible and intuitive after we define some helper functions.  The built-in R pipe operator `|>` is used.
 
 ```{r consort2}
-#| fig.height: 5.5
+#| label: fig-consort2
+#| fig-cap: Consort diagram using component functions
+#| fig-height: 5.5
+#|
+addCap()
 h <- function(n, label) paste0(label, ' (n=', n, ')')
 htab <- function(x, label=NULL, split=! length(label), br='\n') {
   tab <- table(x)
@@ -989,8 +1022,12 @@ w <- r[, {
 The [`mermaid`](https://mermaid-js.github.io/mermaid) natural diagramming language can be used to make `consort`-like flowcharts among many other types of diagrams.  `Quarto` has [built-in support for `mermaid`](https://quarto.org/docs/authoring/diagrams.html), and a `reptools` function `makemermaid` uses the capabilities of the `knit_expand` function in the `knitr` package to allow variable values to easily be inserted into `mermaid` specifications using the `{{variablename}}` notation.  Whole diagram elements can be inserted by having `{{x}}` in a separate `mermaid` input line, where `x` is a character string that R constructs.  `results='asis'` needs to be in the chunk header to use `makemermaid`, and any node labels that contain parentheses must be enclosed in quotes.  In the first example, exclusions are in one large node and a special output class (used to limited effect here) is used for this node.
 
 ```{r results='asis'}
+cap <- 'Consort diagram produced by `mermaid`'
+addCap('fig-mermaid1', cap)
 # TD = top down
-x <- 'flowchart TD
+x <- '%%| fig-cap: "{{cap}}"
+%%| label: fig-mermaid1
+flowchart TD
   S["Screened (n={{N0}})"] --> E["{{excl}}"]
   S   --> Q["Qualified for Randomization (n={{Nq}})"]
   Q   --> C["Consented (n={{Nc}})"]
@@ -1007,6 +1044,7 @@ class E largert;
 
 w <- r[, 
 makemermaid(x,
+            cap  = cap,
             N0   = nrow(r),
             excl = htab(exc, 'Excluded', br='<br>'),
             Nq   = count(is.na(exc)),
@@ -1048,7 +1086,7 @@ To make `mermaid` tooltips work the following needs to be placed in your script.
 :::
 
 
-```{r results='asis'}
+```{r}
 exclnodes <- function(x, from='E', root='E', seq=FALSE, remain=FALSE) {
   # Create complete node specifications for individual exclusions, each
   # linking to overall exclusion count assumed to be in node root.
@@ -1098,8 +1136,14 @@ efreq <- subset(efreq, `# Subjects` > 0)
 # This preserves spacing and line breaks
 excltab <- paste(capture.output(print(efreq, row.names=FALSE)),
                  collapse='\n')
-									
-x <- '
+```
+
+```{r results='asis'}
+cap <- 'Consort diagram produced with `mermaid` with individual exclusions linked to the overall exclusions node, and with a tooltip to show more detail'
+addCap('fig-mermaid2', cap)
+x <- '%%| fig-cap: "{{cap}}"
+%%| label: fig-mermaid2
+
 flowchart TD
   S["Screened (n={{N0}})"] --> E["Excluded (n={{Ne}})"]
   {{exclsep}}
@@ -1115,6 +1159,7 @@ click E callback "<pre>{{excltab}}</pre>"
 
 w <- r[, 
 makemermaid(x,
+  cap      = cap,
   N0       = nrow(r),
   Ne       = count(! is.na(exc)),
   exclsep  = exclnodes(exc),  # add seq=TRUE to put exclusions vertical
@@ -1127,7 +1172,8 @@ makemermaid(x,
   finished = parNodes(count(fin, by=tx), 'F',  fromparallel='Tx',
                       label='Finished'),
   outcome  = parNodes(count(! is.na(y), by=tx), 'O',
-                      fromparallel='F', label='Outcome assessed')
+                      fromparallel='F', label='Outcome assessed'),
+  file='mermaid2.md'  # save generated code for another use
 )
 ]
 ```
@@ -1141,6 +1187,8 @@ Hover the mouse over `Excluded` to see details
 Use a similar approach for displaying missing data exclusions in `support` with respect to selected variables.  The `reptools` `missChk` function will automatically start with the variable having the highest number of `NA`s, then go to the variable that is most missing after removing observations that are missing on the first variable, etc.
 
 ```{r results='asis'}
+cap <- 'Flowchart of sequential exclusion of observations due to missing values'
+addCap('fig-missflow', cap)
 vars <-  .q(age, sex, dzgroup, edu, income, meanbp, wblc,
             alb, bili, crea, glucose, bun, urine)
 ex <- missChk(support, use=vars, type='seq') # seq: don't make report
@@ -1153,7 +1201,8 @@ freq    <- subset(freq, `# Subjects` > 0)
 excltab <- paste(capture.output(print(freq, row.names=FALSE)),
                  collapse='\n')
 
-x <- '
+x <- '%%| label: fig-missflow
+%%| fig-cap: "{{cap}}"
 flowchart TD
   Enr["Enrolled (n={{N0}})"]
 	{{exclsep}}
@@ -1161,6 +1210,7 @@ flowchart TD
 '
 
 makemermaid(x,
+  cap       = cap,
   N0        = nrow(support),
   exclsep   = exclnodes(ex, from='Enr', seq=TRUE, remain=TRUE),
   excltab   = excltab
@@ -1180,9 +1230,8 @@ The `contents` function displays the data dictionary and number of missing value
 Again use the `support` dataset.
 
 ```{r overview,results='asis'}
-dataOverview(support)
+dataOverview(support, baselabel='dataov')
 ```
-
 
 # Descriptive Statistics
 
@@ -1217,14 +1266,18 @@ htmlView(w, contents(d))  # or htmlView(describe(d1), describe(d2), ...)
 There is also a `plot` method for `describe` output.  It produces two graphics objects: one for categorical variables and one for continuous variables.  The default is to use `ggplot2` to produce static graphics.  The result can be fed directly into `maketabs` described earlier.  `results='asis'` must appear in the chunk header.
 
 ```{r pdesc,results='asis'}
-maketabs(plot(w, bvspace=2.5))
+cap <- paste('Regular plot(describe) output for',
+             c('categorical', 'continuous'), 'variables')
+maketabs(plot(w, bvspace=2.5), baselabel='pdesc', cap=cap)
 ```
 
 By specifying `grType` option you can instead get `plotly` graphics that use hover text to show more information, especially when hovering over the leftmost dot or tick mark for a variable.
 
 ```{r pldesc,results='asis'}
 options(grType='plotly')
-maketabs(plot(w, bvspace=2.5), wide=TRUE)
+cap <- paste('plotly plot(describe) output for', c('categorical', 'continuous'),
+             'variables')
+maketabs(plot(w, bvspace=2.5), wide=TRUE, baselabel='pldesc', cap=cap)
 ```
 
 See [this](http://hbiostat.org/R/Hmisc/examples.html) for other `Hmisc` functions for descriptive graphics and tables, especially for stratified descriptive statistics for categorical variables.  The `summaryM` function prints a tabular summary of a mix of continuous and categorical variables.  Here is an example where stratification is by history of myocardial infarction (MI).
@@ -1244,12 +1297,16 @@ maketabs(
   `Table 1`                   ~ html(s, exclude1=TRUE, npct='both', digits=3, middle.bold=TRUE),
   `Categorical Variable Plot` ~ plot(s, which='categorical', vars=1 : 4, height=600, width=1000),
   `Continuous Variable Plot`  ~ plot(s, which='continuous',  vars=1 : 4),
-  wide=TRUE)
+  wide=TRUE, baselabel='summarym', cap=c('', '', '-', '-'))
 ```
 
 Semi-interactive stratified spike histograms are also useful descriptive plots.  These plots also contain a superset of the quantiles used in box plots, and the legend is clickable, allowing any of the statistical summaries to be turned off.
 
 ```{r spikeh}
+#| label: fig-spikeh
+#| fig-cap: Spike histograms of heart rate stratified by ECG category
+#| fig-height: 2.5
+addCap()
 d[, histboxp(x=maxhr, group=ecg, bins=200)]
 ```
 
@@ -1316,7 +1373,7 @@ for(i in 1 : 4) {
   nam[i] <- z$ninterval[1]
 }
 names(gg) <- nam
-maketabs(gg)
+maketabs(gg, baselabel='curverep')
 ```
 
 ## Longitudinal Ordinal Y
@@ -1330,7 +1387,10 @@ Continuous longitudinal Y may be analyzed flexibly [using semiparametric models]
 Starting with a multiple event chart, simulate data on 5 patients, then display all the raw data.
 
 ```{r multevent}
-#| fig.height: 3.5
+#| label: fig-multevent
+#| fig-cap: "Multi-event chart for 4 patients"
+#| fig-height: 3.5
+addCap()
 pt1 <- data.frame(pt=1, day=0:3,
          status=.q(well, well, sick, 'very sick'))
 pt2 <- data.frame(pt=2, day=c(1,2,4,6),
@@ -1354,6 +1414,9 @@ multEventChart(status ~ day + pt, data=d,
 For an example of displaying transition proportions, whereby all the outcome information in the raw data is shown, simulate some random data.  The result is a `plotly` graphic over which you hover the pointer to see details.  The size of the bubbles is proportional to the proportion in that transition.
 
 ```{r propsTrans}
+#| label: fig-strans
+#| fig-cap: State transition proportions
+addCap()
 set.seed(1)
 d <- expand.grid(id=1:30, time=1:7)
 setDT(d)   # convert to data.table
@@ -1365,15 +1428,19 @@ ggplotlyr(propsTrans(state ~ time + id, data=d))
 The final display doesn't capture the within-subject correlation as done with the transition proportions, but is the most familiar display for longitudinal ordinal data as it shows proportions in the current states, which are cumulative incidence estimates for absorbing states. [Should absorbing states have occurred in the data you would need to carry these forward to the end of follow-up for `propsPO` to work properly, even though the real data file would terminate follow-up at an absorbing event.]{.aside}
 
 ```{r propsPO}
-#| fig.height: 3
+#| label: fig-sops
+#| fig-cap: State occupancy proportions by time and male/female
+#| fig-height: 3
+addCap()
 ggplotlyr(propsPO(state ~ time + sex, data=d))
 ```
 
 ## Adverse Event Chart
 
-When there is a potentially large number of event types, such as adverse events (AEs) in a clinical trial, and the event timing is not considered, a dot chart is an excellent way to present the proportion of subjects suffering each type of AE.  The AEs can be sorted in descending order by the difference in proportions between treatments, and `plotly` hover text can display more details.  Half-width confidence intervals are used (these will be described later).  An AE chart is easily produced using the `aePlot` function in the `qreport` repository on [`github`](https://github.com/harrelfe/qreport/tree/master).  `aePlot` expects the dataset to have one record per subject per AE, so the dataset itself does not define the proper denominator and this must be specified by the user (see `denom` below).  The color coded needles in the right margin are guideposts to which denominators are being used in the analysis (details are [here](http://hbiostat.org/R/hreport/report.html)).
+When there is a potentially large number of event types, such as adverse events (AEs) in a clinical trial, and the event timing is not considered, a dot chart is an excellent way to present the proportion of subjects suffering each type of AE.  The AEs can be sorted in descending order by the difference in proportions between treatments, and `plotly` hover text can display more details.  Half-width confidence intervals are used (see @sec-confbands).  An AE chart is easily produced using the `aePlot` function in the `qreport` repository on [`github`](https://github.com/harrelfe/qreport/tree/master).  `aePlot` expects the dataset to have one record per subject per AE, so the dataset itself does not define the proper denominator and this must be specified by the user (see `denom` below).  The color coded needles in the right margin are guideposts to which denominators are being used in the analysis (details are [here](http://hbiostat.org/R/hreport/report.html)).
 
-```{r results='asis'}
+```{r aeplot,results='asis'}
+#| fig-height: 7.5
 getRs('misc.r',   grepo='qreport')
 getRs('aePlot.r', grepo='qreport')
 getHdata(aeTestData)  # original data source: HH package
@@ -1383,7 +1450,6 @@ getHdata(aeTestData)  # original data source: HH package
 # pop-up needles will be incorrect because the dataset did not have
 # subject IDs.
 
-getHdata(aeTestData)
 ae <- aeTestData
 # qreport requires us to define official clinical trial counts and 
 # name of treatment variable
@@ -1392,16 +1458,17 @@ denom <- c(enrolled   = 1000,
            a=212, b=188)
 
 setqreportOption(tx.var='treat', denom=denom)
-
 aePlot(event ~ treat, data=ae, minincidence=.05, size='wide')
 ```
-
 
 ## Continuous Event Times
 
 For time-to-event data with possibly multiple types of events, an event chart is a good way to show the raw outcome data for a sample of up to perhaps 40 subjects.  The `Hmisc` package offers the `event.chart` function written by Jack Lee, Kenneth Hess, and Joel Dubin.  Here is an example they provided.  Patients are sorted by diagnosis date.
 
 ```{r event.chart}
+#| label: fig-event.chart
+#| fig-cap: Event chart
+addCap()
 getHdata(cdcaids)
 event.chart(cdcaids,
   subset.c=.q(infedate, diagdate, dethdate, censdate),
@@ -1419,14 +1486,18 @@ event.chart(cdcaids,
 A good descriptive analysis to help understand relationships among variables and redundancies/collinearities is variable clustering.  Here one clusters on variables instead of observations, and instead of a distance matrix we have a similarly matrix.  A good default similarity matrix is based on the square of pairwise Spearman's $\rho$ rank correlation coefficients.  In order to restrict ourselves to _unsupervised learning_, also called _data reduction_, we restrict attention to non-outcome variables.  The `vClus` function in `reptools` runs the dataset, after excluding some variables, through the `Hmisc` `dataframeReduce` function to eliminate variables that are missing more than 0.4 of the time and to ignore character or factor variables having more than 10 levels.  Binary variables having prevalence < 0.05 are dropped, and categorical variables having < 0.05 of their non-missing values in a category will have such low-frequency categories combined into an "other" category for purposes of variable clustering.[Normally one would omit the `fracmiss, maxlevels, minprev` arguments as the default values are reasonable
 
 ```{r varclus}
-#| fig.height: 4
-#| fig.width: 7.5
+#| label: fig-varclus
+#| fig-cap: Variable clustering in `support`
+#| fig-height: 4
+#| fig-width: 7.5
+addCap()
 outcomes <- .q(slos, charges, totcst, totmcst, avtisst,
                d.time, death, hospdead, sfdm2)
 vClus(support, exclude=outcomes, fracmiss=0.4, maxlevels=10, minprev=0.05)
 ```
 
 The most strongly related variables are competing indicator variables for categories from the same variable, `scoma` vs. `dzgroup` "Coma", and `dzgroup` "Cancer" vs. `dzclass` "Cancer".  The first type of relationship generates a strong negative correlation because if you're in one category you can't be in the other.
+
 
 # Data Manipulation and Aggregation
 
@@ -2058,10 +2129,13 @@ Many types of graphs can be created with base graphics, e.g. `hist(age, nclass=5
 Here is a prototypical `ggplot2` example illustrating many of the features I most often use.  Ignore the `ggplot2` `label` attribute if not using `plotly`.  Options are given to the `Hmisc` `label` function so that it will retrieve the variable `label` and `units` (if present) and format them for axis labels or tables.  The formatting takes into account whether html output is being created and `plotly` is being used.
 
 ```{r ggplot2ex}
+#| label: fig-ggplot2ex
+#| fig-cap: "`plotly` translation of a `ggplot2` graph making use of variable labels from a data table that are translated to use within-string html font changes"
 # Create a vector of formatted labels for all variables in data
 # For variables without labels or units use the variable name
 # as the label.  If html and plotly are not in effect use R's
 # regular plotmath notation to typeset labels/units
+addCap()
 nam   <- names(d)
 nv    <- length(nam)
 vlabs <- structure(character(nv), names=nam)
@@ -2091,6 +2165,9 @@ ggplotlyr(g, remove='.*): ')  # removes paste0("dose:", dose):
 For large datasets the `Hmisc` package has a function `ggfreqScatter` that makes it easy to see overlapping points by color coding the frequency of points in each small bin.  That way scatterplots scale to very large datasets.  Here is an example:[`html=TRUE` was needed because otherwise axis labels are formatted using R's `plotmath` and `plotly` doesn't like that.]{.aside}
 
 ```{r ggfreq}
+#| label: fig-ggfreq
+#| fig-cap: "`ggfreqScatter` example, making use of color coded frequencies of points that will work for any size dataset and any number of coincident points"
+addCap()
 set.seed(1)
 x <- round(rnorm(2000), 1)
 y <- 2 * (x > 1.5) + round(rnorm(2000), 1)
@@ -2106,6 +2183,9 @@ g
 Now convert the graphic to `plotly` if html is in effect otherwise stay with `ggplot2` output.
 
 ```{r ggfreqp}
+#| label: fig-ggfreqp
+#| fig-cap: "`plotly` version of @fig-ggfreq"
+addCap()
 ggp(g)
 ```
 
@@ -2126,6 +2206,7 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 * Continuous or ordinal variables should never be dichotomized even for purely descriptive exploratory analysis.  For example, computing proportions of patients with disease stratified by quintiles of weight will be both inefficient and misleading.
 * Descriptive and inferential statistics should respect the study design.  For parallel-group studies, it is [not appropriate](http://hbiostat.org/bbr/md/change.html#whats-wrong-with-change-in-general) to compute change from baseline.
 * Question whether unadjusted estimates should be presented.  If females in the study are older and age is a risk factor for the outcome, what is the meaning of female - male differences unadjusted for age?
+* For observational group comparisons, make sure that experts are consulted about which variables are needed to capture selection processes (e.g., confounding by indication) _before_ data acquisition.  If data are already collected and do not contain the variables that capture reasons for decisions such as treatment selection, you may do well to find a different project.
 * If the study is a parallel-group randomized clinical trial (RCT), presenting descriptive statistics stratified by treatment ("Table 1") [is not helpful](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials), and it is more informative to describe the overall distribution of subjects.  Even more helpful is to show how all baseline variables relate to the **outcome** variable.
 * An RCT is designed to estimate relative treatment effectiveness, and since it does not incorporate random sampling from the population, it cannot provide outcome estimates for a single treatment arm that reference the population.  Hence uncertainty intervals for per-treatment outcomes are not meaningful, and uncertainty intervals should be presented only for treatment differences.  This is facilitated by "half confidence intervals" described below.
 * Above the tendency to interchange the roles of independent and dependent variables by presenting a "Table 2" in such a way that stratifies by the outcome.  Stratifying (conditioning) on the outcome is placing it in the role of a baseline variable.  Instead, show relationships of baseline variables to outcomes as mentioned in the previous point.
@@ -2136,8 +2217,12 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 
 Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  When _apparent_ imbalances are found, they lead to inappropriate decisions and ignore the fact that [apparently counterbalancing factors are not hard to find](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials).  What is unknown and new is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.  Here is an example using the `Hmisc` `summaryRc` function.  Extended box plots show the mean, median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
 
+
 ```{r summaryrc}
-#| layout-ncol: 2
+#| label: fig-summaryrc
+#| fig-cap: "`summaryRc` function graphics containing a matrix of graphs of nonparametrically estimated relationships between continuous baseline variables and the probability that a patient in the ICU will die in the hospital"
+addCap()
+par(mfrow=c(2,2))
 summaryRc(hospdead ~ age + crea + meanbp + wblc,
           ylim=c(.1, .6), data=support, bpplot='top')
 ```
@@ -2145,6 +2230,9 @@ summaryRc(hospdead ~ age + crea + meanbp + wblc,
 Let's take a closer look at extended box plots.  Here is an example in which the distribution of continuous variables is shown, stratified by disease group.
 
 ```{r bpplotM}
+#| label: fig-bpplotm
+#| fig-cap: "`bpplotM` extended box plot examples with stratification by disease group"
+addCap()
 bpplotM(age + crea + meanbp + wblc ~ dzgroup,
         data=support, cex.strip=0.4, cex.means=0.3, cex.n=0.45)
 ```
@@ -2152,6 +2240,9 @@ bpplotM(age + crea + meanbp + wblc ~ dzgroup,
 This is better done with interactive plots so that one can for example hover over a corner of a box plot and see which quantile that corner represents.
 
 ```{r bpplotMp}
+#| label: fig-bpplotMP
+#| fig-cap: "`summaryM` `plotly` graphic with interactive extended box plots"
+addCap()
 s <- summaryM(age + crea + meanbp + wblc ~ dzgroup,
               data=support)
 options(grType='plotly')
@@ -2176,6 +2267,9 @@ The estimated trend curves depend on the window width and amount of smoothing, b
 In the following several of the above methods are illustrated to study how serum creatinine of critically ill patients relates to age.  Start with a scatterplot that has no problems with ties in the data.
 
 ```{r ggfcr}
+#| label: fig-ggfcr
+#| fig-cap: "`ggfreqAcatter` plot showing all raw data for two continuous variables with only slight binning"
+addCap()
 with(support, ggfreqScatter(age, crea))
 ```
 
@@ -2184,8 +2278,11 @@ Now consider moving estimates, least squares (OLS), ordinal regression (ORM), an
 The function  `movStats` on [Github](https://github.com/harrelfe/rscripts/blob/master/movStats.r)    provides two methods for creating moving overlapping windows from x.  The default used here creates varying-width intervals in the data space but fixed-width in terms of sample size.  It includes by default 15 observations to the left of the target point and 15 to the right, and moves up $\max(\frac{n}{200}, 1)$ observations for each evaluation of the statistics.  These may be overridden by specifying `eps` and `xinc`.  If the user does not provide a statistical estimation function `stat`, the mean and all three quartiles are estimated for each window.  `movStats` makes heavy use of the `data.table`, `rms`, and other packages.  For ordinal regression estimates of the mean and quantiles the log-log link is used in the example below.  Moving estimates are shown with and without [`supsmu`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/supsmu)-smoothing them.
 
 ```{r moving,results='asis'}
-#| fig.height: 5
-#| fig.width: 7
+#| label: fig-moving
+#| fig-cap: "`movStats` moving estimates of mean and quantiles of `crea` as a function of `age` using small overlapping windows, with and without smoothing of the moving estimates"
+#| fig-height: 5
+#| fig-width: 7
+addCap()
 getRs('movStats.r', put='source')
 u <- movStats(crea ~ age,
               loess=TRUE, ols=TRUE, qreg=TRUE,
@@ -2200,6 +2297,9 @@ ggplot(u, aes(x=age, y=crea, col=Type)) + geom_line() +
 Recommended practice for relating a continuous variable to another continuous variable, especially for replacing parts of Table 1 or Table 2, is to use smoothed moving statistics or (1) a spline OLS model to estimate the mean and (2) a spline quantile regression model for estimating quantiles.  Here is an example best practice that shows a preferred subset of the estimates from the last plot. `melt=TRUE` is omitted so we can draw a ribbon to depict the outer quartiles.
 
 ```{r creapref}
+#| label: fig-creapref
+#| fig-cap: "Moving mean and quantile estimates of effect of `age` with interquartile bands"
+addCap()
 u <- movStats(crea ~ age, bass=9, data=support)
 ggplot(u, aes(x=age, y=`Moving Median`)) + geom_line() +
   geom_ribbon(aes(ymin=`Moving Q1`, ymax=`Moving Q3`), alpha=0.2) +
@@ -2213,6 +2313,9 @@ Let's describe how white blood count relates to the probability of hospital deat
 The cube root transformation in regression fits is used because of the extreme skewness of WBC.  Use 6 knots at default locations on `r cwbc`.  The `r cwbc` transformation affects moving statistics only in that mean x-values for plotting are cubes of mean `r cwbc` instead of means on the original WBC scale.
 
 ```{r wbc,results='asis'}
+#| label: fig-wbc
+#| fig-cap: "Moving estimates of the relationship between white blood count and hospital mortality, using a $\\sqrt[3]{}$ transformation to make the WBC distribution more symmetric"
+addCap()
 u <- movStats(hospdead ~ wblc, k=6, eps=20, bass=3,
               trans  = function(x) x ^ (1/3),
               itrans = function(x) x ^ 3,
@@ -2226,6 +2329,9 @@ ggplot(u, aes(x=wblc, y=hospdead, col=Type)) + geom_line() +
 The flexibility of the moving statistic method is demonstrated by estimating how age relates to probabilities of death within 1y and within 2y using Kaplan-Meier estimates in overlapping moving windows.  Assumptions other than smoothness (e.g., proportional hazards) are avoided in this approach.  Here is an example that also uses an flexible parametric method, [hazard regression](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476491), implemented in the R [`polspline`](https://cran.r-project.org/web/packages/polspline/index.html) package, that adaptively finds knots (points of slope change) in the covariate and in time, and products of piecewise linear terms so as to allow for non-proportional hazards.  We use far less penalization than is the default for the `hare` function for demonstration purposes.  For this dataset the default settings of `penalty` and `maxdim` result in straight lines.
 
 ```{r km}
+#| label: fig-km
+#| fig-cap: "Moving one minus Kaplan-Meier and HARE estimates estimating the relationship between `age` and the probability of dying by 1y and by 2y"
+addCap()
 u <- movStats(Surv(d.time / 365.25, death) ~ age, times=1:2,
               eps=30, bass=9,
               hare=TRUE, penalty=0.5, maxdim=30,
@@ -2240,6 +2346,9 @@ ggplot(u, aes(x=age, y=incidence, col=Statistic)) + geom_line() +
 `movStats` can also compute stratified non-smoothed estimates when x is discrete.  After computing 1- and 2y Kaplan-Meier incidence probability estimates, order disease groups by ascending order of 1-year mortality before plotting.
 
 ```{r movdisc}
+#| label: fig-movdisc
+#| fig-cap: "Ordinary incidence estimates stratified by disease group, with groups ordered by 1-year mortality estimates"
+addCap()
 u <- movStats(Surv(d.time / 365.25, death) ~ dzgroup, times=1:2,
               discrete=TRUE,
               melt=TRUE, data=support)
@@ -2259,8 +2368,11 @@ It is possible to descriptively estimate trends against more than one independen
 Repeat the last example but stratified by disease class.  The window is widened a bit because of the reduced sample size upon stratification.  Default smoothing is used for hazard regression.
 
 ```{r km2,results='asis'}
+#| label: fig-km2
+#| fig-cap: "Moving Kaplan-Meier (smoothed and unsmoothed) and HARE estimates of the age effect on time to death, stratified by disease class"
 # The Coma stratum has only n=60 so is not compatible with eps=75
 # Use varyeps options
+addCap()
 u <- movStats(Surv(d.time / 365.25, death) ~ age + dzclass, times=1:2,
               eps=30,
               msmooth='both', bass=8, hare=TRUE,
@@ -2272,9 +2384,13 @@ ggplot(u, aes(x=age, y=incidence, col=dzclass)) + geom_line() +
   theme(legend.position='bottom')
 ```
 
-Consider another example with a continuous dependent variable.  Use the NHANES dataset that was created for analyzing glycohemoglobin (HbA$_{\mathrm{1c}}$) for diabetes screening.  Stratify by race/ethnicity
+`r hba1c <- 'HbA$_{\\mathrm{1c}}$'`
+Consider another example with a continuous dependent variable.  Use the NHANES dataset that was created for analyzing glycohemoglobin (`r hba1c`) for diabetes screening.  Stratify by race/ethnicity
 
 ```{r nhanes,results='asis'}
+#| label: fig-nhanes
+#| fig-cap: "Moving estimates of effect of age on glycohemoglobin stratified by race/ethnicity"
+addCap()
 getHdata(nhgh)
 u <- movStats(gh ~ age + re,
               melt=TRUE, data=nhgh, pr='margin')
@@ -2288,6 +2404,9 @@ ggplot(u, aes(x=age, y=gh, col=re)) + geom_line() +
 Mimic these results using flexible regression with interaction.  Start by estimating the mean.  Add spike histograms to estimated trend curves.  Spike heights are proportional to the sample size in age/race-ethnicity groups after binning age into 100 bins.  Direct `plotly` plotting is used.  The user can click on elements of the legend (including the histograms) to turn their display off and on.
 
 ```{r ghols,results='asis'}
+#| label: fig-ghols
+#| fig-cap: "Predicted mean glycohemoglobin as a function of age and race/ethnicity, with age modeled as a restricted cubic spline with 5 default knots, and allowing the shape of the age effect to be arbitrarily different for the race/ethnicity groups"
+addCap()
 require(rms)
 options(prType='html')  # needed to use special formatting (can use prType='latex')
 dd <- datadist(nhgh); options(datadist='dd')
@@ -2304,6 +2423,9 @@ plotp(Predict(f, age, re), rdata=nhgh, histSpike.opts=hso)
 Now use quantile regression to estimate quartiles of glycohemoglobin as a function of age and race/ethnicity.
 
 ```{r nhghq}
+#| label: fig-nhghq
+#| fig-cap: "Smooth age effects on three quartiles of `r hba1c`"
+addCap()
 f1 <- Rq(gh ~ rcs(age, 5) * re, tau=0.25, data=nhgh)
 f2 <- Rq(gh ~ rcs(age, 5) * re, tau=0.5,  data=nhgh)
 f3 <- Rq(gh ~ rcs(age, 5) * re, tau=0.75, data=nhgh)
@@ -2329,9 +2451,12 @@ Let's use only the first 9 continuous variables.
 In addition to showing all the estimated relationships with the outcome, put covariate distributions in collapsed note.  Note the bimodality of some of the measurements, and true zero blood pressures for patients having cardiac arrest.
 
 ```{r movall,results='asis'}
+#| label: fig-movall
+#| fig-cap: "Moving Kaplan-Meier and HARE estimates of a series of continuous covariate effects stacked into one `ggplot2` graphic"
 #| column: page-inset-left
-#| fig.height: 5.5
-#| fig.width: 8
+#| fig-height: 5.5
+#| fig-width: 8
+addCap()
 V <- types$continuous[1:9]
 U <- list()
 for(v in V) {
@@ -2370,9 +2495,12 @@ makecolmarg(~ pl)
 Likewise we can produce a graph summarizing how categorical baseline variables relate to the study outcome variable.
 
 ```{r allcat}
+#| label: fig-allcat
+#| fig-cap: "Kaplan-Meier estimates of 1y and 2y incidence stratified separately by a series of discrete predictors"
 #| column: page-inset-left
-#| fig.height: 5.5
-#| fig.width: 9
+#| fig-height: 5.5
+#| fig-width: 9
+addCap()
 V <- types$discrete   # or disVars(support, exclude=...)
 U <- list()
 for(v in V) {
@@ -2398,14 +2526,18 @@ gg <- function(data)
     guides(color=guide_legend(title='')) +
     theme(legend.position='bottom')
 g <- lapply(U, gg)       # one ggplot per element (a data table) in U
-maketabs(g)
+maketabs(g, baselabel='catkmtabs')
 ```
 
-## Confidence Bands for Differences
+## Confidence Bands for Differences {#sec-confbands}
 
 Studies almost never randomly sample from a population, hence inference to the population for a single treatment's outcome should seldom be attempted.  The uncertainty intervals and bands that should be presented are ones having inferential meaning and are based on treatment differences.  One can easily construct a graph that shows differences and confidence intervals for them, but it is useful to be able to show the individual group estimates along with CIs for the differences.  Fortunately, Maarten Boers had the idea of a [_null bar_ or _null zone_](https://www.jclinepi.com/article/S0895-4356(04)00080-0/fulltext).  When a confidence interval for a difference is symmetric, the confidence interval includes 0.0 if and only if the  midpoint of the two outcome estimates $\pm \frac{1}{4} \times w$ touches the individual group estimates, where $w$ is the width of the confidence interval.  Null zone/half-width CIs can be put to especially good use in avoiding clutter when displaying Kaplan-Meier plots, and can be graphed using the `rms` package `survplot` (static plot) and `survplotp` (`plotly` interactive graphic) functions.  The latter has the additional advantage of providing continuous data on number of subjects still at risk by hovering over the survival curve for one group.  Here is an example using `support`.  Estimate survival differences between patients who were or were not able to be interviewed for determining their baseline activities of daily living. [The primary reason for not being interviewed was the patient needing to be on a ventilator.<br><br>Cumulative incidence are recommended over cumulative survival probabilities, principally because many journals will force you to scale the $y$-axis for survival probability as $[0,1]$ even in a very low-risk sample, whereas journals do not have silly scaling conventions for cumulative incidence.]{.aside}
 
 ```{r}
+#| label: fig-survplotp
+#| fig-cap: "Interactive survival curves with half-width confidence bands"
+#| fig-height: 3.75
+addCap()   # add to table of figures
 require(rms)
 s <- support[, .(d.time      = d.time / 365.25,
                  death,
@@ -2414,12 +2546,25 @@ s <- support[, .(d.time      = d.time / 365.25,
 units(s$d.time) <- 'year' 
 # Compute nonparametric Kaplan-Meier estimates (uses survival::survfit)
 f <- npsurv(Surv(d.time, death) ~ interviewed, data=s)
-survplotp(f, fun=function(y) 1. - y, height=450, width=700)
+survplotp(f, fun=function(y) 1. - y)
 ```
 
 Hovering over the curves reveals the continuous number at risk.  Non-recommended individual survival curves can be turned on by clicking in the legend, and the null zone bands can be turned off.  Note strong evidence for a difference in mortality early but not as much late.
 
-The adverse event chart presented earlier is another example using half-width confidence intervals.
+::: {.column-margin}
+To produce an additional `.pdf` graphic in a separate file, with the number of risk shown below the graph, run the following.  Add `include=FALSE` in the chunk header if you want to show no trace of this chunk in the report.
+
+```{r sp,eval=FALSE}
+pdf('survplot.pdf')
+survplot(f, fun=function(y) 1. - y, conf='diffbands',
+         ylab='Cumulative Mortality', levels.only=TRUE,
+         n.risk=TRUE, time.inc=1, label.curves=list(keys='lines'))
+dev.off()
+```
+
+:::
+
+The adverse event chart in @fig-aeplot is another example using half-width confidence intervals.
 
 ## Formatting
 
@@ -2447,7 +2592,8 @@ rmsdisplay <- function(f)
     ANOVA            ~ anova(f) + plot(anova(f)),
     ORs              ~ plot(summary(f), log=TRUE, declim=2),
    `Partial Effects` ~ ggplot(Predict(f)),
-    Nomogram         ~ plot(nomogram(f, fun=plogis, funlabel='P(death)')))
+    Nomogram         ~ plot(nomogram(f, fun=plogis, funlabel='P(death)')),
+    baselabel='lrmtabs', cap=c('', '', '', '', '-', '-', '-', '-'))
 
 rmsdisplay(f)
 ```
@@ -2555,6 +2701,9 @@ The simulations could have been cached or parallelized as discussed above.
 Compute the mean (over simulations) maximum correlation (over variables) and plot the results.
 
 ```{r simdpp}
+#| label: fig-simdpp
+#| fig-cap: "Simulation results for estimating the expected value of the maximum absolute correlation coefficient for a varying number $p$ of variables and varying sample size when all true correlations are zero"
+addCap()
 w <- R[, .(maxr = mean(maxr), maxrho=mean(maxrho)), by=.(n, p)]
 # Make data table taller and thinner to put r, rho as different observations
 u <- melt(w, id.vars=c('n', 'p'), variable.name='type', value.name='r')
@@ -2642,6 +2791,12 @@ u <- data.table(r    = as.vector(m),
   
 # Plot u using same ggplot code as above
 ```
+
+The result is the same as in @fig-simdpp.
+
+# Figures
+
+`r printCap()`
 
 
 # Other Resources
