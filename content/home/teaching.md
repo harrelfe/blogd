@@ -30,7 +30,7 @@ semester.  The course web page is
 information for the short course may be found
 [here](http://hbiostat.org/doc/rms/4day.html).
 
-The next schedule offerings of the course are:
+The next scheduled offerings of the RMS short course are:
 * useR! 2002 Virtual Conference: Monday 2022-06-20 2:00-5:30pm CDT
 * Joint Statistical Meetings, Washington DC: 2 day course Saturday-Sunday 2022-08-06 -07
 
