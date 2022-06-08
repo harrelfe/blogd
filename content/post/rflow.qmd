@@ -81,6 +81,7 @@ This report makes heavy use of the following R packages and Github repository:
    + `addCap`, `printCap` for adding captions to a list of figures and for printing the list
    + `dataChk` for data checking
 	 + `dataOverview` dataset overview
+	 + `ebplayers` for adding extended box plot layers to `ggplot2` plots, especially when run on the output of `meltData`
    + `hashCheck` for checking if parent objects have changed so a slow analysis has to be re-run (i.e., talking control of caching)
    + `htmlList` to easily print vectors in a named list using `kable`
    + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
@@ -91,6 +92,7 @@ This report makes heavy use of the following R packages and Github repository:
 	 + `makecallout` a generic Quarto callout maker called by `makecolmarg`, `makecnote`
 	 + `makecodechunk` 
    + `makemermaid` make Quarto `mermaid` diagrams with insertion of variable values
+	 + `meltData` melt a data table according to a formula, with optional substitution of variable labels for variable names
    + `rsHelp` for viewing helps files for functions in `rscripts`
 	 + `scplot` for putting graphs in separate chunks with captions in TOC
 	 + `seqFreq` for creating a factor variable with categories in descending order of sequential frequencies of conditions (as used in computing study exclusion counts)
@@ -1943,7 +1945,7 @@ To reshape data from long to wide format, take the `L` data table above as an ex
 ```{r l2w}
 w <- dcast(L, id ~ day, value.var='y')
 w
-# Now reverse the procedure
+# Now reverse the procedure  (see also meltData in reptools)
 m <- melt(w, id.vars='id', variable.name='day', value.name='y')
 m
 setkey(m, id, day)   # sorts
@@ -2215,19 +2217,37 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 
 ## Replacement for Table 1
 
-Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  When _apparent_ imbalances are found, they lead to inappropriate decisions and ignore the fact that [apparently counterbalancing factors are not hard to find](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials).  What is unknown and new is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.  Here is an example using the `Hmisc` `summaryRc` function.  Extended box plots show the mean, median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
+Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  When _apparent_ imbalances are found, they lead to inappropriate decisions and ignore the fact that [apparently counterbalancing factors are not hard to find](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials).  What is unknown and new is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.
+
+A useful approach to replicating the same analysis for multiple variables is to "melt" the data table into a tall and thin one, with a single variable (here `value`) holding the original variable values, and another variable (here `variable`) holding the name of the variable whose values are currently contained in `value`.  Thanks to `ggplot2` having a wide variety of summarization functions built-in, the melted data table can be passed to `ggplot2` and the `variable` easily used to create multiple panels (facets).
+Here is an example using the `reptools` `meltData` and `ebplayers` functions.  Extended box plots show the mean (blue dot), median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.  In addition to standard extended box plot quantiles, we show the 0.01 and 0.99 quantiles as dots.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
 
 
-```{r summaryrc}
-#| label: fig-summaryrc
-#| fig-cap: "`summaryRc` function graphics containing a matrix of graphs of nonparametrically estimated relationships between continuous baseline variables and the probability that a patient in the ICU will die in the hospital"
+```{r table1}
+#| label: fig-table1
+#| fig-cap: "`ggplot2` nonparametric smooth estimated relationships between continuous baseline variables and the probability that a patient in the ICU will die in the hospital.  Extended box plots are added to the panels, with points added for 0.01 and 0.99 quantiles."
+#| fig-height: 4.5
+#| fig-width: 6.25
 addCap()
-par(mfrow=c(2,2))
-summaryRc(hospdead ~ age + crea + meanbp + wblc,
-          ylim=c(.1, .6), data=support, bpplot='top')
+m <- meltData(hospdead ~ age + crea + meanbp + wblc, data=support)
+g <- ggplot(m, aes(x=value, y=hospdead)) + geom_smooth() + 
+  facet_wrap(~ variable, scales='free_x') +
+  xlab('') + ylim(0,1)
+ebplayers(g, m, c(0,1), pos='top')
 ```
 
-Let's take a closer look at extended box plots.  Here is an example in which the distribution of continuous variables is shown, stratified by disease group.
+Here is a prototype extended box plot to assist interpretation.
+
+```{r ebpp}
+#| label: fig-ebpp
+#| fig-cap: "Prototype extended box plot"
+#| fig-width: 6.5
+#| fig-height: 5
+addCap()
+bpplt()
+```
+
+Here are more examples of extended box plots for showing distributions of continuous variables, stratified by disease group.
 
 ```{r bpplotM}
 #| label: fig-bpplotm
