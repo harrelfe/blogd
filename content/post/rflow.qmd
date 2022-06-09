@@ -79,9 +79,9 @@ This report makes heavy use of the following R packages and Github repository:
 * [`knitr` package](https://cran.r-project.org/web/packages/knitr) for running reproducible reports, and also providing `kable` and `kables` functions for simple html table printing
 * [`rscripts` Github repository](https://github.com/harrelfe/rscripts) with utility functions that are all loaded when `reptools.r` is loaded
    + `addCap`, `printCap` for adding captions to a list of figures and for printing the list
+   + `addggLayers` for adding extended box plots and spike histograms to `ggplot2` plots, especially when run on the output of `meltData`
    + `dataChk` for data checking
-	 + `dataOverview` dataset overview
-	 + `ebplayers` for adding extended box plot layers to `ggplot2` plots, especially when run on the output of `meltData`
+   + `dataOverview` dataset overview
    + `hashCheck` for checking if parent objects have changed so a slow analysis has to be re-run (i.e., talking control of caching)
    + `htmlList` to easily print vectors in a named list using `kable`
    + `htmlView`, `htmlViewx` for viewing data dictionaries/metadata in browser windows
@@ -89,14 +89,14 @@ This report makes heavy use of the following R packages and Github repository:
    + `maketabs` to automatically make multiple tabs in `Quarto` reports, each tab holding the output of one or more R command
    + `makecolmarg` to print an object in the right margin in `Quarto` reports
    + `makecnote` to print an object in a collapsible `Quarto` note
-	 + `makecallout` a generic Quarto callout maker called by `makecolmarg`, `makecnote`
-	 + `makecodechunk` 
+   + `makecallout` a generic Quarto callout maker called by `makecolmarg`, `makecnote`
+   + `makecodechunk` 
    + `makemermaid` make Quarto `mermaid` diagrams with insertion of variable values
-	 + `meltData` melt a data table according to a formula, with optional substitution of variable labels for variable names
+   + `meltData` melt a data table according to a formula, with optional substitution of variable labels for variable names
    + `rsHelp` for viewing helps files for functions in `rscripts`
-	 + `scplot` for putting graphs in separate chunks with captions in TOC
-	 + `seqFreq` for creating a factor variable with categories in descending order of sequential frequencies of conditions (as used in computing study exclusion counts)
-	 + `vClus` for variable clustering
+   + `scplot` for putting graphs in separate chunks with captions in TOC
+   + `seqFreq` for creating a factor variable with categories in descending order of sequential frequencies of conditions (as used in computing study exclusion counts)
+   + `vClus` for variable clustering
    + `runifChanged` which uses `hashCheck` to automatically re-run an analysis if needed, otherwise to retrieve previous results efficiently
 * [`qreport` Github repository](https://github.com/harrelfe/qreport/tree/master) which has functions dedicated to randomized clinical trial reporting
    + `aePlot` for making an interactive `plotly` dot chart of adverse event proportions by treatment
@@ -1237,7 +1237,7 @@ dataOverview(support, baselabel='dataov')
 
 # Descriptive Statistics
 
-The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary.  Clicking on `Glossary` on the right will pop up a browser window with a more in-depth glossary of terms used in `Hmisc` package output.  It links to `hbiostat.org/R/glossary.html` which you can link  from your reports that use `Hmisc`.[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.<br><a href="https://hbiostat.org/comment.html" target="popup" onclick="window.open('https://hbiostat.org/R/glossary.html#describe', 'popup', 'width=450,height=600'); return false;"><small>Glossary</small></a>]{.aside}
+The `Hmisc` `describe` function is my main tool for getting initial descriptive statistics and quality controlling the data in a univariate fashion.  Here is an example.  The `Info` index is a measure of the information content in a numeric variable relative to the information in a continuous numeric variable with no ties.  A very low value of `Info` will occur when a highly imbalanced variable is binary.  Clicking on `Glossary` on the right will pop up a browser window with a more in-depth glossary of terms used in `Hmisc` package output.  It links to `hbiostat.org/R/glossary.html` which you can link  from your reports that use `Hmisc`.[`Info` comes from the [approximate formula](http://hbiostat.org/bib/r2.html) for the variance of a log odds ratio for a proportional odds model/Wilcoxon test, due to Whitehead.<br><a href="https://hbiostat.org/R/glossary.html" target="popup" onclick="window.open('https://hbiostat.org/R/glossary.html#describe', 'popup', 'width=450,height=600'); return false;"><small>Glossary</small></a>]{.aside}
 
 `Gmd` in the output stands for Gini's mean difference---the mean absolute difference over all possible pairs of different observations.  It is a very interpretable measure of dispersion that is more robust than the standard deviation.
 
@@ -1485,7 +1485,7 @@ event.chart(cdcaids,
 
 ## Describing Variable Interrelationships
 
-A good descriptive analysis to help understand relationships among variables and redundancies/collinearities is variable clustering.  Here one clusters on variables instead of observations, and instead of a distance matrix we have a similarly matrix.  A good default similarity matrix is based on the square of pairwise Spearman's $\rho$ rank correlation coefficients.  In order to restrict ourselves to _unsupervised learning_, also called _data reduction_, we restrict attention to non-outcome variables.  The `vClus` function in `reptools` runs the dataset, after excluding some variables, through the `Hmisc` `dataframeReduce` function to eliminate variables that are missing more than 0.4 of the time and to ignore character or factor variables having more than 10 levels.  Binary variables having prevalence < 0.05 are dropped, and categorical variables having < 0.05 of their non-missing values in a category will have such low-frequency categories combined into an "other" category for purposes of variable clustering.[Normally one would omit the `fracmiss, maxlevels, minprev` arguments as the default values are reasonable
+A good descriptive analysis to help understand relationships among variables and redundancies/collinearities is variable clustering.  Here one clusters on variables instead of observations, and instead of a distance matrix we have a similarly matrix.  A good default similarity matrix is based on the square of pairwise Spearman's $\rho$ rank correlation coefficients.  In order to restrict ourselves to _unsupervised learning_, also called _data reduction_, we restrict attention to non-outcome variables.  The `vClus` function in `reptools` runs the dataset, after excluding some variables, through the `Hmisc` `dataframeReduce` function to eliminate variables that are missing more than 0.4 of the time and to ignore character or factor variables having more than 10 levels.  Binary variables having prevalence < 0.05 are dropped, and categorical variables having < 0.05 of their non-missing values in a category will have such low-frequency categories combined into an "other" category for purposes of variable clustering.[Normally one would omit the `fracmiss, maxlevels, minprev` arguments as the default values are reasonable.]{.aside}
 
 ```{r varclus}
 #| label: fig-varclus
@@ -2220,20 +2220,21 @@ For analysis the sky is the limit, but [statistical principles](https://www.fhar
 Analyses should shed light on the unknown and not dwell on the known.  In a randomized trial, the distributions of baseline variables are expected to be the same across treatments, and will be the same once $N$ is large.  When _apparent_ imbalances are found, they lead to inappropriate decisions and ignore the fact that [apparently counterbalancing factors are not hard to find](https://discourse.datamethods.org/t/should-we-ignore-covariate-imbalance-and-stop-presenting-a-stratified-table-one-for-randomized-trials).  What is unknown and new is how the subject characteristics (and treatment) relate to the outcomes under study.  While displaying this trend with a nonparametric smoother, one can simultaneously display the marginal distribution of the characteristic using an extended box plot, spike histogram, or rug plot.
 
 A useful approach to replicating the same analysis for multiple variables is to "melt" the data table into a tall and thin one, with a single variable (here `value`) holding the original variable values, and another variable (here `variable`) holding the name of the variable whose values are currently contained in `value`.  Thanks to `ggplot2` having a wide variety of summarization functions built-in, the melted data table can be passed to `ggplot2` and the `variable` easily used to create multiple panels (facets).
-Here is an example using the `reptools` `meltData` and `ebplayers` functions.  Extended box plots show the mean (blue dot), median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.  In addition to standard extended box plot quantiles, we show the 0.01 and 0.99 quantiles as dots.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
+Here is an example using the `meltData` and `addggLayers` functions from `reptools`.  Extended box plots at the top show the mean (blue dot), median, and quantiles that cover 0.25, 0.5, 0.75, and 0.9 of the distribution.  In addition to standard extended box plot quantiles, we show the 0.01 and 0.99 quantiles as dots.  At the bottom is a spike histogram.[For more examples see [this](http://hbiostat.org/R/Hmisc/summaryFuns.pdf)]{.aside}
 
 
 ```{r table1}
 #| label: fig-table1
-#| fig-cap: "`ggplot2` nonparametric smooth estimated relationships between continuous baseline variables and the probability that a patient in the ICU will die in the hospital.  Extended box plots are added to the panels, with points added for 0.01 and 0.99 quantiles."
+#| fig-cap: "`ggplot2` nonparametric smooth estimated relationships between continuous baseline variables and the probability that a patient in the ICU will die in the hospital.  Extended box plots are added to the top of the panels, with points added for 0.01 and 0.99 quantiles.  Spike histograms are at the bottom.  Unlike box plots, spike histograms do not hide the bimodality of mean blood pressure."
 #| fig-height: 4.5
 #| fig-width: 6.25
 addCap()
 m <- meltData(hospdead ~ age + crea + meanbp + wblc, data=support)
 g <- ggplot(m, aes(x=value, y=hospdead)) + geom_smooth() + 
   facet_wrap(~ variable, scales='free_x') +
-  xlab('') + ylim(0,1)
-ebplayers(g, m, c(0,1), pos='top')
+  xlab('') + ylab('Probability of Death in Hospital') + ylim(0,1)
+g <- addggLayers(g, m, pos='top')
+addggLayers(g, m, type='spike')
 ```
 
 Here is a prototype extended box plot to assist interpretation.
