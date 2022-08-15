@@ -166,8 +166,10 @@ The final model (labeled `-Killip`) contains only age and treatment.  The risk d
 
 # Summary
 
-The never-ending discussion about which effect index to choose when Y is binary is best resolved by avoiding the oversimplifications that are required to make such choices.  The proposed summarization of the main trial result is more clinically interpretable, more consistent with individual patient decision making, and embraces rather than hides outcome heterogeneity in the RD distribution.  See [this](/post/robcov) for some related discussions.
+The never-ending discussion about the choice of effect measures when Y is binary is best resolved by avoiding the oversimplifications that are required to make such choices.  The proposed summarization of the main trial result is more clinically interpretable, more consistent with individual patient decision making, and embraces rather than hides outcome heterogeneity in the RD distribution.  See [this](/post/robcov) for some related discussions.
 
 # Further Reading
 
+
 * [Unit-level contrasts in logistic regressions](https://vincentarelbundock.github.io/marginaleffects/articles/logistic_contrasts.html) by Vincent Arel-Bundock 
+
